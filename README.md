@@ -28,7 +28,7 @@ Bu proje, AES, RSA gibi güçlü şifreleme algoritmalarını ve gelişmiş steg
 - `FrmMenu.cs` içindeki `btnEncrypt_Click` ve `btnDecrypt_Click` fonksiyonlarının tamamlanması
 - Görüntü yükleme ve kaydetme özelliklerinin eklenmesi
 - AES ve RSA şifreleme entegrasyonunun kontrol edilmesi
-- UI güncelleme: Wavelet opsiyonunun eklenmesi, LSB'nin alternatif olarak tutulması
+- UI iyileştirmeleri ve kullanıcı deneyiminin geliştirilmesi
 - Hata yakalama ve kullanıcı bildirimlerinin iyileştirilmesi
 - İlk end-to-end test: şifreleme ve çözme sürecinin test edilmesi
 
@@ -67,7 +67,7 @@ Bu proje, AES, RSA gibi güçlü şifreleme algoritmalarını ve gelişmiş steg
 ### 7. Gün - Bilimsel Raporlama ve Son Rötuşlar
 - TÜBİTAK için bilimsel rapor hazırlanması
 - Algoritma karşılaştırmaları ve performans metriklerinin derlenmesi
-- Kullanıcı kılavuzunun oluşturulması
+- Kullanım kılavuzunun oluşturulması
 - Son hatalar ve iyileştirmeler
 - Derleme ve kurulum paketi oluşturma
 - Proje sunumu için demo hazırlama
@@ -115,3 +115,179 @@ public void GenerateAnalysisReport(string outputPath) {
     // Görselleştirmeleri ekle
 }
 ```
+
+## YAPILACAKLAR LİSTESİ
+
+### Acil Tamamlanması Gerekenler (1-2 Gün)
+
+1. **BusinessLayer Tamamlanması**
+   - Wavelet dönüşümü için yeni sınıflar oluştur ve uygula:
+     - `Cls_WaveletEncrypt.cs`
+     - `Cls_WaveletDecrypt.cs`
+   - AES ve RSA entegrasyonunu kontrol et/tamamla
+
+2. **UI Katmanı Tamamlanması**
+   - `FrmMenu.cs` içindeki şifreleme ve şifre çözme butonlarının işlevlerini tamamla
+   - Hata işleme ve kullanıcı bildirimlerini ekle
+
+3. **Temel Dosya İşlemleri**
+   - Görüntü seçme, kaydetme işlemlerini tamamla
+   - Şifrelenmiş görüntüleri kaydetme ve yükleme fonksiyonlarını ekle
+
+### Orta Öncelikli İşler (3-4 Gün)
+
+4. **Analiz Paneli Geliştirme**
+   - `FrmAnalysis.cs` formunu tamamla
+   - ML.NET kütüphanesini entegre et
+   - Görüntü karşılaştırma algoritmasını uygula
+   - Isı haritası oluşturma fonksiyonunu ekle
+
+5. **Yapay Zeka Entegrasyonu**
+   - Basit görüntü fark analizi modelini ekle
+   - Şifreleme gücü analizi algoritmasını uygula
+
+6. **Testler ve Hata Ayıklama**
+   - Her fonksiyon için birim testleri yaz
+   - Farklı boyuttaki görüntülerle end-to-end testler yap
+   - Performans ve bellek optimizasyonu yap
+
+### Son Rötuşlar (5-7 Gün)
+
+7. **Dokümantasyon ve Raporlama**
+   - Analiz sonuçlarını PDF/HTML olarak dışa aktarma özelliği ekle
+   - Kullanım kılavuzu hazırla
+   - Bilimsel rapor hazırla (TÜBİTAK için)
+
+8. **Dağıtım Hazırlığı**
+   - Derleme ve kurulum paketi oluştur
+   - Proje sunumu için demo hazırla
+
+### Örnek Kod Parçaları
+
+#### FrmMenu.cs için Şifreleme Butonu
+```csharp
+private void btnEncrypt_Click(object sender, EventArgs e) {
+    try {
+        // Metin kontrolü
+        if (string.IsNullOrEmpty(txtInput.Text))
+            throw new ArgumentException(Errors.ERROR_TEXT_EMPTY);
+            
+        // Parola kontrolü
+        if (string.IsNullOrEmpty(txtPassword.Text))
+            throw new ArgumentException(Errors.ERROR_PASSWORD_EMPTY);
+            
+        // Görüntü kontrolü
+        if (selectedImagePath == string.Empty)
+            throw new ArgumentException(Errors.ERROR_IMAGE_NOT_SELECTED);
+        
+        // AES şifreleme
+        string encryptedText = aesEncrypt.EncryptTextToBase64(txtInput.Text, txtPassword.Text);
+        
+        // AES anahtarını al ve RSA ile şifrele
+        byte[] aesKey = aesEncrypt.GetLastAesKey();
+        byte[] encryptedKey = rsaEncrypt.EncryptData(aesKey);
+        
+        // Şifrelenmiş metni ve anahtarı Wavelet dönüşümü ile görüntüye gizle
+        Bitmap resultImage = waveletEncrypt.HideData(
+            new Bitmap(selectedImagePath), 
+            encryptedText, 
+            Convert.ToBase64String(encryptedKey)
+        );
+        
+        // Sonucu göster
+        pboxImage.Image = resultImage;
+        
+        // Kullanıcıya bilgi ver
+        MessageBox.Show(Success.SUCCESS_ENCRYPTION_COMPLETED, "Başarılı", 
+                      MessageBoxButtons.OK, MessageBoxIcon.Information);
+        
+        // Kaydetme seçeneği
+        SaveResultImage(resultImage);
+    }
+    catch (Exception ex) {
+        MessageBox.Show(ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+    }
+}
+```
+
+#### Wavelet Sınıfı İçin Temel Uygulama
+```csharp
+public class Cls_WaveletEncrypt {
+    // DWT (Ayrık Dalgacık Dönüşümü) parametreleri
+    private const string WaveletType = "Haar";
+    private const int DecompositionLevel = 3;
+    
+    public Bitmap HideData(Bitmap originalImage, string encryptedText, string encryptedKey) {
+        // Veri boyutunu kontrol et
+        if (IsDataTooLarge(originalImage, encryptedText, encryptedKey))
+            throw new ArgumentException(Errors.ERROR_DATA_TOO_LARGE);
+            
+        // Görüntüyü kopyala
+        Bitmap resultImage = new Bitmap(originalImage);
+        
+        // Her renk kanalı için (R, G, B) ayrı ayrı DWT uygula
+        // Kırmızı kanal için örnek
+        double[,] redChannel = GetChannel(resultImage, 0); // Kırmızı kanal
+        double[,] transformedRed = ApplyDWT(redChannel);
+        
+        // Veriyi katsayılara gizle
+        // Genellikle yüksek frekans bandı (HH) tercih edilir
+        transformedRed = HideDataInCoefficients(transformedRed, encryptedText);
+        
+        // Ters DWT uygula
+        double[,] recoveredRed = ApplyInverseDWT(transformedRed);
+        
+        // Kanalı görüntüye yaz
+        SetChannel(resultImage, 0, recoveredRed);
+        
+        // Yeşil ve mavi kanallar için benzer işlemler...
+        // ...
+        
+        return resultImage;
+    }
+    
+    // Yardımcı metotlar...
+}
+```
+
+#### Görüntü Analizi İçin ML.NET Entegrasyonu
+```csharp
+public class Cls_ImageAnalysis {
+    private MLContext mlContext;
+    
+    public Cls_ImageAnalysis() {
+        mlContext = new MLContext(seed: 1);
+    }
+    
+    public Bitmap CreateHeatmap(Bitmap original, Bitmap steganographic) {
+        // İki görüntü arasındaki farkları hesapla
+        Bitmap heatmap = new Bitmap(original.Width, original.Height);
+        
+        // Her piksel için karşılaştırma yap
+        for (int x = 0; x < original.Width; x++) {
+            for (int y = 0; y < original.Height; y++) {
+                Color originalColor = original.GetPixel(x, y);
+                Color stegoColor = steganographic.GetPixel(x, y);
+                
+                // Renk farklarını hesapla
+                int diffR = Math.Abs(originalColor.R - stegoColor.R);
+                int diffG = Math.Abs(originalColor.G - stegoColor.G);
+                int diffB = Math.Abs(originalColor.B - stegoColor.B);
+                
+                // Farkın derecesine göre ısı haritası oluştur
+                // Kırmızı = Çok değişiklik, Mavi = Az değişiklik
+                Color heatColor = CalculateHeatColor(diffR, diffG, diffB);
+                heatmap.SetPixel(x, y, heatColor);
+            }
+        }
+        
+        return heatmap;
+    }
+    
+    // ML.NET ile şifreleme gücü analizi
+    public double AnalyzeEncryptionStrength(string encryptedText) {
+        // ML.NET ile basit bir model kullanarak şifreleme entropisini değerlendir
+        // ...
+        return 0.0; // Puan (0-1 arası)
+    }
+}
