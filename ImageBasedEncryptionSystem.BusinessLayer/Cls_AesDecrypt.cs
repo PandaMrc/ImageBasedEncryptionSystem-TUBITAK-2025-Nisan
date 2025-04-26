@@ -1,335 +1,467 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using System.Security.Cryptography;
-using System.IO;
 using ImageBasedEncryptionSystem.TypeLayer;
 
 namespace ImageBasedEncryptionSystem.BusinessLayer
 {
     public class Cls_AesDecrypt
     {
-        // AES şifreleme için anahtar ve IV boyutları
         private const int KeySize = 256;
         private const int BlockSize = 128;
-        
-        // Varsayılan salt değeri (sabit)
-        private static readonly byte[] DefaultSalt = new byte[16] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76, 0x20, 0x32, 0x33 };
+        private const int Iterations = 10000;
+        private string _lastErrorMessage = string.Empty;
+        private string _lastSuccessMessage = string.Empty;
 
         /// <summary>
-        /// Verilen paroladan AES anahtarı ve IV oluşturur
+        /// Son hata mesajını döndürür
         /// </summary>
-        /// <param name="password">Kullanıcının girdiği parola</param>
-        /// <param name="keyBytes">Oluşturulan anahtar</param>
-        /// <param name="ivBytes">Oluşturulan IV</param>
-        private void GenerateKeyFromPassword(string password, out byte[] keyBytes, out byte[] ivBytes)
+        public string LastErrorMessage
         {
-            GenerateKeyFromPassword(password, DefaultSalt, out keyBytes, out ivBytes);
-        }
-        
-        /// <summary>
-        /// Verilen paroladan ve salt değerinden AES anahtarı ve IV oluşturur
-        /// </summary>
-        /// <param name="password">Kullanıcının girdiği parola</param>
-        /// <param name="salt">Tuzlama değeri</param>
-        /// <param name="keyBytes">Oluşturulan anahtar</param>
-        /// <param name="ivBytes">Oluşturulan IV</param>
-        private void GenerateKeyFromPassword(string password, byte[] salt, out byte[] keyBytes, out byte[] ivBytes)
-        {
-            // Parola kontrolü
-            if (string.IsNullOrEmpty(password))
-                throw new ArgumentException(Errors.ERROR_PASSWORD_EMPTY);
-                
-            if (password.StartsWith(" "))
-                throw new ArgumentException(Errors.ERROR_PASSWORD_SPACE);
-                
-            if (password.Length < 3 || password.Length > 11)
-                throw new ArgumentException(Errors.ERROR_PASSWORD_LENGTH_RANGE);
-                
-            // Salt kontrolü
-            if (salt == null || salt.Length < 8)
-                salt = DefaultSalt;
-
-            try
-            {
-                using (var derivation = new Rfc2898DeriveBytes(password, salt, 1000))
-                {
-                    keyBytes = derivation.GetBytes(KeySize / 8); // 256 bit = 32 byte
-                    ivBytes = derivation.GetBytes(BlockSize / 8); // 128 bit = 16 byte
-                }
-            }
-            catch (Exception)
-            {
-                throw new CryptographicException(Errors.ERROR_AES_KEY_GENERATION);
-            }
+            get { return _lastErrorMessage; }
         }
 
         /// <summary>
-        /// AES ile şifrelenmiş metni çözer
+        /// Son başarı mesajını döndürür
         /// </summary>
-        /// <param name="encryptedText">Base64 formatında şifrelenmiş metin</param>
-        /// <param name="password">Kullanıcının girdiği parola</param>
+        public string LastSuccessMessage
+        {
+            get { return _lastSuccessMessage; }
+        }
+
+        /// <summary>
+        /// AES algoritması ile şifrelenmiş metni çözer
+        /// </summary>
+        /// <param name="encryptedData">Şifrelenmiş veri (Salt + IV + Şifreli Metin)</param>
+        /// <param name="password">Şifre çözme için kullanılacak parola</param>
         /// <returns>Çözülmüş metin</returns>
-        public string DecryptText(string encryptedText, string password)
+        public string DecryptText(byte[] encryptedData, string password)
         {
-            // Şifreli metin kontrolü
-            if (string.IsNullOrEmpty(encryptedText))
-                throw new ArgumentException(Errors.ERROR_DATA_NO_HIDDEN);
-
-            // Parola kontrolü
-            if (string.IsNullOrEmpty(password))
-                throw new ArgumentException(Errors.ERROR_PASSWORD_EMPTY);
-                
-            if (password.StartsWith(" "))
-                throw new ArgumentException(Errors.ERROR_PASSWORD_SPACE);
-                
-            if (password.Length < 3 || password.Length > 11)
-                throw new ArgumentException(Errors.ERROR_PASSWORD_LENGTH_RANGE);
-
             try
             {
-                // Paroladan anahtar ve IV oluştur
-                byte[] keyBytes, ivBytes;
-                GenerateKeyFromPassword(password, out keyBytes, out ivBytes);
-
-                // Base64 formatındaki metni byte dizisine çevir
-                byte[] cipherBytes = Convert.FromBase64String(encryptedText);
-
-                string plaintext = null;
-
-                using (AesCryptoServiceProvider aes = new AesCryptoServiceProvider())
+                // Parametre kontrolü
+                if (encryptedData == null || encryptedData.Length == 0)
                 {
-                    aes.KeySize = KeySize;
-                    aes.BlockSize = BlockSize;
-                    aes.Mode = CipherMode.CBC;
-                    aes.Padding = PaddingMode.PKCS7;
-                    aes.Key = keyBytes;
-                    aes.IV = ivBytes;
-                    
-                    ICryptoTransform decryptor = aes.CreateDecryptor();
-                    
-                    try
-                    {
-                        using (MemoryStream msDecrypt = new MemoryStream(cipherBytes))
-                        {
-                            using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-                            {
-                                using (StreamReader srDecrypt = new StreamReader(csDecrypt))
-                                {
-                                    plaintext = srDecrypt.ReadToEnd();
-                                }
-                            }
-                        }
-                    }
-                    catch (CryptographicException)
-                    {
-                        throw new CryptographicException(Errors.ERROR_PASSWORD_WRONG);
-                    }
-                }
-
-                return plaintext;
-            }
-            catch (FormatException)
-            {
-                throw new CryptographicException(Errors.ERROR_DATA_CORRUPTED);
-            }
-            catch (CryptographicException)
-            {
-                throw;
-            }
-            catch (Exception)
-            {
-                throw new CryptographicException(Errors.ERROR_AES_DECRYPT);
-            }
-        }
-
-        /// <summary>
-        /// Özel anahtar ve IV ile şifrelenmiş metni çözer
-        /// </summary>
-        /// <param name="encryptedTextBytes">Şifrelenmiş metin byte dizisi</param>
-        /// <param name="aesKey">AES anahtarı ve IV'nin birleştirilmiş hali</param>
-        /// <returns>Çözülmüş metin</returns>
-        public string DecryptText(byte[] encryptedTextBytes, byte[] aesKey)
-        {
-            if (encryptedTextBytes == null || encryptedTextBytes.Length == 0)
-                throw new ArgumentException(Errors.ERROR_DATA_NO_HIDDEN);
-                
-            if (aesKey == null || aesKey.Length == 0)
-                throw new ArgumentException(Errors.ERROR_AES_KEY_GENERATION);
-
-            try
-            {
-                // Birleştirilmiş anahtarı ayır (ilk 32 bayt anahtar, sonraki 16 bayt IV)
-                byte[] keyBytes = new byte[KeySize / 8]; // 32 bayt
-                byte[] ivBytes = new byte[BlockSize / 8]; // 16 bayt
-                
-                if (aesKey.Length != keyBytes.Length + ivBytes.Length)
-                    throw new ArgumentException(Errors.ERROR_AES_IV_INVALID);
-                    
-                Buffer.BlockCopy(aesKey, 0, keyBytes, 0, keyBytes.Length);
-                Buffer.BlockCopy(aesKey, keyBytes.Length, ivBytes, 0, ivBytes.Length);
-
-                string plaintext = null;
-
-                using (AesCryptoServiceProvider aes = new AesCryptoServiceProvider())
-                {
-                    aes.KeySize = KeySize;
-                    aes.BlockSize = BlockSize;
-                    aes.Mode = CipherMode.CBC;
-                    aes.Padding = PaddingMode.PKCS7;
-                    aes.Key = keyBytes;
-                    aes.IV = ivBytes;
-                    
-                    ICryptoTransform decryptor = aes.CreateDecryptor();
-                    
-                    try
-                    {
-                        using (MemoryStream msDecrypt = new MemoryStream(encryptedTextBytes))
-                        {
-                            using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-                            {
-                                using (StreamReader srDecrypt = new StreamReader(csDecrypt))
-                                {
-                                    plaintext = srDecrypt.ReadToEnd();
-                                }
-                            }
-                        }
-                    }
-                    catch (CryptographicException)
-                    {
-                        throw new CryptographicException(Errors.ERROR_PASSWORD_WRONG);
-                    }
-                }
-
-                return plaintext;
-            }
-            catch (Exception ex)
-            {
-                if (ex is ArgumentException || ex is CryptographicException)
-                    throw;
-                throw new CryptographicException(Errors.ERROR_AES_DECRYPT);
-            }
-        }
-        
-        /// <summary>
-        /// Şifreli veriyi çözer ve byte dizisi olarak döndürür (ExtractAndDecryptText için gerekli)
-        /// </summary>
-        /// <param name="encryptedData">Şifrelenmiş veriler</param>
-        /// <param name="aesKey">AES anahtarı</param>
-        /// <param name="errorMessage">Hata mesajı</param>
-        /// <returns>Çözülen veri</returns>
-        public byte[] DecryptData(byte[] encryptedData, byte[] aesKey, out string errorMessage)
-        {
-            errorMessage = string.Empty;
-            
-            if (encryptedData == null || encryptedData.Length == 0)
-            {
-                errorMessage = Errors.ERROR_DATA_NO_HIDDEN;
-                return null;
-            }
-            
-            if (aesKey == null || aesKey.Length == 0)
-            {
-                errorMessage = Errors.ERROR_AES_KEY_GENERATION;
-                return null;
-            }
-            
-            try
-            {
-                // Birleştirilmiş anahtarı ayır (ilk 32 bayt anahtar, sonraki 16 bayt IV)
-                byte[] keyBytes = new byte[KeySize / 8]; // 32 bayt
-                byte[] ivBytes = new byte[BlockSize / 8]; // 16 bayt
-                
-                if (aesKey.Length != keyBytes.Length + ivBytes.Length)
-                {
-                    errorMessage = Errors.ERROR_AES_IV_INVALID;
+                    _lastErrorMessage = Errors.ERROR_CIPHERTEXT_EMPTY;
                     return null;
                 }
-                    
-                Buffer.BlockCopy(aesKey, 0, keyBytes, 0, keyBytes.Length);
-                Buffer.BlockCopy(aesKey, keyBytes.Length, ivBytes, 0, ivBytes.Length);
-                
-                byte[] decryptedData;
-                
-                using (AesCryptoServiceProvider aes = new AesCryptoServiceProvider())
+
+                if (string.IsNullOrEmpty(password))
+                {
+                    _lastErrorMessage = Errors.ERROR_PASSWORD_EMPTY;
+                    return null;
+                }
+
+                // Minimum gerekli uzunluk kontrolü (Salt + IV)
+                int minLength = 16 + (BlockSize / 8);
+                if (encryptedData.Length < minLength)
+                {
+                    _lastErrorMessage = Errors.ERROR_DATA_CORRUPTED;
+                    return null;
+                }
+
+                // Salt değerini çıkar
+                byte[] salt = new byte[16];
+                Buffer.BlockCopy(encryptedData, 0, salt, 0, 16);
+
+                // IV değerini çıkar
+                byte[] iv = new byte[BlockSize / 8];
+                Buffer.BlockCopy(encryptedData, 16, iv, 0, BlockSize / 8);
+
+                // Parola ve salt değerden anahtar türet
+                byte[] key;
+                using (var deriveBytes = new Rfc2898DeriveBytes(password, salt, Iterations))
+                {
+                    key = deriveBytes.GetBytes(KeySize / 8);
+                }
+
+                // Şifreli metni çıkar
+                int encryptedTextLength = encryptedData.Length - 16 - (BlockSize / 8);
+                byte[] encryptedText = new byte[encryptedTextLength];
+                Buffer.BlockCopy(encryptedData, 16 + (BlockSize / 8), encryptedText, 0, encryptedTextLength);
+
+                // AES algoritması ile çöz
+                using (var aes = Aes.Create())
                 {
                     aes.KeySize = KeySize;
                     aes.BlockSize = BlockSize;
                     aes.Mode = CipherMode.CBC;
                     aes.Padding = PaddingMode.PKCS7;
-                    aes.Key = keyBytes;
-                    aes.IV = ivBytes;
-                    
-                    ICryptoTransform decryptor = aes.CreateDecryptor();
-                    
+                    aes.Key = key;
+                    aes.IV = iv;
+
                     try
                     {
-                        using (MemoryStream msDecrypt = new MemoryStream(encryptedData))
+                        using (var decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
+                        using (var ms = new MemoryStream(encryptedText))
+                        using (var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
+                        using (var sr = new StreamReader(cs))
                         {
-                            using (MemoryStream msPlain = new MemoryStream())
-                            {
-                                using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-                                {
-                                    // Veriyi oku ve belleğe aktar
-                                    byte[] buffer = new byte[1024];
-                                    int bytesRead;
-                                    
-                                    while ((bytesRead = csDecrypt.Read(buffer, 0, buffer.Length)) > 0)
-                                    {
-                                        msPlain.Write(buffer, 0, bytesRead);
-                                    }
-                                    
-                                    decryptedData = msPlain.ToArray();
-                                }
-                            }
+                            string decryptedText = sr.ReadToEnd();
+                            _lastSuccessMessage = Success.DECRYPT_SUCCESS_AES;
+                            return decryptedText;
                         }
-                        
-                        return decryptedData;
                     }
                     catch (CryptographicException)
                     {
-                        errorMessage = Errors.ERROR_PASSWORD_WRONG;
+                        _lastErrorMessage = Errors.ERROR_PASSWORD_WRONG;
                         return null;
                     }
                 }
             }
+            catch (CryptographicException)
+            {
+                _lastErrorMessage = Errors.ERROR_PASSWORD_WRONG;
+                return null;
+            }
             catch (Exception ex)
             {
-                errorMessage = ex.Message;
+                _lastErrorMessage = string.Format(Errors.ERROR_AES_DECRYPT, ex.Message);
                 return null;
             }
         }
 
         /// <summary>
-        /// Şifreli metni çözmeyi dener
+        /// AES algoritması ile şifrelenmiş veriyi çözer
         /// </summary>
-        /// <param name="encryptedText">Base64 formatında şifrelenmiş metin</param>
-        /// <param name="password">Kullanıcının girdiği parola</param>
-        /// <param name="decryptedText">Çözülen metin</param>
-        /// <param name="errorMessage">Hata mesajı</param>
-        /// <returns>İşlem başarılı ise true</returns>
-        public bool TryDecryptText(string encryptedText, string password, out string decryptedText, out string errorMessage)
+        /// <param name="encryptedData">Şifrelenmiş veri (Salt + IV + Şifreli Veri)</param>
+        /// <param name="password">Şifre çözme için kullanılacak parola</param>
+        /// <returns>Çözülmüş veri</returns>
+        public byte[] DecryptData(byte[] encryptedData, string password)
         {
-            decryptedText = string.Empty;
-            errorMessage = string.Empty;
-            
             try
             {
-                decryptedText = DecryptText(encryptedText, password);
-                return true;
+                // Parametre kontrolü
+                if (encryptedData == null || encryptedData.Length == 0)
+                {
+                    _lastErrorMessage = Errors.ERROR_CIPHERTEXT_EMPTY;
+                    return null;
+                }
+
+                if (string.IsNullOrEmpty(password))
+                {
+                    _lastErrorMessage = Errors.ERROR_PASSWORD_EMPTY;
+                    return null;
+                }
+
+                // Minimum gerekli uzunluk kontrolü (Salt + IV)
+                int minLength = 16 + (BlockSize / 8);
+                if (encryptedData.Length < minLength)
+                {
+                    _lastErrorMessage = Errors.ERROR_DATA_CORRUPTED;
+                    return null;
+                }
+
+                // Salt değerini çıkar
+                byte[] salt = new byte[16];
+                Buffer.BlockCopy(encryptedData, 0, salt, 0, 16);
+
+                // IV değerini çıkar
+                byte[] iv = new byte[BlockSize / 8];
+                Buffer.BlockCopy(encryptedData, 16, iv, 0, BlockSize / 8);
+
+                // Parola ve salt değerden anahtar türet
+                byte[] key;
+                using (var deriveBytes = new Rfc2898DeriveBytes(password, salt, Iterations))
+                {
+                    key = deriveBytes.GetBytes(KeySize / 8);
+                }
+
+                // Şifreli veriyi çıkar
+                int encryptedDataLength = encryptedData.Length - 16 - (BlockSize / 8);
+                byte[] cipherBytes = new byte[encryptedDataLength];
+                Buffer.BlockCopy(encryptedData, 16 + (BlockSize / 8), cipherBytes, 0, encryptedDataLength);
+
+                return DecryptDataWithKeyIV(cipherBytes, key, iv);
             }
-            catch (CryptographicException ex)
+            catch (CryptographicException)
             {
-                errorMessage = ex.Message;
-                return false;
+                _lastErrorMessage = Errors.ERROR_PASSWORD_WRONG;
+                return null;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                errorMessage = Errors.ERROR_AES_DECRYPT;
+                _lastErrorMessage = string.Format(Errors.ERROR_AES_DECRYPT, ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// AES algoritması ile şifrelenmiş veriyi çözer, özel anahtar ve IV kullanır
+        /// </summary>
+        /// <param name="encryptedData">Şifrelenmiş veri</param>
+        /// <param name="key">AES anahtarı</param>
+        /// <param name="iv">Başlangıç vektörü</param>
+        /// <returns>Çözülmüş veri</returns>
+        public byte[] DecryptDataWithKeyIV(byte[] encryptedData, byte[] key, byte[] iv)
+        {
+            try
+            {
+                // Parametre kontrolü
+                if (encryptedData == null || encryptedData.Length == 0)
+                {
+                    _lastErrorMessage = Errors.ERROR_CIPHERTEXT_EMPTY;
+                    return null;
+                }
+
+                if (key == null || key.Length != KeySize / 8)
+                {
+                    _lastErrorMessage = Errors.ERROR_AES_KEY_GENERATION;
+                    return null;
+                }
+
+                if (iv == null || iv.Length != BlockSize / 8)
+                {
+                    _lastErrorMessage = Errors.ERROR_AES_IV_INVALID;
+                    return null;
+                }
+
+                // AES algoritması ile çöz
+                using (var aes = Aes.Create())
+                {
+                    aes.KeySize = KeySize;
+                    aes.BlockSize = BlockSize;
+                    aes.Mode = CipherMode.CBC;
+                    aes.Padding = PaddingMode.PKCS7;
+                    aes.Key = key;
+                    aes.IV = iv;
+
+                    try
+                    {
+                        using (var decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
+                        using (var ms = new MemoryStream())
+                        {
+                            using (var cs = new CryptoStream(new MemoryStream(encryptedData), decryptor, CryptoStreamMode.Read))
+                            {
+                                byte[] buffer = new byte[1024];
+                                int bytesRead;
+                                while ((bytesRead = cs.Read(buffer, 0, buffer.Length)) > 0)
+                                {
+                                    ms.Write(buffer, 0, bytesRead);
+                                }
+                            }
+
+                            _lastSuccessMessage = Success.DECRYPT_SUCCESS_AES;
+                            return ms.ToArray();
+                        }
+                    }
+                    catch (CryptographicException)
+                    {
+                        _lastErrorMessage = Errors.ERROR_PASSWORD_WRONG;
+                        return null;
+                    }
+                }
+            }
+            catch (CryptographicException)
+            {
+                _lastErrorMessage = Errors.ERROR_PASSWORD_WRONG;
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _lastErrorMessage = string.Format(Errors.ERROR_AES_DECRYPT, ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Şifrelenmiş bir dosyayı yükler
+        /// </summary>
+        /// <param name="filePath">Dosya yolu</param>
+        /// <returns>Dosya içeriği (şifreli veri)</returns>
+        public byte[] LoadEncryptedFile(string filePath)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(filePath))
+                {
+                    _lastErrorMessage = Errors.ERROR_FILE_INVALID_PATH;
+                    return null;
+                }
+
+                if (!File.Exists(filePath))
+                {
+                    _lastErrorMessage = Errors.ERROR_FILE_NOT_FOUND;
+                    return null;
+                }
+
+                // Dosyayı oku
+                byte[] encryptedData = File.ReadAllBytes(filePath);
+                
+                if (encryptedData == null || encryptedData.Length == 0)
+                {
+                    _lastErrorMessage = Errors.ERROR_DATA_CORRUPTED;
+                    return null;
+                }
+                
+                _lastSuccessMessage = Success.FILE_OPEN_SUCCESS;
+                return encryptedData;
+            }
+            catch (Exception ex)
+            {
+                _lastErrorMessage = string.Format(Errors.ERROR_FILE_OPEN, ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Şifrelenmiş dosyayı yükler ve şifresini çözer
+        /// </summary>
+        /// <param name="filePath">Dosya yolu</param>
+        /// <param name="password">Şifre çözme parolası</param>
+        /// <returns>Çözülmüş dosya içeriği</returns>
+        public byte[] LoadAndDecryptFile(string filePath, string password)
+        {
+            try
+            {
+                byte[] encryptedData = LoadEncryptedFile(filePath);
+                if (encryptedData == null)
+                {
+                    // Hata mesajı zaten LoadEncryptedFile içinde ayarlandı
+                    return null;
+                }
+
+                byte[] decryptedData = DecryptData(encryptedData, password);
+                if (decryptedData == null)
+                {
+                    // Hata mesajı zaten DecryptData içinde ayarlandı
+                    return null;
+                }
+
+                _lastSuccessMessage = Success.DECRYPT_SUCCESS_AES;
+                return decryptedData;
+            }
+            catch (Exception ex)
+            {
+                _lastErrorMessage = string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Şifrelenmiş dosyadaki metni yükler ve şifresini çözer
+        /// </summary>
+        /// <param name="filePath">Dosya yolu</param>
+        /// <param name="password">Şifre çözme parolası</param>
+        /// <returns>Çözülmüş metin</returns>
+        public string LoadAndDecryptTextFile(string filePath, string password)
+        {
+            try
+            {
+                byte[] encryptedData = LoadEncryptedFile(filePath);
+                if (encryptedData == null)
+                {
+                    // Hata mesajı zaten LoadEncryptedFile içinde ayarlandı
+                    return null;
+                }
+
+                string decryptedText = DecryptText(encryptedData, password);
+                if (decryptedText == null)
+                {
+                    // Hata mesajı zaten DecryptText içinde ayarlandı
+                    return null;
+                }
+
+                _lastSuccessMessage = Success.DECRYPT_SUCCESS_AES;
+                return decryptedText;
+            }
+            catch (Exception ex)
+            {
+                _lastErrorMessage = string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Parolayı doğrular (şifrelenmiş veriyi çözmeyi deneyerek)
+        /// </summary>
+        /// <param name="encryptedData">Şifrelenmiş veri</param>
+        /// <param name="password">Doğrulanacak parola</param>
+        /// <returns>Parola doğru ise true, değilse false</returns>
+        public bool ValidatePassword(byte[] encryptedData, string password)
+        {
+            try
+            {
+                if (encryptedData == null || encryptedData.Length == 0)
+                {
+                    _lastErrorMessage = Errors.ERROR_CIPHERTEXT_EMPTY;
+                    return false;
+                }
+
+                if (string.IsNullOrEmpty(password))
+                {
+                    _lastErrorMessage = Errors.ERROR_PASSWORD_EMPTY;
+                    return false;
+                }
+
+                // Minimum gerekli uzunluk kontrolü (Salt + IV)
+                int minLength = 16 + (BlockSize / 8);
+                if (encryptedData.Length < minLength)
+                {
+                    _lastErrorMessage = Errors.ERROR_DATA_CORRUPTED;
+                    return false;
+                }
+
+                // Salt değerini çıkar
+                byte[] salt = new byte[16];
+                Buffer.BlockCopy(encryptedData, 0, salt, 0, 16);
+
+                // IV değerini çıkar
+                byte[] iv = new byte[BlockSize / 8];
+                Buffer.BlockCopy(encryptedData, 16, iv, 0, BlockSize / 8);
+
+                // Parola ve salt değerden anahtar türet
+                byte[] key;
+                using (var deriveBytes = new Rfc2898DeriveBytes(password, salt, Iterations))
+                {
+                    key = deriveBytes.GetBytes(KeySize / 8);
+                }
+
+                // Şifreli veriyi çıkar
+                int encryptedDataLength = encryptedData.Length - 16 - (BlockSize / 8);
+                byte[] cipherBytes = new byte[encryptedDataLength];
+                Buffer.BlockCopy(encryptedData, 16 + (BlockSize / 8), cipherBytes, 0, encryptedDataLength);
+
+                // AES algoritması ile çözmeyi dene
+                using (var aes = Aes.Create())
+                {
+                    aes.KeySize = KeySize;
+                    aes.BlockSize = BlockSize;
+                    aes.Mode = CipherMode.CBC;
+                    aes.Padding = PaddingMode.PKCS7;
+                    aes.Key = key;
+                    aes.IV = iv;
+
+                    try
+                    {
+                        using (var decryptor = aes.CreateDecryptor(aes.Key, aes.IV))
+                        using (var ms = new MemoryStream(cipherBytes))
+                        using (var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
+                        {
+                            // Sadece doğrulama amaçlı olduğu için bir miktar veri oku
+                            byte[] buffer = new byte[1024];
+                            cs.Read(buffer, 0, buffer.Length);
+
+                            _lastSuccessMessage = Success.PASSWORD_VALIDATION_SUCCESS;
+                            return true;
+                        }
+                    }
+                    catch (CryptographicException)
+                    {
+                        _lastErrorMessage = Errors.ERROR_PASSWORD_WRONG;
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _lastErrorMessage = string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message);
                 return false;
             }
         }
     }
-} 
+}

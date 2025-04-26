@@ -1,199 +1,415 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using System.Security.Cryptography;
-using System.IO;
 using ImageBasedEncryptionSystem.TypeLayer;
 
 namespace ImageBasedEncryptionSystem.BusinessLayer
 {
     public class Cls_AesEncrypt
     {
-        // AES şifreleme için anahtar ve IV boyutları
         private const int KeySize = 256;
         private const int BlockSize = 128;
-
-        // Varsayılan salt değeri (sabit)
-        private static readonly byte[] DefaultSalt = new byte[16] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76, 0x20, 0x32, 0x33 };
-
-        // En son oluşturulan AES anahtarını sakla
-        private byte[] _lastAesKey = null;
-        private byte[] _lastIvBytes = null;
+        private const int Iterations = 10000;
+        private string _lastErrorMessage = string.Empty;
+        private string _lastSuccessMessage = string.Empty;
 
         /// <summary>
-        /// Verilen paroladan AES anahtarı ve IV oluşturur
+        /// Son hata mesajını döndürür
         /// </summary>
-        /// <param name="password">Kullanıcının girdiği parola</param>
-        /// <param name="keyBytes">Oluşturulan anahtar</param>
-        /// <param name="ivBytes">Oluşturulan IV</param>
-        public void GenerateKeyFromPassword(string password, out byte[] keyBytes, out byte[] ivBytes)
+        public string LastErrorMessage
         {
-            GenerateKeyFromPassword(password, DefaultSalt, out keyBytes, out ivBytes);
+            get { return _lastErrorMessage; }
+        }
+
+        /// <summary>
+        /// Son başarı mesajını döndürür
+        /// </summary>
+        public string LastSuccessMessage
+        {
+            get { return _lastSuccessMessage; }
+        }
+
+        /// <summary>
+        /// Paroladan AES anahtarı oluşturur
+        /// </summary>
+        /// <param name="password">Anahtar oluşturmak için kullanılacak parola</param>
+        /// <returns>AES anahtarı</returns>
+        public byte[] GetKey(string password)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(password))
+                {
+                    _lastErrorMessage = Errors.ERROR_PASSWORD_EMPTY;
+                    return null;
+                }
+
+                // Salt değeri oluştur
+                byte[] salt = new byte[16];
+                using (var rng = new RNGCryptoServiceProvider())
+                {
+                    rng.GetBytes(salt);
+                }
+
+                // Parola ve salt değerden anahtar türet
+                using (var deriveBytes = new Rfc2898DeriveBytes(password, salt, Iterations))
+                {
+                    byte[] key = deriveBytes.GetBytes(KeySize / 8);
+                    _lastSuccessMessage = Success.KEY_GENERATION_SUCCESS;
+                    return key;
+                }
+            }
+            catch (Exception ex)
+            {
+                _lastErrorMessage = string.Format(Errors.ERROR_AES_KEY_GENERATION, ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Paroladan AES anahtarı ve IV değeri oluşturur
+        /// </summary>
+        /// <param name="password">Anahtar oluşturmak için kullanılacak parola</param>
+        /// <param name="salt">Salt değeri (sağlanmazsa rastgele oluşturulur)</param>
+        /// <param name="iv">Oluşturulan IV değeri</param>
+        /// <returns>AES anahtarı</returns>
+        public byte[] GetKeyAndIV(string password, byte[] salt, out byte[] iv)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(password))
+                {
+                    _lastErrorMessage = Errors.ERROR_PASSWORD_EMPTY;
+                    iv = null;
+                    return null;
+                }
+
+                // Salt değeri sağlanmamışsa rastgele oluştur
+                if (salt == null || salt.Length < 8)
+                {
+                    salt = new byte[16];
+                    using (var rng = new RNGCryptoServiceProvider())
+                    {
+                        rng.GetBytes(salt);
+                    }
+                }
+
+                // Parola ve salt değerden anahtar ve IV türet
+                using (var deriveBytes = new Rfc2898DeriveBytes(password, salt, Iterations))
+                {
+                    byte[] key = deriveBytes.GetBytes(KeySize / 8);
+                    iv = deriveBytes.GetBytes(BlockSize / 8);
+                    
+                    _lastSuccessMessage = Success.KEY_GENERATION_SUCCESS;
+                    return key;
+                }
+            }
+            catch (Exception ex)
+            {
+                _lastErrorMessage = string.Format(Errors.ERROR_AES_KEY_GENERATION, ex.Message);
+                iv = null;
+                return null;
+            }
         }
         
         /// <summary>
-        /// Verilen paroladan ve salt değerinden AES anahtarı ve IV oluşturur
-        /// </summary>
-        /// <param name="password">Kullanıcının girdiği parola</param>
-        /// <param name="salt">Tuzlama değeri</param>
-        /// <param name="keyBytes">Oluşturulan anahtar</param>
-        /// <param name="ivBytes">Oluşturulan IV</param>
-        public void GenerateKeyFromPassword(string password, byte[] salt, out byte[] keyBytes, out byte[] ivBytes)
-        {
-            // Parola kontrolü
-            if (string.IsNullOrEmpty(password))
-                throw new ArgumentException(Errors.ERROR_PASSWORD_EMPTY);
-                
-            if (password.StartsWith(" "))
-                throw new ArgumentException(Errors.ERROR_PASSWORD_SPACE);
-                
-            if (password.Length < 3 || password.Length > 11)
-                throw new ArgumentException(Errors.ERROR_PASSWORD_LENGTH_RANGE);
-
-            // Salt kontrolü
-            if (salt == null || salt.Length < 8)
-                salt = DefaultSalt;
-
-            try
-            {
-                using (var derivation = new Rfc2898DeriveBytes(password, salt, 1000))
-                {
-                    keyBytes = derivation.GetBytes(KeySize / 8); // 256 bit = 32 byte
-                    ivBytes = derivation.GetBytes(BlockSize / 8); // 128 bit = 16 byte
-                }
-
-                // Son oluşturulan anahtarı sakla
-                _lastAesKey = new byte[keyBytes.Length];
-                _lastIvBytes = new byte[ivBytes.Length];
-                Buffer.BlockCopy(keyBytes, 0, _lastAesKey, 0, keyBytes.Length);
-                Buffer.BlockCopy(ivBytes, 0, _lastIvBytes, 0, ivBytes.Length);
-            }
-            catch (Exception)
-            {
-                throw new CryptographicException(Errors.ERROR_AES_KEY_GENERATION);
-            }
-        }
-
-        /// <summary>
-        /// Metni AES ile şifreler
+        /// AES algoritması ile metni şifreler
         /// </summary>
         /// <param name="plainText">Şifrelenecek metin</param>
-        /// <param name="password">Kullanıcının girdiği parola</param>
-        /// <returns>Şifrelenmiş metin byte dizisi</returns>
+        /// <param name="password">Şifreleme için kullanılacak parola</param>
+        /// <returns>Şifrelenmiş veri (IV + Şifreli Metin)</returns>
         public byte[] EncryptText(string plainText, string password)
         {
-            // Metin kontrolü
-            if (string.IsNullOrEmpty(plainText))
-                throw new ArgumentException(Errors.ERROR_TEXT_EMPTY);
-                
-            if (plainText.StartsWith(" "))
-                throw new ArgumentException(Errors.ERROR_TEXT_SPACE);
-                
-            if (plainText.Length < 3)
-                throw new ArgumentException(Errors.ERROR_TEXT_LENGTH_MIN);
-                
-            if (plainText.Length > 10000)
-                throw new ArgumentException(Errors.ERROR_TEXT_LENGTH_MAX);
-
-            // Parola kontrolü
-            if (string.IsNullOrEmpty(password))
-                throw new ArgumentException(Errors.ERROR_PASSWORD_EMPTY);
-                
-            if (password.StartsWith(" "))
-                throw new ArgumentException(Errors.ERROR_PASSWORD_SPACE);
-                
-            if (password.Length < 3 || password.Length > 11)
-                throw new ArgumentException(Errors.ERROR_PASSWORD_LENGTH_RANGE);
-
-            byte[] keyBytes, ivBytes;
-            GenerateKeyFromPassword(password, out keyBytes, out ivBytes);
-
-            byte[] encrypted;
-
             try
             {
-                using (AesCryptoServiceProvider aes = new AesCryptoServiceProvider())
+                // Parametre kontrolü
+                if (string.IsNullOrEmpty(plainText))
+                {
+                    _lastErrorMessage = Errors.ERROR_TEXT_EMPTY;
+                    return null;
+                }
+
+                if (string.IsNullOrEmpty(password))
+                {
+                    _lastErrorMessage = Errors.ERROR_PASSWORD_EMPTY;
+                    return null;
+                }
+
+                // Salt değeri oluştur
+                byte[] salt = new byte[16];
+                using (var rng = new RNGCryptoServiceProvider())
+                {
+                    rng.GetBytes(salt);
+                }
+
+                // Anahtar ve IV'yi parola ve salt değerden türet
+                byte[] iv;
+                byte[] key = GetKeyAndIV(password, salt, out iv);
+
+                if (key == null || iv == null)
+                {
+                    return null; // Hata mesajı zaten GetKeyAndIV içinde ayarlandı
+                }
+
+                // AES algoritması ile şifrele
+                using (var aes = Aes.Create())
                 {
                     aes.KeySize = KeySize;
                     aes.BlockSize = BlockSize;
                     aes.Mode = CipherMode.CBC;
                     aes.Padding = PaddingMode.PKCS7;
-                    aes.Key = keyBytes;
-                    aes.IV = ivBytes;
+                    aes.Key = key;
+                    aes.IV = iv;
 
-                    ICryptoTransform encryptor = aes.CreateEncryptor();
-
-                    using (MemoryStream msEncrypt = new MemoryStream())
+                    using (var encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
+                    using (var ms = new MemoryStream())
                     {
-                        using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                        // Salt değerini önce yaz
+                        ms.Write(salt, 0, salt.Length);
+                        
+                        // IV değerini salt'dan sonra yaz
+                        ms.Write(iv, 0, iv.Length);
+
+                        using (var cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+                        using (var sw = new StreamWriter(cs))
                         {
-                            using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
-                            {
-                                swEncrypt.Write(plainText);
-                            }
-                            encrypted = msEncrypt.ToArray();
+                            sw.Write(plainText);
                         }
+
+                        _lastSuccessMessage = Success.ENCRYPT_SUCCESS_AES;
+                        return ms.ToArray();
                     }
                 }
-                return encrypted;
             }
             catch (Exception ex)
             {
-                if (ex is ArgumentException)
-                    throw;
-                throw new CryptographicException(Errors.ERROR_AES_ENCRYPT);
+                _lastErrorMessage = string.Format(Errors.ERROR_AES_ENCRYPT, ex.Message);
+                return null;
             }
         }
 
         /// <summary>
-        /// Metni AES ile şifreler ve Base64 formatında döndürür
+        /// AES algoritması ile veriyi şifreler
         /// </summary>
-        /// <param name="plainText">Şifrelenecek metin</param>
-        /// <param name="password">Kullanıcının girdiği parola</param>
-        /// <returns>Şifrelenmiş metin (Base64 formatında)</returns>
-        public string EncryptTextToBase64(string plainText, string password)
+        /// <param name="data">Şifrelenecek veri</param>
+        /// <param name="password">Şifreleme için kullanılacak parola</param>
+        /// <returns>Şifrelenmiş veri (Salt + IV + Şifreli Veri)</returns>
+        public byte[] EncryptData(byte[] data, string password)
         {
-            byte[] encryptedBytes = EncryptText(plainText, password);
-            return Convert.ToBase64String(encryptedBytes);
-        }
-
-        /// <summary>
-        /// En son oluşturulan AES anahtarını döndürür
-        /// </summary>
-        /// <returns>Son kullanılan AES anahtarı ve IV'nin birleşimi</returns>
-        public byte[] GetLastAesKey()
-        {
-            if (_lastAesKey == null || _lastIvBytes == null)
+            try
             {
-                throw new InvalidOperationException(Errors.ERROR_AES_KEY_GENERATION);
+                // Parametre kontrolü
+                if (data == null || data.Length == 0)
+                {
+                    _lastErrorMessage = Errors.ERROR_DATA_CORRUPTED;
+                    return null;
+                }
+
+                if (string.IsNullOrEmpty(password))
+                {
+                    _lastErrorMessage = Errors.ERROR_PASSWORD_EMPTY;
+                    return null;
+                }
+
+                // Salt değeri oluştur
+                byte[] salt = new byte[16];
+                using (var rng = new RNGCryptoServiceProvider())
+                {
+                    rng.GetBytes(salt);
+                }
+
+                // Anahtar ve IV'yi parola ve salt değerden türet
+                byte[] iv;
+                byte[] key = GetKeyAndIV(password, salt, out iv);
+
+                if (key == null || iv == null)
+                {
+                    return null; // Hata mesajı zaten GetKeyAndIV içinde ayarlandı
+                }
+
+                // AES algoritması ile şifrele
+                using (var aes = Aes.Create())
+                {
+                    aes.KeySize = KeySize;
+                    aes.BlockSize = BlockSize;
+                    aes.Mode = CipherMode.CBC;
+                    aes.Padding = PaddingMode.PKCS7;
+                    aes.Key = key;
+                    aes.IV = iv;
+
+                    using (var encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
+                    using (var ms = new MemoryStream())
+                    {
+                        // Salt değerini önce yaz
+                        ms.Write(salt, 0, salt.Length);
+                        
+                        // IV değerini salt'dan sonra yaz
+                        ms.Write(iv, 0, iv.Length);
+
+                        using (var cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+                        {
+                            cs.Write(data, 0, data.Length);
+                            cs.FlushFinalBlock();
+                        }
+
+                        _lastSuccessMessage = Success.ENCRYPT_SUCCESS_AES;
+                        return ms.ToArray();
+                    }
+                }
             }
-
-            // Anahtar ve IV'yi birleştir
-            byte[] combinedKey = new byte[_lastAesKey.Length + _lastIvBytes.Length];
-            Buffer.BlockCopy(_lastAesKey, 0, combinedKey, 0, _lastAesKey.Length);
-            Buffer.BlockCopy(_lastIvBytes, 0, combinedKey, _lastAesKey.Length, _lastIvBytes.Length);
-
-            return combinedKey;
+            catch (Exception ex)
+            {
+                _lastErrorMessage = string.Format(Errors.ERROR_AES_ENCRYPT, ex.Message);
+                return null;
+            }
         }
 
         /// <summary>
-        /// AES anahtarı ve IV'yi birleştirerek döndürür
+        /// AES algoritması ile veriyi şifreler, özel anahtar ve IV kullanır
         /// </summary>
-        /// <param name="password">Kullanıcının girdiği parola</param>
-        /// <returns>Anahtar ve IV'nin birleştirilmiş hali</returns>
-        public byte[] GetKey(string password)
+        /// <param name="data">Şifrelenecek veri</param>
+        /// <param name="key">AES anahtarı</param>
+        /// <param name="iv">Başlangıç vektörü</param>
+        /// <returns>Şifrelenmiş veri</returns>
+        public byte[] EncryptDataWithKeyIV(byte[] data, byte[] key, byte[] iv)
         {
-            byte[] keyBytes, ivBytes;
-            GenerateKeyFromPassword(password, out keyBytes, out ivBytes);
+            try
+            {
+                // Parametre kontrolü
+                if (data == null || data.Length == 0)
+                {
+                    _lastErrorMessage = Errors.ERROR_DATA_CORRUPTED;
+                    return null;
+                }
 
-            // Anahtar ve IV'yi birleştir
-            byte[] combinedKey = new byte[keyBytes.Length + ivBytes.Length];
-            Buffer.BlockCopy(keyBytes, 0, combinedKey, 0, keyBytes.Length);
-            Buffer.BlockCopy(ivBytes, 0, combinedKey, keyBytes.Length, ivBytes.Length);
+                if (key == null || key.Length != KeySize / 8)
+                {
+                    _lastErrorMessage = Errors.ERROR_AES_KEY_GENERATION;
+                    return null;
+                }
 
-            return combinedKey;
+                if (iv == null || iv.Length != BlockSize / 8)
+                {
+                    _lastErrorMessage = Errors.ERROR_AES_IV_INVALID;
+                    return null;
+                }
+
+                // AES algoritması ile şifrele
+                using (var aes = Aes.Create())
+                {
+                    aes.KeySize = KeySize;
+                    aes.BlockSize = BlockSize;
+                    aes.Mode = CipherMode.CBC;
+                    aes.Padding = PaddingMode.PKCS7;
+                    aes.Key = key;
+                    aes.IV = iv;
+
+                    using (var encryptor = aes.CreateEncryptor(aes.Key, aes.IV))
+                    using (var ms = new MemoryStream())
+                    {
+                        using (var cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
+                        {
+                            cs.Write(data, 0, data.Length);
+                            cs.FlushFinalBlock();
+                        }
+
+                        _lastSuccessMessage = Success.ENCRYPT_SUCCESS_AES;
+                        return ms.ToArray();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _lastErrorMessage = string.Format(Errors.ERROR_AES_ENCRYPT, ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Şifrelenmiş bir dosyayı belirtilen konuma kaydeder
+        /// </summary>
+        /// <param name="encryptedData">Şifrelenmiş veri</param>
+        /// <param name="filePath">Kaydedilecek dosya yolu</param>
+        /// <returns>İşlem başarılı ise true, değilse false</returns>
+        public bool SaveEncryptedFile(byte[] encryptedData, string filePath)
+        {
+            try
+            {
+                if (encryptedData == null || encryptedData.Length == 0)
+                {
+                    _lastErrorMessage = Errors.ERROR_DATA_CORRUPTED;
+                    return false;
+                }
+
+                if (string.IsNullOrEmpty(filePath))
+                {
+                    _lastErrorMessage = Errors.ERROR_FILE_INVALID_PATH;
+                    return false;
+                }
+
+                // Dosyayı yaz
+                File.WriteAllBytes(filePath, encryptedData);
+                
+                _lastSuccessMessage = Success.FILE_SAVE_SUCCESS;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _lastErrorMessage = string.Format(Errors.ERROR_FILE_SAVE, ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Rastgele bir anahtar oluşturur
+        /// </summary>
+        /// <returns>Rastgele AES anahtarı</returns>
+        public byte[] GenerateRandomKey()
+        {
+            try
+            {
+                using (var aes = Aes.Create())
+                {
+                    aes.KeySize = KeySize;
+                    aes.GenerateKey();
+                    
+                    _lastSuccessMessage = Success.KEY_GENERATION_SUCCESS;
+                    return aes.Key;
+                }
+            }
+            catch (Exception ex)
+            {
+                _lastErrorMessage = string.Format(Errors.ERROR_AES_KEY_GENERATION, ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Rastgele bir IV değeri oluşturur
+        /// </summary>
+        /// <returns>Rastgele IV</returns>
+        public byte[] GenerateRandomIV()
+        {
+            try
+            {
+                using (var aes = Aes.Create())
+                {
+                    aes.BlockSize = BlockSize;
+                    aes.GenerateIV();
+                    
+                    _lastSuccessMessage = "Başlangıç vektörü başarıyla oluşturuldu.";
+                    return aes.IV;
+                }
+            }
+            catch (Exception ex)
+            {
+                _lastErrorMessage = string.Format(Errors.ERROR_AES_IV_INVALID, ex.Message);
+                return null;
+            }
         }
     }
-} 
+}

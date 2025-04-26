@@ -123,6 +123,20 @@ namespace ImageBasedEncryptionSystem.TypeLayer
         // LSB Hataları
         public const string ERROR_LSB_HIDE = "LSB veri gizleme işlemi sırasında hata oluştu!";
         public const string ERROR_LSB_EXTRACT = "LSB veri çıkarma işlemi sırasında hata oluştu!";
+        
+        // Wavelet Hataları
+        public const string ERROR_WAVELET_TRANSFORM = "Dalgacık (Wavelet) dönüşümü sırasında hata oluştu!";
+        public const string ERROR_WAVELET_INVERSE_TRANSFORM = "Ters dalgacık (Wavelet) dönüşümü sırasında hata oluştu!";
+        public const string ERROR_WAVELET_ENCODE = "Dalgacık tabanlı veri gizleme işlemi sırasında hata oluştu!";
+        public const string ERROR_WAVELET_DECODE = "Dalgacık tabanlı veri çıkarma işlemi sırasında hata oluştu!";
+        public const string ERROR_WAVELET_COEFFICIENTS = "Dalgacık katsayıları hesaplanırken hata oluştu!";
+        public const string ERROR_WAVELET_INSUFFICIENT_CAPACITY = "Görsel, wavelet dönüşümü ile veri gizlemek için yeterli kapasiteye sahip değil!";
+        public const string ERROR_WAVELET_NO_DATA = "Bu görselde wavelet ile gizlenmiş veri bulunamadı!";
+        public const string ERROR_WAVELET_DATA_CORRUPTED = "Wavelet ile gizlenmiş veri bozulmuş veya hasar görmüş!";
+        public const string ERROR_WAVELET_LEVEL_INVALID = "Geçersiz dalgacık (wavelet) ayrıştırma seviyesi!";
+        public const string ERROR_WAVELET_FAMILY_INVALID = "Geçersiz dalgacık (wavelet) ailesi!";
+        public const string ERROR_WAVELET_ENCRYPT = "Dalgacık tabanlı şifreleme işlemi sırasında hata oluştu!";
+        public const string ERROR_WAVELET_DECRYPT = "Dalgacık tabanlı şifre çözme işlemi sırasında hata oluştu!";
         #endregion
 
         #region Dosya İşlemleri Hataları

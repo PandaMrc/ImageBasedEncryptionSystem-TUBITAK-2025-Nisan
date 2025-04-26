@@ -120,7 +120,143 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         /// </summary>
         private void btnImage_Click(object sender, EventArgs e)
         {
+            try
+            {
+                // Resim seçme diyaloğunu oluştur
+                using (OpenFileDialog openFileDialog = new OpenFileDialog())
+                {
+                    // Dosya filtresini ayarla
+                    openFileDialog.Filter = "Görüntü Dosyaları|*.jpg;*.jpeg;*.png;*.bmp";
+                    openFileDialog.Title = "Bir Resim Seçin";
 
+                    // Dosya seçili değilse fonksiyondan çık
+                    if (openFileDialog.ShowDialog() != DialogResult.OK)
+                        return;
+
+                    // Seçilen dosya yolunu kaydet
+                    selectedImagePath = openFileDialog.FileName;
+
+                    try
+                    {
+                        // Resimi yükle
+                        using (Bitmap originalImage = new Bitmap(selectedImagePath))
+                        {
+                            // Resmin boyutunu kontrol et
+                            if (originalImage.Width < 300 || originalImage.Height < 300)
+                            {
+                                MessageBox.Show(Errors.ERROR_IMAGE_TOO_SMALL,
+                                    "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                selectedImagePath = string.Empty;
+                                return;
+                            }
+
+                            // pboxImage kontrolünün boyutları
+                            int maxWidth = pboxImage.Width;
+                            int maxHeight = pboxImage.Height;
+
+                            // Resmi PictureBox'a sığacak şekilde yeniden boyutlandır
+                            Bitmap resizedImage = ResizeImage(originalImage, maxWidth, maxHeight);
+
+                            // Eğer önceki resim varsa temizle
+                            if (pboxImage.Image != null)
+                            {
+                                pboxImage.Image.Dispose();
+                                pboxImage.Image = null;
+                            }
+
+                            // Yeni resmi PictureBox'a ata
+                            pboxImage.Image = resizedImage;
+                            pboxImage.SizeMode = PictureBoxSizeMode.Zoom;
+
+                            // Başarı mesajı
+                            lblImageInfo.Text = $"Seçilen Resim: {Path.GetFileName(selectedImagePath)} ({originalImage.Width}x{originalImage.Height})";
+                            
+                            // Şifreleme/çözme butonlarını aktif et
+                            btnEncrypt.Enabled = true;
+                            btnDecrypt.Enabled = true;
+                            
+                            // Kullanıcıya bilgi ver
+                            txtOutput.Clear();
+                            txtOutput.AppendText(Success.IMAGE_LOAD_SUCCESS);
+                            txtOutput.AppendText(Environment.NewLine);
+                            txtOutput.AppendText($"Boyut: {originalImage.Width}x{originalImage.Height} piksel");
+                        }
+                    }
+                    catch (OutOfMemoryException)
+                    {
+                        MessageBox.Show(Errors.ERROR_IMAGE_DAMAGED,
+                            "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        selectedImagePath = string.Empty;
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        MessageBox.Show(Errors.ERROR_FILE_NOT_FOUND,
+                            "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        selectedImagePath = string.Empty;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message),
+                            "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        selectedImagePath = string.Empty;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message),
+                    "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Görüntüyü belirli boyuta sığdıracak şekilde yeniden boyutlandırır
+        /// </summary>
+        /// <param name="image">Orijinal görüntü</param>
+        /// <param name="maxWidth">Maksimum genişlik</param>
+        /// <param name="maxHeight">Maksimum yükseklik</param>
+        /// <returns>Yeniden boyutlandırılmış görüntü</returns>
+        private Bitmap ResizeImage(Image image, int maxWidth, int maxHeight)
+        {
+            try
+            {
+                // Orijinal boyutları al
+                int originalWidth = image.Width;
+                int originalHeight = image.Height;
+
+                // Yeni boyutları hesapla (en-boy oranını koru)
+                double ratioX = (double)maxWidth / originalWidth;
+                double ratioY = (double)maxHeight / originalHeight;
+                double ratio = Math.Min(ratioX, ratioY);
+
+                int newWidth = (int)(originalWidth * ratio);
+                int newHeight = (int)(originalHeight * ratio);
+
+                // Yeni boyutlarda bir bitmap oluştur
+                Bitmap newImage = new Bitmap(newWidth, newHeight, PixelFormat.Format32bppArgb);
+
+                // Yüksek kaliteli yeniden boyutlandırma için Graphics nesnesini yapılandır
+                using (Graphics graphics = Graphics.FromImage(newImage))
+                {
+                    graphics.CompositingQuality = CompositingQuality.HighQuality;
+                    graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    graphics.SmoothingMode = SmoothingMode.HighQuality;
+                    graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                    // Görüntüyü çiz
+                    graphics.DrawImage(image, 0, 0, newWidth, newHeight);
+                }
+
+                return newImage;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message),
+                    "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                
+                // Hata durumunda orijinal görüntünün bir kopyasını döndür
+                return new Bitmap(image);
+            }
         }
 
         /// <summary>
@@ -128,6 +264,181 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         /// </summary>
         private void btnEncrypt_Click(object sender, EventArgs e)
         {
+            try
+            {
+                // Girilen verileri kontrol et
+                if (string.IsNullOrEmpty(txtInput.Text))
+                {
+                    MessageBox.Show(Errors.ERROR_TEXT_EMPTY, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(txtPassword.Text))
+                {
+                    MessageBox.Show(Errors.ERROR_PASSWORD_EMPTY, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(selectedImagePath) || pboxImage.Image == null)
+                {
+                    MessageBox.Show(Errors.ERROR_IMAGE_REQUIRED, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                string inputText = txtInput.Text;
+                string password = txtPassword.Text;
+
+                // İşlem başladığını kullanıcıya bildir ve UI'yi güncelle
+                txtOutput.Text = "Şifreleme işlemi başlatılıyor...";
+                Application.DoEvents();
+
+                // 1. AES ile metni şifrele
+                byte[] encryptedText = null;
+                try
+                {
+                    // AES ile metin şifrele
+                    encryptedText = aesEncrypt.EncryptText(inputText, password);
+                    if (encryptedText == null)
+                    {
+                        MessageBox.Show(aesEncrypt.LastErrorMessage, "AES Şifreleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    txtOutput.AppendText(Environment.NewLine + aesEncrypt.LastSuccessMessage);
+                    Application.DoEvents();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(string.Format(Errors.ERROR_AES_ENCRYPT, ex.Message), "AES Şifreleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // 2. RSA ile AES anahtarını şifrele
+                byte[] encryptedAesKey = null;
+                try
+                {
+                    // Parola ile AES anahtarını oluştur ve RSA ile şifrele
+                    encryptedAesKey = rsaEncrypt.EncryptAesKeyWithPassword(password);
+                    if (encryptedAesKey == null)
+                    {
+                        MessageBox.Show(Errors.ERROR_RSA_ENCRYPT, "RSA Şifreleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
+                    txtOutput.AppendText(Environment.NewLine + Success.ENCRYPT_SUCCESS_RSA);
+                    Application.DoEvents();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(string.Format(Errors.ERROR_RSA_ENCRYPT, ex.Message), "RSA Şifreleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // 3. Veriyi resim içine gizle
+                try
+                {
+                    // Görüntüyü yükle
+                    using (Bitmap originalImage = new Bitmap(selectedImagePath))
+                    {
+                        // WaveletEncrypt sınıfını kullanarak metni ve anahtarı görüntüye gizle
+                        Cls_WaveletEncrypt waveletEncrypt = new Cls_WaveletEncrypt();
+                        
+                        // Şifrelenmiş metin ve anahtarı birleştir (ilk bayt dizisi uzunluğunu kaydet)
+                        byte[] dataToHide = CombineEncryptedData(encryptedText, encryptedAesKey);
+                        
+                        // Wavelet dönüşümü ile veriyi gizle
+                        Bitmap encryptedImage = waveletEncrypt.EncryptTextToImage(originalImage, Convert.ToBase64String(dataToHide), password);
+                        
+                        if (encryptedImage == null)
+                        {
+                            MessageBox.Show(waveletEncrypt.LastErrorMessage, "Wavelet Şifreleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+
+                        // Şifreli görüntüyü kaydet
+                        SaveEncryptedImage(encryptedImage);
+                        
+                        // Kullanıcıya bilgi ver
+                        txtOutput.AppendText(Environment.NewLine + waveletEncrypt.LastSuccessMessage);
+                        txtOutput.AppendText(Environment.NewLine + "Şifreleme işlemi başarıyla tamamlandı!");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(string.Format(Errors.ERROR_WAVELET_ENCODE, ex.Message), "Wavelet Şifreleme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Şifrelenmiş metin ve anahtar verilerini birleştirir
+        /// </summary>
+        /// <param name="encryptedText">Şifrelenmiş metin</param>
+        /// <param name="encryptedKey">Şifrelenmiş anahtar</param>
+        /// <returns>Birleştirilmiş veri</returns>
+        private byte[] CombineEncryptedData(byte[] encryptedText, byte[] encryptedKey)
+        {
+            try
+            {
+                // İlk veri boyutunu içerecek 4 baytlık ön ek
+                byte[] textLengthBytes = BitConverter.GetBytes(encryptedText.Length);
+                
+                // Birleştirilmiş veri için yeni dizi oluştur
+                byte[] combinedData = new byte[4 + encryptedText.Length + encryptedKey.Length];
+                
+                // İlk 4 bayt: şifrelenmiş metin uzunluğu
+                Buffer.BlockCopy(textLengthBytes, 0, combinedData, 0, 4);
+                
+                // Sonraki baytlar: şifrelenmiş metin
+                Buffer.BlockCopy(encryptedText, 0, combinedData, 4, encryptedText.Length);
+                
+                // Son baytlar: şifrelenmiş anahtar
+                Buffer.BlockCopy(encryptedKey, 0, combinedData, 4 + encryptedText.Length, encryptedKey.Length);
+                
+                return combinedData;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), "Veri Birleştirme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Şifrelenmiş görüntüyü kaydeder
+        /// </summary>
+        /// <param name="encryptedImage">Şifrelenmiş görüntü</param>
+        private void SaveEncryptedImage(Bitmap encryptedImage)
+        {
+            try
+            {
+                // Kayıt diyaloğunu oluştur
+                using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+                {
+                    saveFileDialog.Filter = "PNG Görüntü|*.png";
+                    saveFileDialog.Title = "Şifreli Görüntüyü Kaydet";
+                    saveFileDialog.FileName = "encryptedImage.png";
+
+                    // Dosya kaydedilmediyse fonksiyondan çık
+                    if (saveFileDialog.ShowDialog() != DialogResult.OK)
+                        return;
+
+                    // Görüntüyü belirtilen yola kaydet
+                    encryptedImage.Save(saveFileDialog.FileName, ImageFormat.Png);
+                    
+                    // Kullanıcıya bilgi ver
+                    txtOutput.AppendText(Environment.NewLine + Success.IMAGE_SAVE_SUCCESS);
+                    txtOutput.AppendText(Environment.NewLine + $"Dosya yolu: {saveFileDialog.FileName}");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format(Errors.ERROR_FILE_SAVE, ex.Message), "Dosya Kaydetme Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         /// <summary>

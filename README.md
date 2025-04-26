@@ -17,11 +17,11 @@ Bu proje, AES, RSA gibi güçlü şifreleme algoritmalarını ve gelişmiş steg
 ## Gelecek Güncellemeler - Yol Haritası
 
 ### 1. Gün - Altyapı ve Wavelet Entegrasyonu
-- Accord.NET veya AForge.NET kütüphanesinin projeye eklenmesi
-- `Cls_WaveletEncrypt.cs` ve `Cls_WaveletDecrypt.cs` sınıflarının oluşturulması
-- Wavelet dönüşümü için temel metotların uygulanması
-- Görüntüye veri gömme fonksiyonlarının yazılması
-- Dönüşüm katsayılarını değiştirerek veri gizleme algoritmalarının uygulanması
+- Accord.NET veya AForge.NET kütüphanesinin projeye eklenmesi - Tamamlandı
+- `Cls_WaveletEncrypt.cs` ve `Cls_WaveletDecrypt.cs` sınıflarının oluşturulması - Tamamlandı
+- Wavelet dönüşümü için temel metotların uygulanması - Tamamlandı
+- Görüntüye veri gömme fonksiyonlarının yazılması - Tamamlandı
+- Dönüşüm katsayılarını değiştirerek veri gizleme algoritmalarının uygulanması - Tamamlandı
 - Temel birim testlerinin oluşturulması ve çalıştırılması
 
 ### 2. Gün - Şifreleme/Çözme Sistemi Tamamlama

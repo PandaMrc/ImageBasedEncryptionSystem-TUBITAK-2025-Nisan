@@ -47,6 +47,16 @@ namespace ImageBasedEncryptionSystem.TypeLayer
         public const string LSB_CAPACITY_SUCCESS = "LSB kapasitesi yeterli bulundu.";
         #endregion
 
+        #region Wavelet İşlemleri Başarı Mesajları
+        public const string WAVELET_TRANSFORM_SUCCESS = "Dalgacık (Wavelet) dönüşümü başarıyla uygulandı.";
+        public const string WAVELET_INVERSE_SUCCESS = "Ters dalgacık (Wavelet) dönüşümü başarıyla uygulandı.";
+        public const string WAVELET_ENCODE_SUCCESS = "Dalgacık tabanlı veri gizleme işlemi başarıyla tamamlandı.";
+        public const string WAVELET_DECODE_SUCCESS = "Dalgacık tabanlı veri çıkarma işlemi başarıyla tamamlandı.";
+        public const string WAVELET_COEFFICIENT_SUCCESS = "Dalgacık katsayıları başarıyla hesaplandı.";
+        public const string WAVELET_ENCRYPT_SUCCESS = "Dalgacık tabanlı şifreleme işlemi başarıyla tamamlandı.";
+        public const string WAVELET_DECRYPT_SUCCESS = "Dalgacık tabanlı şifre çözme işlemi başarıyla tamamlandı.";
+        #endregion
+
         #region Dosya İşlemleri Başarı Mesajları
         public const string FILE_OPEN_SUCCESS = "Dosya başarıyla açıldı.";
         public const string FILE_SAVE_SUCCESS = "Dosya başarıyla kaydedildi.";
