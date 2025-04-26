@@ -1,0 +1,45 @@
+Yeni bir projeye başladım. Proje dosyasını katmanlı mimariye uygun şekilde yapacağım. Projenin Güncel Hali bu şekilde
+
+ÇözümAdı/GörüntüTabanlıHibritŞifrelemeSistemi 
+│
+├── GörüntüTabanlıHibritŞifrelemeSistemi.UI     → Form ların bulunacağı katman 
+├── GörüntüTabanlıHibritŞifrelemeSistemi.BusinessLayer     → Class ların bulunacağı katman
+├── GörüntüTabanlıHibritŞifrelemeSistemi.DataLayer     → Veritabanı işlemleri  
+├── GörüntüTabanlıHibritŞifrelemeSistemi.TypeLayer     → Hazır mesajların bulunacağı katman.
+
+Projenin işleyişi şu şekilde olacak:
+
+GörüntüTabanlıHibritŞifrelemeSistemi
+│
+├── GörüntüTabanlıHibritŞifrelemeSistemi.UI         → WinForms arayüzü
+│   └── Forms/
+│        └── FrmMenu 
+│        │   └── btnEncrypt → Tıklandığı zaman önce "btnPassword" e girilen metin ile bir AES keyi oluşturacak, daha sonra "txtInput" a girilen metini "Cls_AesEncrypt.cs" class ındaki metod ile şifreleyecek, metin şifreleme işlemi bittikten sonra "btnPassword" e girilen metinle oluşturulan AES keyini "Cls_RsaEncrypt" class ındaki metod ile şifreleyecek. Son olarak 2 ayrı string olarak "txt_input" ve "aes_key" olarak "Cls_LsbEncrypt" classındaki metod ile resmin içerisine şifreleyecek.
+│        │   └── btnDecrypt → "txtPassword"e girilen metinden bir AES keyi oluşturacak "btnImage" ile seçilen resmin şifreli olup olmadığını kontrol edecek. Şifrelenen resimi "Cls_LsbDecrypt" class ındaki metod ile ayırştıracak. Elde edilen 2 stringin önce "aes_key" olanı Cls_RsaDecrypt" classındaki metod la çözecek. Daha sonra çözümlenen "aes_key" ile "txtPassword" ten alınan metinle oluşturulan AES keyleri karşılaştırılacak. Eğer aynı ise resimin içinden çıkartılan "txt_input" "Cls_AesDecrypt.cs" Classındaki metod ile gizlenen metin ortaya çıkacak ve "txtOutput" kısmına iletilecek.
+│        │   └── btnImage → Resim seçmek için bir pencere açar.
+│        │   └── btnInfo → FrmInfo formuna yönlendirir
+│        │   └── txtInput → Kullanıcının girdiği metin "Cls_AesEncrypt.cs" metoduyla şifrelenir şifrelenen metinin AES anahtarı ise "txtPassword" e girilen parola ile oluşturulur.
+│        │   └── txtPassword → Buraya yazılan metin ile yeni bir AES keyi oluşturulur. Başka bir seferde aynı metin girilirse aynı key oluşturulur. "txtPassword"e girilen metin ile oluşturulan key "Cls_RsaEncrypt.cs" Clasındaki metodla şifrelenir.
+│        │   └── txtOutput (Sadece Okunur) → 
+│        │   └── lblInputText → Şifrelenecek Metin:
+│        │   └── lblPaswordText → Parola:
+│        │   └── lblInputText → Çözülen Metin:
+│        │   └── lblImageText → Seçilen Resim:
+│        │   └── pboxImage → Seçilen Resmi Gösterir
+│        └── FrmInfo 
+│            └── btnMenu → FrmMenu ye yönlendirir
+│            └── label1 → Proje Hakkında Bilgiler
+│            └── label2 → Emeği Geçenler
+│
+├── GörüntüTabanlıHibritŞifrelemeSistemi.BusinessLayer        → Merodların Bulunacağı Katman
+│   └── Cls_AesEncrypt.cs → AES şifreleme yöntemini kullanan bir şifreleme metodu yazacağız.
+│   └── Cls_AesDecrypt.cs → AES Şifreleme yöntemini çözecek bir metod yazacağız.
+│   └── Cls_LsbEncrypt.cs → Veri ve kalite kaybı olmadan seçilen bir görselin içerisine metin saklayacak metod yazacağız.
+│   └── Cls_LsbDecrypt.cs → İçerisinde metin saklı olan resimden kalite ve veri kaybı olmadan içindeki metini çıkartabilecek mir metod yazacağız.
+│   └── Cls_RsaEncrypt.cs → RSA şifreleme yöntemi kullanarak bir RSA şifreleme metodu yazacağız.
+│   └── Cls_RsaDecrypt.cs → RSA şifreleme yöntemi kullanarak bir RSA şifre çözme metodu yazacağız
+│
+├── GörüntüTabanlıHibritŞifrelemeSistemi.TypeLayer       → Hazır Mesajların Bulunacağı Katman
+│   └── Errors.cs → Projede oluşabilecek her türlü hata için hazır hata mesajları burada olacak. Diğer Class mesajları buradan çekecek.
+│   └── Succsess.cs → Projede Olumlu sonuç veren her türlü işlemden sonra gösterilecek mesajlar burada yer alacak diğer dosyalar mesajları bu class içinden çekecek.
+

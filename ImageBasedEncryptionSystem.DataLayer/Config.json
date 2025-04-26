@@ -1,0 +1,20 @@
+{
+  "Developers": [
+    {
+      "DevID": "admin",
+      "Password": "12345"
+    },
+    {
+      "DevID": "developer",
+      "Password": "dev123"
+    }
+  ],
+
+  "Identity": [
+    {
+      "SystemIdentity": "VARSAYILAN_KIMLIK_TUBITAK_KSSAL_2025_pVi4-IFdJkbp_-ETi_6x-RYOd-qD_4",
+      "DefeultSystemIdentity": "VARSAYILAN_KIMLIK_TUBITAK_KSSAL_2025_pVi4-IFdJkbp_-ETi_6x-RYOd-qD_4"
+    }
+  ]
+
+} 

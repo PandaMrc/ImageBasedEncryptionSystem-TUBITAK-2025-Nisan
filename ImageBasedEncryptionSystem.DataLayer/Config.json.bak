@@ -1,0 +1,17 @@
+{
+  "Developers": [
+    {
+      "DevID": "admin",
+      "Password": "12345"
+    },
+    {
+      "DevID": "developer",
+      "Password": "dev123"
+    }
+  ]
+
+
+
+,
+  "SystemIdentity": "fo-n_tzXgve-Hz_g46Ew0G_66jHXk_wQo--Izuu4y-N0X"
+} 
