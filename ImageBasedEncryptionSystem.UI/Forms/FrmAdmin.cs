@@ -136,6 +136,14 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                         {
                             string identity = match.Groups[1].Value;
                             txtIdentity.Text = identity;
+                            
+                            // RSA anahtarlarını yükle ve göster
+                            if (parentForm != null && parentForm.RsaEncrypt != null)
+                            {
+                                // Mevcut kimlik ile RSA anahtarlarını göster
+                                string rsaKeys = $"Private Key:\n{parentForm.RsaEncrypt.PrivateKey}\n\nPublic Key:\n{parentForm.RsaEncrypt.PublicKey}";
+                                txtRsaKey.Text = rsaKeys;
+                            }
                         }
                         else
                         {
@@ -151,9 +159,6 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 {
                     txtIdentity.Text = "Sistem_Varsayılan_Kimlik";
                 }
-                
-                // RSA anahtarları için yer tutucu metin
-                txtRsaKey.Text = "RSA anahtarları buraya yüklenecek...";
             }
             catch (Exception ex)
             {
@@ -211,7 +216,12 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 if (result == Success.MESSAGE_GENERAL_SAVED || result == Success.MESSAGE_GENERAL_UPDATED)
                 {
                     txtIdentity.Text = txtNewIdentity.Text;
-                    MessageBox.Show("Yeni kimlik başarıyla kaydedildi.", 
+                    
+                    // Yeni RSA anahtarlarını göster
+                    string rsaKeys = $"Private Key:\n{parentForm.RsaEncrypt.PrivateKey}\n\nPublic Key:\n{parentForm.RsaEncrypt.PublicKey}";
+                    txtRsaKey.Text = rsaKeys;
+                    
+                    MessageBox.Show("Yeni kimlik başarıyla kaydedildi ve RSA anahtarları güncellendi.", 
                         "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
@@ -255,8 +265,8 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                         {
                             string jsonContent = File.ReadAllText(configFilePath);
                             
-                            // DefeultSystemIdentity değerini çıkar
-                            string pattern = "\"DefeultSystemIdentity\"\\s*:\\s*\"([^\"]*)\"";
+                            // DefaultSystemIdentity değerini çıkar
+                            string pattern = "\"DefaultSystemIdentity\"\\s*:\\s*\"([^\"]*)\"";
                             var match = System.Text.RegularExpressions.Regex.Match(jsonContent, pattern);
                             
                             if (match.Success && match.Groups.Count > 1)
@@ -265,7 +275,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                             }
                             else
                             {
-                                // DefeultSystemIdentity bulunamadıysa SystemIdentity'yi bul
+                                // DefaultSystemIdentity bulunamadıysa SystemIdentity'yi bul
                                 pattern = "\"SystemIdentity\"\\s*:\\s*\"([^\"]*)\"";
                                 match = System.Text.RegularExpressions.Regex.Match(jsonContent, pattern);
                                 

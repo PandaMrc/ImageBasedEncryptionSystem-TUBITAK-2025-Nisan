@@ -14,6 +14,84 @@ Bu proje, AES, RSA gibi güçlü şifreleme algoritmalarını ve gelişmiş steg
 - RSA (Rivest-Shamir-Adleman)
 - Wavelet Dönüşümü tabanlı Steganografi
 
+## Proje Mimarisi
+
+### BusinessLayer
+- `Cls_AesEncrypt.cs`: AES şifreleme işlemleri
+- `Cls_AesDecrypt.cs`: AES şifre çözme işlemleri
+- `Cls_RsaEncrypt.cs`: RSA şifreleme işlemleri
+- `Cls_RsaDecrypt.cs`: RSA şifre çözme işlemleri
+- `Cls_WaveletEncrypt.cs`: Wavelet tabanlı veri gizleme
+- `Cls_WaveletDecrypt.cs`: Wavelet tabanlı veri çıkarma
+- `Cls_Developer.cs`: Geliştirici modu yönetimi
+- `Cls_IdentityCreate.cs`: Kimlik oluşturma işlemleri
+- `Cls_Analysis.cs`: Analiz işlemleri
+
+### DataLayer
+- `Cls_Config.cs`: Yapılandırma yönetimi
+- `Config.json`: Sistem kimlikleri ve geliştirici bilgileri
+
+### TypeLayer
+- `Errors.cs`: Hata mesajları
+- `Success.cs`: Başarı mesajları
+
+### UI Katmanı
+- `FrmMenu.cs`: Ana menü formu
+- `FrmAdmin.cs`: Yönetim paneli
+- `FrmAnalysis.cs`: Analiz paneli
+- `FrmInfo.cs`: Bilgilendirme sayfası
+- `FrmLogin.cs`: Giriş sayfası
+
+## Özellikler
+
+### Şifreleme Sistemi
+- AES ile metin şifreleme
+- RSA ile AES anahtarı koruma
+- Wavelet dönüşümü ile görüntüye veri gizleme
+- Gelişmiş parola güvenliği kontrolü
+
+### Geliştirici Modu
+- Geliştirici girişi
+- Geliştirici modu aktifleştirme/devre dışı bırakma
+- Yönetim paneline erişim
+- Analiz paneline erişim
+
+### Analiz Özellikleri
+- Görüntü karşılaştırma
+- Veri gizleme analizi
+- Şifreleme gücü değerlendirmesi
+
+## Kurulum ve Kullanım
+
+1. Projeyi klonlayın
+2. Visual Studio ile açın
+3. Gerekli NuGet paketlerini yükleyin
+4. Projeyi derleyin ve çalıştırın
+
+## Güvenlik Özellikleri
+
+- 256-bit AES şifreleme
+- 3072-bit RSA anahtarları
+- Güvenli parola türetme
+- Görüntü bütünlük kontrolü
+- Hata yönetimi ve günlükleme
+
+## Hata Yönetimi
+
+Proje, kapsamlı bir hata yönetim sistemi içermektedir:
+- Tüm kritik işlemler try-catch blokları ile korunmuştur
+- Özelleştirilmiş hata mesajları kullanıcıya sunulur
+- Hata durumları günlüğe kaydedilir
+- Bellek sızıntıları önlenir
+
+## Lisans
+
+Bu proje MIT lisansı altında lisanslanmıştır.
+
+## İletişim
+
+Proje ile ilgili sorularınız için: [İletişim bilgileri]
+
 ## Gelecek Güncellemeler - Yol Haritası
 
 ### 1. Gün - Altyapı ve Wavelet Entegrasyonu
@@ -25,10 +103,10 @@ Bu proje, AES, RSA gibi güçlü şifreleme algoritmalarını ve gelişmiş steg
 - Temel birim testlerinin oluşturulması ve çalıştırılması
 
 ### 2. Gün - Şifreleme/Çözme Sistemi Tamamlama
-- `FrmMenu.cs` içindeki `btnEncrypt_Click` ve `btnDecrypt_Click` fonksiyonlarının tamamlanması
-- Görüntü yükleme ve kaydetme özelliklerinin eklenmesi
-- AES ve RSA şifreleme entegrasyonunun kontrol edilmesi
-- UI iyileştirmeleri ve kullanıcı deneyiminin geliştirilmesi
+- `FrmMenu.cs` içindeki `btnEncrypt_Click` ve `btnDecrypt_Click` fonksiyonlarının tamamlanması - Tamamlandı
+- Görüntü yükleme ve kaydetme özelliklerinin eklenmesi - Tamamlandı
+- AES ve RSA şifreleme entegrasyonunun kontrol edilmesi - Tamamlandı
+- UI iyileştirmeleri ve kullanıcı deneyiminin geliştirilmesi - Tamamlandı
 - Hata yakalama ve kullanıcı bildirimlerinin iyileştirilmesi
 - İlk end-to-end test: şifreleme ve çözme sürecinin test edilmesi
 
@@ -41,7 +119,7 @@ Bu proje, AES, RSA gibi güçlü şifreleme algoritmalarını ve gelişmiş steg
 - Gizli veri yoğunluğunu tahmin eden yapay zeka algoritmasının uygulanması
 
 ### 4. Gün - Analiz Paneli Geliştirme
-- `FrmAnalysis.cs` sınıfının düzenlenmesi
+- `FrmAnalysis.cs` sınıfının düzenlenmesi 
 - Görüntü karşılaştırma sonuçlarını gösteren UI bileşenlerinin eklenmesi
 - Orijinal ve şifrelenmiş görüntü için yan yana görüntüleme panelinin hazırlanması
 - Isı haritası görselleştirme kontrollerinin eklenmesi
@@ -56,6 +134,8 @@ Bu proje, AES, RSA gibi güçlü şifreleme algoritmalarını ve gelişmiş steg
 - Tüm analizlerin PDF/HTML formatında dışa aktarılmasının sağlanması
 - Analiz sonuçlarını görsel ve sayısal olarak değerlendiren özet panelinin eklenmesi
 
+
+//////// -- /////////
 ### 6. Gün - Test ve Hata Ayıklama
 - Kapsamlı test senaryolarının hazırlanması ve uygulanması
 - Farklı boyut ve formattaki görüntülerle testlerin yapılması

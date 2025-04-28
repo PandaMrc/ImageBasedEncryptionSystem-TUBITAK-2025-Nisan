@@ -1,0 +1,119 @@
+# Projenin Detayları
+
+## BusinessLayer;
+
+UI/Cls_Backgraund.cs → sürekli Projeye uygun bir arka plan görseli oluşturur ve bütün formlarda arka plan resmi olarak kullanılır.
+Cls_AesEncryp.cs → AES yöntemi kullanarak bir şifreleme metodu içerecek. AES KEY 'FrmMenu' sayfasında 'btnEncrypt' butonuna tıklandığında 'txtPassword' e girilen değer ile oluşacak. Aynı değer aynı KEY i oluşturacak. 'txtPassword' e girilen değer doğrudan KEY olarak kullanılmayacak, oraya girilen değere göre rastgele 256 bitlik bir AES KEY üretilecek.
+Cls_AesDecrypt.cs → AES Yöntemini kullanarak bir şifre çözme metodu içerecek. Şifre çözme işlemi için 'AES KEY', 'FrmMenu' de 'btnDecrypt' butonuna basıldığında 'txtPassword' e girilmiş olan değer le üretilmiş KEY ile yapılacak.
+Cls_RsaEncrypt.cs → RSA yöntemi kullanan bir şifreleme metodu içerecek. RSA için gereken 'Private Key' ve 'Public Key', 'DataLayer' katmanında bulunan 'Config.json' dosyasındaki mevcut 'SystemIdentity' değerine göre oluşturulacak. Aynı değerler aynı KEY leri oluşturacak. 'SystemIdentity' değeri doğrudan key olarak kullanılmayacak 'SystemIdentity' değerine göre rastgele 3072 bitlik 'Private Key' ve 'Public KEY' oluşturulur.
+Cls_RsaEncrypt → RSA yöntemi kullanan bir şifre çözme metodu içerecek. Şifre çözme için gereken 'Private Key' i 'DataLayer' Katmanında bulunan 'Config.json' dosyasındaki 'SystemIdentity' değerinden oluşturulacak. Bu KEY i oluşturma yöntemi 'Cls_RsaEncrypt' teki aynı yöntem le yapılacak.
+Cls_WaveletEncrypt → Accord.NET'in Wavelet yöntemi ile görselin içerisine veri saklama metodu içerecek.
+Cls_WaveletDecrypt → AccordçNET'in Wavelet yöntemi ile görselin içerisine saklanan veriyi çıkartma metodu içerecek. 'Cls_WaveletEncrypt' içindeki metodla görsel içine sakalanan veriyi görselden çıkartabilecek.
+Cls_Developer → aktif-deaktif edilebilir 'Geliştirici Modu' için ve Geliştirici modunun getirdiği özellikler için gerekli metodları içerecek. 
+Cls_IdentityCreate → 'FrmAdmin' de 'btnRandom' butonunda kullanmak üzere rastgele kimlik üretmek için bir metod içerecek. Üretilen kimlikte Büyük-Küçük harfler, Rakamlar ve '_','-' değerlerini içerecek ve min. 10 Max. 50 karakterden oluşacak. Boşluk içeremez ve özel karakterlerle başlayamaz.
+Cls_Analysis → 'FrmAnalysis' te kullanılmak üzere analiz işlemlerinde kullanılacak bütün metodları içerecek.
+
+---
+
+## DataLayer Katmanı;
+
+Cls_Config.cs → Eğer 'Config.json' bulunamaz ise Default değerlere sabit bir 'Config.json' oluşturur.
+Config.json → RSA keylerinin üretiminde kullanılan kimliklerin ve Geliştirici hesaplarının bilgilerinin saklandığı bir dosya. Bu dosya içindeki bilgiler dışarı aktarma sonrası setup yapıldıktan sonra uygulamayı kullanmak için gerekli oacak. Ona uygun şekilde yap ve dosyayı AES ile şifrele. AES KEY her zaman sabit olacak.
+
+---
+
+### TypeLayer Katmanı;
+
+Errors.cs → Bütün projedeki hata mesajları dinamik olarak bu sınıf içerisinden alınır.
+Succsess.cs → Bütün projedeki başarı mesajları dinamik olarak bu sınıf içerisinden alınır.
+
+---
+
+## UI Katmanı;
+
+### FrmAdmin → Admin Yönetim Paneli sayfası
+İşevi;
+- Default bir kimlik var ve bu kimlik RSA anahtarı üretiminde kullanılacak. Bu kimlik değiştirilebilir veya rastgele yeni kimlik üretilebilir. Aynı kimlik aynı RSA anahtarını üretir.
+- Yeni kimlik oluşturulursa veya elle girilen değer kaydedilirse bu kimlik 'DataLayer' katmanındaki 'Config.json' "SystemIdentity" olarak içine kaydedilir.
+- 'DefaultSystemIdentity' ve 'SystemIdentity', 'DataLayer' katmanında 'Config.json' içinden alınır.
+- Mevcut kimlik yani 'SystemIdentity', RSA ile Şifreleme ve Şifre çözme için gereken 'Public Key' ve 'Private Key'i oluşturmak için kullanılcak.
+
+### FrmAnalysis → Analiz Paneli
+İçerisine veri saklanan görselin çeşitle analizler yaparak orjinal görselde gözle görülemeyecek farklılıklarını kullanıcıya gösterir.
+
+### FrmInfo → Bilgilendirme sayfası
+Uygulama hakkında çeşitli bilgileri içerir.
+
+### FrmLogin → Giriş Yapma
+Geliştirici kimliği ve Parola kullanarak giriş yapmak için kullanılır.
+Giriş yapılırsa FrmAnalysis ve FrmAdmin sayfalarına erişim yapılabilir.
+Geliştirici kimliği ve parola bilgileri 'DataLayer' katmanındaki 'Config.json' içinden alınır.
+
+
+### FrmMenu → Ana sayfa
+btnImage : Bir resim seçtirir.
+txtInput : Bir Metin girilir
+txtPassword : Bir Parola girilir ve girilen parola ile AES KEY oluşturulur. Aynı parolayı girmek, aynı AES keyini oluşturur.
+txtOutput : Çözme işlemi sonucu elde edilen metini iletir.
+pboxImage : Seçilen resmi gösterir
+btnEncrypt : 'txtInput' a girilen metini AES ile şifreler ve çözmek için oluşturulan KEY'i 'txtPassword'e girilen değerle oluşturur. Daha sonra oluşturulan 'AES KEY'i RSA ile şifreler. En son "AES ile şifrelenmiş metin"+"RSA ile şifrelenmiş 'AES_KEY'i" olarak seçilen görselin içerisine gizler(Accord.NET'in Wavelet yöntemiyle, Görselin kalitesini min. bozacak şekilde ve boyutunu, rengini değiştirmeden) ve resime her zaman sabit olan bir HASH değeri verir.
+btnDecrypt : Butona basabilmek için parola yazılması ve resim seçilmesi gerekir. Seçilen resimde sabit HASH değeri var mı kontrol eder. ( Şifrede gizlenmiş veri var mı anlamak için.) Eğer resimin HASH değeri programın verdiği sabit HASH değeriyle uyuşursa resimdeki gizlenmiş veriyi çıkartır.("AES ile şifrelenmiş metin"+"RSA ile şifrelenmiş 'AES_KEY'i") Çıkartılan verilerden ilk başta 'AES ile şfirelenmiş AES_KEY i ni çözer. Daha sonra elde edilen sonuç ile 'txtPassword' e girilen değerle oluşan 'AES_KEY' ile çözülen 'RSA ile şifrelenmiş AES_KEY i karşılaştırır. Eğer iki KEY eşleşirse görselden çıkartılan 'AES ile şifrelenmiş metin', 'AES_KEY' kullanılarak çözülür ve elde edilen metin 'txtOutput' a iletilir. 
+pbLogin : 'FrmLogin' e yönlendirir
+btnDevMode : Geliştirici girişi yapılmışsa Geliştirici mdounu aktif-deaktif etme işlemlerini sağlar.
+btnAdmin : Eğer Geliştirici girişi yapılmışsa ve Geliştirici Modu aktif edilmiş ise 'FrmAdmin' sayfasına yönlendirir.
+btnAnalysis : Eğer Geliştirici girişi yapılmışsa ve Geliştirici Modu aktif edilmiş ise 'FrmAnalysis' sayfasına yönlendirir.
+btnInfo : 'FrmInfo' sayfasına yönlendirir.
+
+
+## Try-Catch ve Hata Yönetimi İçin Geliştirme Önerileri
+
+### İyileştirme Adımları:
+
+1. **TypeLayer Katmanındaki Errors.cs ve Success.cs**
+   - Hata ve başarı mesajları kategorize edildi ve format iyileştirildi
+   - Parametre içeren dinamik mesajlar için `string.Format` kullanımı için {0} yerleştiricisi eklendi
+   - Eski format kodları kaldırıldı ve yeni daha detaylı mesajlar eklendi
+   - Tüm olası hata senaryoları kapsayacak şekilde yeni mesajlar eklendi
+
+2. **BusinessLayer Sınıfları**
+   - Tüm metotlar, iç içe try-catch blokları ile güçlendirildi
+   - Özellikle kritik kriptografik operasyonlarda detaylı hata kontrolü yapıldı
+   - Özelleştirilmiş istisnalar (ArgumentException, CryptographicException vb.) doğru şekilde ele alındı
+   - İstisnalarda detaylı hata mesajları için string.Format kullanımı uygulandı
+   - Bellek sızıntılarını önlemek için finally blokları ve dispose mekanizmaları eklendi
+   - Başarılı işlemler için System.Diagnostics.Debug.WriteLine ile günlükleme eklendi
+
+3. **UI Katmanı**
+   - Kullanıcı girişleri için kapsamlı kontroller eklendi
+   - Şifreleme/Çözme gibi uzun süreli işlemler için ilerleme göstergeleri
+   - Hatalar kategorize edilerek kullanıcıya anlamlı geri bildirimler sunuldu
+   - İşlemlerin her adımı try-catch blokları ile korundu
+   - Başarı mesajları için TypeLayer.Success sınıfı kullanıldı
+
+4. **DataLayer ve Config İşlemleri**
+   - Dosya işlemleri için kapsamlı hata kontrolü
+   - Config.json erişim ve işleme sırasında güvenlik kontrolleri
+   - Varsayılan değerler için yedek mekanizmalar
+
+5. **Genel İyileştirmeler**
+   - Tüm metodlarda input validasyonu yapıldı
+   - Hata mesajlarında format string kullanımı ile tutarlı hata bildirimi sağlandı
+   - Başarı durumlarında anlamlı geri bildirimler eklendi
+   - Nested try-catch blokları ile hassas noktalarda özel hata yakalama
+   - Kritik sistem kaynakları için uygun temizleme işlemleri
+
+### Uygulanan Hata-Başarı Senaryoları:
+- Girdi doğrulama hataları (boş metin, kısa parola, vb.)
+- Şifreleme/Çözme hataları (yanlış parola, format hatası, vb.)
+- Dosya işlem hataları (okuma/yazma, erişim reddedildi, vb.)
+- Görüntü işleme hataları (format, boyut, vb.)
+- Bellek/Sistem kaynağı hataları
+- Kriptografik özel durumlar (anahtar oluşturma, salt değeri, vb.)
+- Veri gizleme/çıkarma başarı ve hataları
+- Ağ bağlantısı ve sistem tabanlı hatalar
+
+Bu iyileştirmeler ile uygulama daha sağlam, kullanıcı dostu ve güvenilir hale getirilmiştir.
+
+
+
+

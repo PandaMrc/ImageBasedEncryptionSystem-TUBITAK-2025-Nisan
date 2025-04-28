@@ -6,84 +6,70 @@ using System.Threading.Tasks;
 
 namespace ImageBasedEncryptionSystem.TypeLayer
 {
+    /// <summary>
+    /// Uygulama genelinde kullanılan başarı mesajlarını içeren statik sınıf
+    /// </summary>
     public static class Success
     {
-        #region Genel Başarı Mesajları     
-        // Yeni sabitler
-        public const string MESSAGE_GENERAL_SUCCESS = "İşlem Başarılı!";
-        public const string MESSAGE_GENERAL_COMPLETE = "İşlem tamamlandı!";
-        public const string MESSAGE_GENERAL_SAVED = "Veriler başarıyla kaydedildi.";
-        public const string MESSAGE_GENERAL_UPDATED = "Veriler başarıyla güncellendi.";
-        public const string MESSAGE_GENERAL_OPTIMIZED = "İşlem optimize edildi ve başarıyla tamamlandı.";
-        public const string MESSAGE_GENERAL_VALIDATED = "Veriler doğrulandı ve geçerli.";
-        public const string MESSAGE_GENERAL_INITIALIZED = "Sistem başarıyla başlatıldı.";
+        #region Genel Başarı Mesajları
+        public const string MESSAGE_GENERAL_SUCCESS = "İşlem başarıyla tamamlandı.";
+        public const string MESSAGE_GENERAL_SAVED = "Bilgiler başarıyla kaydedildi.";
+        public const string MESSAGE_GENERAL_UPDATED = "Bilgiler başarıyla güncellendi.";
+        public const string MESSAGE_GENERAL_DELETED = "Bilgiler başarıyla silindi.";
+        public const string MESSAGE_GENERAL_LOADED = "Bilgiler başarıyla yüklendi.";
         #endregion
 
-        #region Şifreleme/Şifre Çözme Başarı Mesajları
-        public const string ENCRYPT_SUCCESS_GENERAL = "Şifreleme İşlemi Başarılı!";
-        public const string DECRYPT_SUCCESS_GENERAL = "Şifre Çözme İşlemi Başarılı!";
-        public const string ENCRYPT_SUCCESS_AES = "AES şifreleme işlemi başarıyla tamamlandı.";
-        public const string DECRYPT_SUCCESS_AES = "AES şifre çözme işlemi başarıyla tamamlandı.";
-        public const string ENCRYPT_SUCCESS_RSA = "RSA şifreleme işlemi başarıyla tamamlandı.";
-        public const string DECRYPT_SUCCESS_RSA = "RSA şifre çözme işlemi başarıyla tamamlandı.";
-        public const string ENCRYPT_SUCCESS_AES_RSA = "AES-RSA hibrit şifreleme başarıyla tamamlandı.";
-        public const string DECRYPT_SUCCESS_AES_RSA = "AES-RSA hibrit şifre çözme başarıyla tamamlandı.";
-        public const string KEY_GENERATION_SUCCESS = "Şifreleme anahtarları başarıyla oluşturuldu.";
-        public const string KEY_VALIDATION_SUCCESS = "Anahtar doğrulama başarılı.";
-        public const string PASSWORD_VALIDATION_SUCCESS = "Şifre doğrulama başarılı.";
+        #region Şifreleme/Çözme İşlemleri Başarı Mesajları
+        public const string ENCRYPT_SUCCESS_GENERAL = "Veri başarıyla şifrelendi ve görüntüye gizlendi.";
+        public const string DECRYPT_SUCCESS_GENERAL = "Şifreli metin başarıyla çözüldü.";
+        public const string ENCRYPT_SUCCESS_DETAILED = "Metin AES ile şifrelendi, RSA ile anahtar korundu ve görüntüye gizlendi.";
+        public const string DECRYPT_SUCCESS_DETAILED = "Görüntüden çıkarılan şifreli metin başarıyla çözüldü.";
+        public const string ENCRYPT_SUCCESS_AES = "Metin AES algoritması ile başarıyla şifrelendi.";
+        public const string DECRYPT_SUCCESS_AES = "Metin AES algoritması ile başarıyla çözüldü.";
+        public const string ENCRYPT_SUCCESS_RSA = "Metin RSA algoritması ile başarıyla şifrelendi.";
+        public const string DECRYPT_SUCCESS_RSA = "Metin RSA algoritması ile başarıyla çözüldü.";
+        public const string ENCRYPT_DATA_HIDDEN = "Veri görüntüye başarıyla gizlendi.";
+        public const string DECRYPT_DATA_EXTRACTED = "Veri görüntüden başarıyla çıkarıldı.";
         #endregion
 
-        #region Görsel İşlemleri Başarı Mesajları
-        public const string IMAGE_HIDE_SUCCESS = "Veri görsele başarıyla gizlendi.";
-        public const string IMAGE_EXTRACT_SUCCESS = "Veri görselden başarıyla çıkarıldı.";
-        public const string IMAGE_SAVE_SUCCESS = "Görsel başarıyla kaydedildi.";
-        public const string IMAGE_LOAD_SUCCESS = "Görsel başarıyla yüklendi.";
-        public const string IMAGE_PROCESS_SUCCESS = "Görsel işleme başarıyla tamamlandı.";
-        #endregion
-
-        #region LSB İşlemleri Başarı Mesajları
-        public const string LSB_HIDE_SUCCESS = "LSB yöntemiyle veri başarıyla gizlendi.";
-        public const string LSB_EXTRACT_SUCCESS = "LSB yöntemiyle veri başarıyla çıkarıldı.";
-        public const string LSB_CAPACITY_SUCCESS = "LSB kapasitesi yeterli bulundu.";
-        #endregion
-
-        #region Wavelet İşlemleri Başarı Mesajları
-        public const string WAVELET_TRANSFORM_SUCCESS = "Dalgacık (Wavelet) dönüşümü başarıyla uygulandı.";
-        public const string WAVELET_INVERSE_SUCCESS = "Ters dalgacık (Wavelet) dönüşümü başarıyla uygulandı.";
-        public const string WAVELET_ENCODE_SUCCESS = "Dalgacık tabanlı veri gizleme işlemi başarıyla tamamlandı.";
-        public const string WAVELET_DECODE_SUCCESS = "Dalgacık tabanlı veri çıkarma işlemi başarıyla tamamlandı.";
-        public const string WAVELET_COEFFICIENT_SUCCESS = "Dalgacık katsayıları başarıyla hesaplandı.";
-        public const string WAVELET_ENCRYPT_SUCCESS = "Dalgacık tabanlı şifreleme işlemi başarıyla tamamlandı.";
-        public const string WAVELET_DECRYPT_SUCCESS = "Dalgacık tabanlı şifre çözme işlemi başarıyla tamamlandı.";
+        #region Anahtar İşlemleri Başarı Mesajları
+        public const string KEY_GENERATION_SUCCESS = "Anahtar başarıyla oluşturuldu.";
+        public const string KEY_SAVE_SUCCESS = "Anahtar başarıyla kaydedildi.";
         #endregion
 
         #region Dosya İşlemleri Başarı Mesajları
-        public const string FILE_OPEN_SUCCESS = "Dosya başarıyla açıldı.";
         public const string FILE_SAVE_SUCCESS = "Dosya başarıyla kaydedildi.";
-        #endregion
-
-        #region Kullanıcı İşlemleri Başarı Mesajları
-        public const string LOGIN_SUCCESS = "Giriş başarılı!";
-        public const string LOGOUT_SUCCESS = "Çıkış başarılı!";
+        public const string FILE_OPEN_SUCCESS = "Dosya başarıyla açıldı.";
         #endregion
 
         #region Geliştirici Modu Başarı Mesajları
+        public const string DEV_MODE_ACTIVATED = "Geliştirici modu başarıyla etkinleştirildi.";
+        public const string DEV_MODE_DEACTIVATED = "Geliştirici modu başarıyla devre dışı bırakıldı.";
+        public const string DEV_MODE_LOGIN_SUCCESS = "Geliştirici girişi başarıyla yapıldı.";
+        public const string DEV_MODE_LOGOUT_SUCCESS = "Geliştirici oturumu başarıyla kapatıldı.";
+        public const string LOGIN_SUCCESS = "Giriş başarıyla yapıldı.";
+        public const string LOGOUT_SUCCESS = "Oturum başarıyla kapatıldı.";
         public const string DEV_MODE_ACTIVATE_SUCCESS = "Geliştirici modu başarıyla etkinleştirildi.";
         public const string DEV_MODE_DEACTIVATE_SUCCESS = "Geliştirici modu başarıyla devre dışı bırakıldı.";
-        public const string DEV_MODE_LOGIN_SUCCESS = "Geliştirici girişi başarılı.";
-        public const string DEV_MODE_LOGOUT_SUCCESS = "Geliştirici oturumu başarıyla kapatıldı.";
-        public const string DEV_MODE_FEATURE_ACTIVATED = "Geliştirici özelliği başarıyla etkinleştirildi: {0}";
         #endregion
 
-        #region Analiz Başarı Mesajları
-        public const string ANALYSIS_PROCESS_SUCCESS = "Analiz işlemi başarıyla tamamlandı.";
-        public const string ANALYSIS_COMPARE_SUCCESS = "Karşılaştırma analizi başarılı.";
+        #region Görsel İşleme Başarı Mesajları
+        public const string IMAGE_LOAD_SUCCESS = "Görüntü başarıyla yüklendi.";
+        public const string IMAGE_SAVE_SUCCESS = "Görüntü başarıyla kaydedildi.";
+        public const string IMAGE_PROCESS_SUCCESS = "Görüntü işleme başarıyla tamamlandı.";
         #endregion
 
-        #region İşlem Sonuçları
-        public const string RESULT_SUCCESS_WITH_COUNT = "{0} adet öğe başarıyla işlendi.";
-        public const string RESULT_SUCCESS_RATIO = "İşlem %{0} başarı oranıyla tamamlandı.";
-        public const string RESULT_SUCCESS_TIME = "İşlem {0} sürede tamamlandı.";
+        #region Kimlik İşlemleri Başarı Mesajları
+        public const string IDENTITY_CREATE_SUCCESS = "Kimlik başarıyla oluşturuldu.";
+        public const string IDENTITY_UPDATE_SUCCESS = "Kimlik başarıyla güncellendi.";
+        public const string IDENTITY_SAVE_SUCCESS = "Kimlik bilgileri başarıyla kaydedildi.";
+        public const string IDENTITY_GENERATE_SUCCESS = "Rastgele kimlik başarıyla oluşturuldu.";
+        #endregion
+
+        #region Sistem İşlemleri Başarı Mesajları
+        public const string SYSTEM_INIT_SUCCESS = "Sistem başlatma işlemi başarılı.";
+        public const string SYSTEM_CONFIG_SAVE_SUCCESS = "Sistem yapılandırması başarıyla kaydedildi.";
+        public const string SYSTEM_CONFIG_LOAD_SUCCESS = "Sistem yapılandırması başarıyla yüklendi.";
         #endregion
     }
-} 
+}

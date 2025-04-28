@@ -8,8 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-using System.Drawing;
-
 namespace ImageBasedEncryptionSystem.UI.Properties
 {
 
@@ -26,7 +24,6 @@ namespace ImageBasedEncryptionSystem.UI.Properties
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources
     {
-        internal static Image lock_icon;
         private static global::System.Resources.ResourceManager resourceMan;
 
         private static global::System.Globalization.CultureInfo resourceCulture;

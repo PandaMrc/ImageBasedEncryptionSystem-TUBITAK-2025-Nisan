@@ -40,4 +40,7 @@ Global
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {66A42EED-80BC-45C9-A84A-CA4C0934FB51}
 	EndGlobalSection
+	GlobalSection(RuntimeIdentifiers) = preSolution
+		win = win
+	EndGlobalSection
 EndGlobal

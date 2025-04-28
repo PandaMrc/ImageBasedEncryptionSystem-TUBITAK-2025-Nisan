@@ -16,16 +16,21 @@ namespace ImageBasedEncryptionSystem.UI.Forms
     {
         // FrmMenu'ya dönmek için referans
         private FrmMenu _menuForm;
+        
+        // RichTextBox kontrolü
+        private RichTextBox txtInfo;
 
         public FrmInfo()
         {
             InitializeComponent();
+            InitializeInformation();
         }
 
         public FrmInfo(FrmMenu menuForm)
         {
             InitializeComponent();
             _menuForm = menuForm;
+            InitializeInformation();
         }
 
         private void FrmInfo_Load(object sender, EventArgs e)
@@ -106,11 +111,11 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 "Resim Tabanlı Şifreleme Sistemi, birkaç temel prensip üzerine kurulmuştur:\r\n\r\n" +
                 "1. Şifreleme Aşaması:\r\n" +
                 "   • Dosya/metin önce AES-256 şifreleme algoritması ile şifrelenir.\r\n" +
-                "   • Şifrelenen veri, LSB (En Önemsiz Bit) stenografi yöntemiyle resim içerisine gömülür.\r\n" +
-                "   • Bu işlem sırasında resmin her pikselinin en önemsiz bitleri değiştirilerek veri gizlenir.\r\n" +
+                "   • Şifrelenen veri, Wavelet dönüşümü stenografi yöntemiyle resim içerisine gömülür.\r\n" +
+                "   • Bu işlem sırasında resmin dalgacık katsayıları değiştirilerek veri gizlenir.\r\n" +
                 "   • Gözle görülmeyen bu değişiklikler, resmin görünümünü etkilemez.\r\n\r\n" +
                 "2. Şifre Çözme Aşaması:\r\n" +
-                "   • Şifrelenmiş resim okunur ve LSB yöntemiyle gizlenmiş veri çıkarılır.\r\n" +
+                "   • Şifrelenmiş resim okunur ve Wavelet dönüşümü yöntemiyle gizlenmiş veri çıkarılır.\r\n" +
                 "   • Çıkarılan veri, doğru şifre kullanılarak AES-256 algoritmasıyla çözülür.\r\n" +
                 "   • Orijinal dosya/metin kullanıcıya sunulur.\r\n\r\n" +
                 "3. Gizlilik Mekanizması:\r\n" +
@@ -164,7 +169,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 "Kullanılan Teknolojiler:\r\n" +
                 "• .NET Framework\r\n" +
                 "• AES-256 Şifreleme\r\n" +
-                "• LSB Stenografi\r\n" +
+                "• Wavelet Dönüşümü Stenografi\r\n" +
                 "• Guna UI Framework\r\n\r\n" +
                 "İletişim:\r\n" +
                 "E-posta: info@resimsifrele.com\r\n" +
@@ -207,6 +212,155 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                     newMenuForm.Show();
                 }
             }
+        }
+
+        // Form içeriğini hazırla
+        private void InitializeInformation()
+        {
+            // txtInfo kontrolünü oluştur
+            txtInfo = new RichTextBox();
+            txtInfo.Size = new Size(600, 400);
+            txtInfo.Location = new Point(12, 40);
+            txtInfo.BackColor = Color.FromArgb(30, 30, 50);
+            txtInfo.ForeColor = Color.White;
+            txtInfo.BorderStyle = BorderStyle.None;
+            txtInfo.ReadOnly = true;
+
+            // Program adı ve özelliklerini ekle
+            DisplayTitle();
+            DisplayGeneralDescription();
+            DisplayWorkflowDescription();
+            DisplayKeyFeatures();
+            DisplaySecurityFeatures();
+            DisplayUsageTips();
+            DisplayVersion();
+        }
+
+        // Program başlığı ve yazarlar
+        private void DisplayTitle()
+        {
+            txtInfo.SelectionFont = new Font(txtInfo.Font.FontFamily, 16, FontStyle.Bold);
+            txtInfo.SelectionAlignment = HorizontalAlignment.Center;
+            txtInfo.AppendText("IMAGE BASED ENCRYPTION SYSTEM\r\n\r\n");
+
+            txtInfo.SelectionFont = new Font(txtInfo.Font.FontFamily, 10, FontStyle.Italic);
+            txtInfo.SelectionAlignment = HorizontalAlignment.Center;
+            txtInfo.AppendText("Geliştiriciler: Meriç Zorlu & Erçin Berk\r\n\r\n");
+        }
+
+        // Genel program açıklaması
+        private void DisplayGeneralDescription()
+        {
+            txtInfo.SelectionFont = new Font(txtInfo.Font.FontFamily, 12, FontStyle.Bold);
+            txtInfo.SelectionAlignment = HorizontalAlignment.Left;
+            txtInfo.AppendText("PROGRAM HAKKINDA\r\n\r\n");
+
+            txtInfo.SelectionFont = new Font(txtInfo.Font.FontFamily, 10, FontStyle.Regular);
+            txtInfo.SelectionAlignment = HorizontalAlignment.Left;
+            txtInfo.AppendText(
+                "Image Based Encryption System, metin tabanlı verileri görüntüler içerisine güvenli bir şekilde gizleyebilen " +
+                "ve şifreli olarak saklayabilen gelişmiş bir steganografi uygulamasıdır. Program, " +
+                "çoklu şifreleme algoritmaları kullanarak steganografi işlemi öncesinde metninizi " +
+                "şifreler ve böylece maksimum güvenlik sağlar.\r\n\r\n");
+        }
+
+        // Çalışma akışı açıklaması
+        private void DisplayWorkflowDescription()
+        {
+            txtInfo.SelectionFont = new Font(txtInfo.Font.FontFamily, 12, FontStyle.Bold);
+            txtInfo.AppendText("ÇALIŞMA PRENSİBİ\r\n\r\n");
+
+            txtInfo.SelectionFont = new Font(txtInfo.Font.FontFamily, 10, FontStyle.Regular);
+            txtInfo.AppendText("Şifreleme İşlemi Akışı:\r\n");
+            txtInfo.AppendText(
+                "   • Kullanıcı bir metin, bir parola ve bir resim dosyası seçer.\r\n" +
+                "   • Parola AES şifreleme anahtarına dönüştürülür.\r\n" +
+                "   • Metin, AES algoritması ile şifrelenir.\r\n" +
+                "   • AES anahtarı RSA ile şifrelenir.\r\n" +
+                "   • Şifrelenen veri, Wavelet dönüşümü stenografi yöntemiyle resim içerisine gömülür.\r\n" +
+                "   • Sonuç olarak görsel açıdan normal görünen ama içerisinde şifreli veri taşıyan bir resim oluşur.\r\n\r\n");
+
+            txtInfo.AppendText("Şifre Çözme İşlemi Akışı:\r\n");
+            txtInfo.AppendText(
+                "   • Kullanıcı şifreli resim ve parolayı girer.\r\n" +
+                "   • Şifrelenmiş resim okunur ve Wavelet dönüşümü yöntemiyle gizlenmiş veri çıkarılır.\r\n" +
+                "   • Parola AES anahtarına dönüştürülür ve doğrulanır.\r\n" +
+                "   • AES anahtarı kullanılarak şifreli metin çözülür.\r\n" +
+                "   • Orijinal metin kullanıcıya gösterilir.\r\n\r\n");
+        }
+
+        // Anahtar özellikleri
+        private void DisplayKeyFeatures()
+        {
+            txtInfo.SelectionFont = new Font(txtInfo.Font.FontFamily, 12, FontStyle.Bold);
+            txtInfo.AppendText("ANAHTAR ÖZELLİKLER\r\n\r\n");
+
+            txtInfo.SelectionFont = new Font(txtInfo.Font.FontFamily, 10, FontStyle.Regular);
+            txtInfo.AppendText(
+                "• Çoklu Şifreleme\r\n" +
+                "  - AES-256 şifreleme (metin için)\r\n" +
+                "  - RSA-2048 şifreleme (anahtar koruma için)\r\n\r\n" +
+                "• Wavelet Dönüşümü Steganografi\r\n" +
+                "  - Farklı Wavelet aileleri desteği (Haar, Daubechies)\r\n" +
+                "  - Çoklu ayrışım seviyesi desteği\r\n" +
+                "  - Görünmez veri saklama\r\n\r\n" +
+                "• Kullanıcı Dostu Arayüz\r\n" +
+                "  - Basit ve sezgisel kullanım\r\n" +
+                "  - Adım adım rehberlik\r\n\r\n" +
+                "• Geliştirici Modu\r\n" +
+                "  - İleri seviye özellikler\r\n" +
+                "  - Analiz araçları\r\n" +
+                "  - İşlem geçmişi\r\n\r\n");
+        }
+
+        // Güvenlik özellikleri
+        private void DisplaySecurityFeatures()
+        {
+            txtInfo.SelectionFont = new Font(txtInfo.Font.FontFamily, 12, FontStyle.Bold);
+            txtInfo.AppendText("GÜVENLİK ÖZELLİKLERİ\r\n\r\n");
+
+            txtInfo.SelectionFont = new Font(txtInfo.Font.FontFamily, 10, FontStyle.Regular);
+            txtInfo.AppendText(
+                "• Parola Gereksinimi\r\n" +
+                "  - Şifrelenmemiş veri asla görüntüye gömülmez\r\n" +
+                "  - Görsel analiz ile veri tespiti neredeyse imkansız\r\n\r\n" +
+                "• Çoklu Katman Güvenliği\r\n" +
+                "  - Veri önce AES ile şifrelenir\r\n" +
+                "  - AES anahtarı RSA ile korunur\r\n" +
+                "  - Şifreli veri Wavelet dönüşümü ile gizlenir\r\n\r\n" +
+                "• Güvenli Şifre Yönetimi\r\n" +
+                "  - Anahtarlar bellek içinde güvenli şekilde işlenir\r\n" +
+                "  - Şifre geçerlilik kontrolü\r\n\r\n");
+        }
+
+        // Kullanım önerileri
+        private void DisplayUsageTips()
+        {
+            txtInfo.SelectionFont = new Font(txtInfo.Font.FontFamily, 12, FontStyle.Bold);
+            txtInfo.AppendText("KULLANIM ÖNERİLERİ\r\n\r\n");
+
+            txtInfo.SelectionFont = new Font(txtInfo.Font.FontFamily, 10, FontStyle.Regular);
+            txtInfo.AppendText(
+                "• Yüksek çözünürlüklü görseller kullanın (ideal: 1024x1024 veya daha yüksek).\r\n" +
+                "• Karmaşık desenlere sahip görseller tercih edin.\r\n" +
+                "• Güçlü parolalar oluşturun (en az 8 karakter, sayı ve özel karakter içeren).\r\n" +
+                "• Çok büyük metinler için görsel boyutunu uygun seçin.\r\n" +
+                "• Şifrelenmiş görseli kayıpsız formatta (PNG) saklayın.\r\n" +
+                "• Görsele filtre uygulamayın veya yeniden boyutlandırmayın.\r\n\r\n");
+        }
+
+        // Versiyon bilgisi
+        private void DisplayVersion()
+        {
+            txtInfo.SelectionFont = new Font(txtInfo.Font.FontFamily, 9, FontStyle.Italic);
+            txtInfo.SelectionAlignment = HorizontalAlignment.Center;
+            txtInfo.AppendText("Versiyon 2.0.0 | © 2023 Tüm Hakları Saklıdır\r\n");
+        }
+
+        // Geri dönüş butonu
+        private void btnBack_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

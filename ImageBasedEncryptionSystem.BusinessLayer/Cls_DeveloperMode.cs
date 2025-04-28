@@ -206,6 +206,86 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
         #endregion
         #endregion
 
+        #region History Methods
+        /// <summary>
+        /// Şifreleme veya şifre çözme işlemlerinin geçmişini kaydeder
+        /// </summary>
+        /// <param name="historyData">Kaydedilecek işlem verileri</param>
+        public void AddToEncryptionHistory(Dictionary<string, object> historyData)
+        {
+            try
+            {
+                if (!_isLoggedIn || !_isDevModeActive)
+                    return;
+
+                // Geçmiş dosyasının yolunu belirle
+                string historyFilePath = Path.Combine(
+                    Path.GetDirectoryName(ConfigFilePath),
+                    "encryption_history.json");
+
+                // Mevcut geçmiş verilerini yükle veya yeni oluştur
+                List<Dictionary<string, object>> historyList;
+                if (File.Exists(historyFilePath))
+                {
+                    string jsonContent = File.ReadAllText(historyFilePath);
+                    historyList = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(jsonContent) 
+                                 ?? new List<Dictionary<string, object>>();
+                }
+                else
+                {
+                    historyList = new List<Dictionary<string, object>>();
+                }
+
+                // Geliştirici bilgisini ekle
+                historyData["DeveloperId"] = _currentDevId;
+
+                // Geçmişe yeni kaydı ekle
+                historyList.Add(historyData);
+
+                // Dosyaya kaydet
+                string updatedJson = JsonConvert.SerializeObject(historyList, Formatting.Indented);
+                File.WriteAllText(historyFilePath, updatedJson);
+            }
+            catch (Exception ex)
+            {
+                // Geçmiş kaydında hata - sessizce göz ardı et
+                System.Diagnostics.Debug.WriteLine($"Şifreleme geçmişi kaydedilirken hata: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Şifreleme geçmişini okur ve döndürür
+        /// </summary>
+        /// <returns>Şifreleme işlemleri geçmişi</returns>
+        public List<Dictionary<string, object>> GetEncryptionHistory()
+        {
+            try
+            {
+                if (!_isLoggedIn || !_isDevModeActive)
+                    return new List<Dictionary<string, object>>();
+
+                // Geçmiş dosyasının yolunu belirle
+                string historyFilePath = Path.Combine(
+                    Path.GetDirectoryName(ConfigFilePath),
+                    "encryption_history.json");
+
+                // Dosya yoksa boş liste döndür
+                if (!File.Exists(historyFilePath))
+                    return new List<Dictionary<string, object>>();
+
+                // Geçmiş verilerini yükle
+                string jsonContent = File.ReadAllText(historyFilePath);
+                return JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(jsonContent) 
+                       ?? new List<Dictionary<string, object>>();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Şifreleme geçmişi okunurken hata: {ex.Message}");
+                return new List<Dictionary<string, object>>();
+            }
+        }
+        #endregion
+
         #region Status Check Methods
         /// <summary>
         /// Geliştirici modunun aktif olup olmadığını kontrol eder

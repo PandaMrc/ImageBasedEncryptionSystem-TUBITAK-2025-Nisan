@@ -54,6 +54,8 @@
             this.txtInput = new Guna.UI2.WinForms.Guna2TextBox();
             this.lblInputText = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.loginToolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.progressBar1 = new Guna.UI2.WinForms.Guna2ProgressBar();
+            this.lblProgress = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.pnlTitleBar.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbLogin)).BeginInit();
             this.guna2Panel1.SuspendLayout();
@@ -275,6 +277,8 @@
             this.guna2Panel2.Controls.Add(this.lblPaswordText);
             this.guna2Panel2.Controls.Add(this.txtInput);
             this.guna2Panel2.Controls.Add(this.lblInputText);
+            this.guna2Panel2.Controls.Add(this.progressBar1);
+            this.guna2Panel2.Controls.Add(this.lblProgress);
             this.guna2Panel2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.guna2Panel2.Location = new System.Drawing.Point(300, 49);
             this.guna2Panel2.Margin = new System.Windows.Forms.Padding(2);
@@ -432,6 +436,27 @@
             this.lblInputText.TabIndex = 0;
             this.lblInputText.Text = "Şifrelenecek Metin:";
             // 
+            // progressBar1
+            // 
+            this.progressBar1.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(204)))), ((int)(((byte)(204)))), ((int)(((byte)(204)))));
+            this.progressBar1.Location = new System.Drawing.Point(16, 229);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(390, 23);
+            this.progressBar1.TabIndex = 6;
+            this.progressBar1.Value = 0;
+            // 
+            // lblProgress
+            // 
+            this.lblProgress.BackColor = System.Drawing.Color.Transparent;
+            this.lblProgress.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.lblProgress.ForeColor = System.Drawing.Color.White;
+            this.lblProgress.Location = new System.Drawing.Point(16, 206);
+            this.lblProgress.Margin = new System.Windows.Forms.Padding(2);
+            this.lblProgress.Name = "lblProgress";
+            this.lblProgress.Size = new System.Drawing.Size(86, 17);
+            this.lblProgress.TabIndex = 5;
+            this.lblProgress.Text = "İlerleme: 0%";
+            // 
             // FrmMenu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -465,6 +490,8 @@
         private Guna.UI2.WinForms.Guna2Elipse guna2Elipse1;
         private Guna.UI2.WinForms.Guna2DragControl guna2DragControl1;
         private Guna.UI2.WinForms.Guna2Panel pnlTitleBar;
+        private Guna.UI2.WinForms.Guna2Button btnDevMode;
+        private Guna.UI2.WinForms.Guna2Button btnAdmin;
         private Guna.UI2.WinForms.Guna2CirclePictureBox pbLogin;
         private Guna.UI2.WinForms.Guna2ControlBox guna2ControlBox2;
         private Guna.UI2.WinForms.Guna2ControlBox guna2ControlBox1;
@@ -484,7 +511,7 @@
         private Guna.UI2.WinForms.Guna2HtmlLabel lblPaswordText;
         private Guna.UI2.WinForms.Guna2TextBox txtPassword;
         private System.Windows.Forms.ToolTip loginToolTip;
-        private Guna.UI2.WinForms.Guna2Button btnAdmin;
-        private Guna.UI2.WinForms.Guna2Button btnDevMode;
+        private Guna.UI2.WinForms.Guna2ProgressBar progressBar1;
+        private Guna.UI2.WinForms.Guna2HtmlLabel lblProgress;
     }
 }

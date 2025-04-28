@@ -1,0 +1,11 @@
+  Geri yüklenecek projeler belirleniyor...
+  Yapılacak işlem yok. Belirtilen projelerden hiçbiri geri yüklenecek paketleri içermiyor.
+  ImageBasedEncryptionSystem.TypeLayer -> C:\Meriç Zorlu\Yazılım Zart Zurt\Projelerim\ImageBasedEncryptionSystem\ImageBasedEncryptionSystem.TypeLayer\bin\Debug\ImageBasedEncryptionSystem.TypeLayer.dll
+  ImageBasedEncryptionSystem.DataLayer -> C:\Meriç Zorlu\Yazılım Zart Zurt\Projelerim\ImageBasedEncryptionSystem\ImageBasedEncryptionSystem.DataLayer\bin\Debug\ImageBasedEncryptionSystem.DataLayer.dll
+  ImageBasedEncryptionSystem.BusinessLayer -> C:\Meriç Zorlu\Yazılım Zart Zurt\Projelerim\ImageBasedEncryptionSystem\ImageBasedEncryptionSystem.BusinessLayer\bin\Debug\ImageBasedEncryptionSystem.BusinessLayer.dll
+
+Oluşturma başarılı oldu.
+    0 Uyarı
+    0 Hata
+
+Geçen Süre 00:00:00.31
