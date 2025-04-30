@@ -1,0 +1,115 @@
+Yeni bir projeye başladım. Proje dosyasını katmanlı mimariye uygun şekilde yapacağım. Projenin Güncel Hali bu şekilde
+
+ÇözümAdı/GörüntüTabanlıHibritŞifrelemeSistemi 
+│
+├── GörüntüTabanlıHibritŞifrelemeSistemi.UI     → Form ların bulunacağı katman 
+├── GörüntüTabanlıHibritŞifrelemeSistemi.BusinessLayer     → Class ların bulunacağı katman
+├── GörüntüTabanlıHibritŞifrelemeSistemi.DataLayer     → Veri işlemleri  
+├── GörüntüTabanlıHibritŞifrelemeSistemi.TypeLayer     → Hazır mesajların bulunacağı katman.
+
+Projenin işleyişi şu şekilde olacak:
+
+GörüntüTabanlıHibritŞifrelemeSistemi
+│
+├── GörüntüTabanlıHibritŞifrelemeSistemi.UI         → WinForms arayüzü
+│   └── Forms/
+│        └── FrmMenu 
+│        │   └── btnEncrypt → Butonun İşlevi;
+│        │                     - 'txtPassword'e girilen metinle 'Cls_AesHelper' deki 'AES_KEY' oluşturma metoduyla bir 'AES_KEY' oluştur.
+│        │                     - 'txtInput'a girilen veriyi 'Cls_AesHelper' sınıfında ki metodla ve oluşturulan 'AES_KEY' ile metini şifrele.
+│        │                     - 'Cls_RsaHelper' deki şifreleme metodu ve Güncel RSA key çiftinden gerekli kullanarak 'AES_KEY' i şifrele
+│        │                     - 'Cls_WaveletHelper' deki görsele veri gizleme metoduyla 'AES_Encrypted_Text' ve 'RSA_Encrypted_AES_KEY' verilerini seçilen görsele işle.
+│        │                     - 'Cls_WaveletHelper' daki HASH metoduyla içine veri şifrelenmiş görsele bir HASH ata böylece bu görselin bu programla şifrelendiği anlaşılsın.
+│        │   └── btnDecrypt → Butonun İşlevi;
+│        │                     - Seçilen görselde 'Cls_WaveletHelper' ile oluşturulan 'HASH' var mı kontrol et.
+│        │                     - Görseldeki veriyi 'Cls_EsvrlryHelper' ile dışarı çıkart.
+│        │                     - Görselden elde edilen 'RSA_Encrypted_AES_KEY' verisini 'Cls_RsaHelper.cs' daki metodla ve güncel RSA key şiftinden gerekli olankı kullanarak çöz.
+│        │                     - Elde edilen veri ile 'txtPassword'e girilen metini karşılaştır.
+│        │                     - Eğer metinler eşleşir ise görselden çıkartılan 'AES_Emcrypted_Text' verisini 'AES_KEY' kullanarak çöz
+│        │                     - Elde edilen sonucu 'txtOutput'a ilet.
+│        │
+ve her adımı aşırı şekilde detayı debug yapılacak şekilde ayarla. Debug çıktıları analiz yapılabilecek verileri içersin. Sabit mesajları TypeLayer katmanındaki ilgili sınıftan dinamik şekilde alsın. TypeLayer daki İlgili sınıflara hazır mesajları kategorize bir şekilde yaz.
+
+│        │   └── btnImage → Min. boyutu 256x256 olan bir resim seçtirir ve seçilen resimi 'pboxImage' içinde gösterir.
+│        │   └── btnInfo → 'FrmInfo' Sayfasına yönlendirir.
+│        │   └── txtInput → Textbox İşlevi
+│        │   └── txtPassword → Textbox İşlevi; 
+│        │   └── txtOutput (Sadece Okunur) → btnDecrypt işlemi sonucu gelen sonucu gösterir;
+│        │   └── pboxImage → 'btnImage' ile seçilen görseli gösterir.
+│        │   └── btnAdmin → İşlevi;
+│        │                - Default olarak gözükmez.
+│        │                - Geliştirici hesabına giren ama Yönetici modu kapalı kişilerde buton gözükür ama tıklanmaz.
+│        │                - Geliştirici hesabına girildise ve geliştirici modunu aktif ettiyse butona gözükür ve tıklanabilir.
+│        │                - Tıklandığında 'FrmAdmin'e yönlendirir.
+│        │   └── btnAnalysis → İşlevi;
+│        │                - Default olarak gözükmez.
+│        │                - Geliştirici hesabına giren ama Yönetici modu kapalı kişilerde buton gözükür ama tıklanmaz.
+│        │                - Geliştirici hesabına girildise ve geliştirici modunu aktif ettiyse butona gözükür ve tıklanabilir.
+│        │                - Tıklandığında 'FrmAnalysis'e yönlendirir.
+│        │   └── btnDevMod → İşlevi;
+│        │                - Default olarak gözükmez.
+│        │                - Geliştirici hesabına giren kişilerde buton gözükür.
+│        │                - Tıklandığında 'Cls_Developer'da bulunan metodla geliştirici mdounu aktif/deaktif eder.
+│        │
+│        │
+│        └── FrmInfo 
+│        │    └── btnMenu → Butonun İşlevi;
+│        │    └── label1 → Proje Hakkında Bilgiler
+│        │    └── label2 → Emeği Geçenler
+│        │
+│        │
+│        └── FrmLogin
+│        │    └── btnLogin → 'txtDeveloperId'ye ve 'txtPassword'e girilen değerler 'Config.json' daki Geliştirici hesabı bilgileriyle uyuşursa 'Cls_Developer'daki giriş yapma metodu çalışır ve Geliştirici modu │        │                      aktif olur.
+│        │
+│        └── FrmAdmin
+│        │    └── btnReset → 'Config.json' dosyasındaki 'DefaultSystemIdentity' değerinin aynısını 'SystemIdentity'nin değerin olduğu yere yazar ve 'Cls_RsaHelper' sınıfında oluşan yeni 'Private_Key' ve       │        │                     'Public_Key' değerlerini 'txtRsaKey' içine ve güncel 'SystemIdentity'i 'txtIdentity'e gönderir.
+│        │    └── btnRandom → 'Cls_IdentityCreator' sınıfındaki metodla yeni kimlik oluşturur ve oluşturulan kimliği 'txtNewIdentity' ye iletir.
+│        │    └── btnSave → 'txtNewIdentity' içinde yazan değeri 'Config.json' daki 'SystemIdentity' değeriyle değiştirir ve 'Cls_RsaHelper' sınıfındaki 'SystemIdentity' yi kontrol eden metodla değişimi       │        │                      kontrol eder. Eğer değişim var ise 'Cls_RsaHelper' sınıfındaki metodla oluşan yeni 'Private_Key' ve 'Public_Key' değerlerini 'txtRsaKey'e ve yeni 'SystemIdentitiy'i                         │        │                      'txtIdentity'e iletir.
+│        │    └── txtIdentity → İçerisinde 'Config.json'da bulunan 'SystemIdentity' değeri yazar ve sürekli güncellenir.
+│        │    └── txtRsaKey → 'Config.json' içindeki 'SystemIdentity' değeri ile oluşturulan güncel RSA anahtar çifti('Private_Key' ve 'Public_Key') yazar ve sürekli güncellenir.
+│        └── FrmAnalysis
+│
+│                
+├── GörüntüTabanlıHibritŞifrelemeSistemi.BusinessLayer        → Merodların Bulunacağı Katman
+│   └── Cls_Backgraund.cs → sürekli Projeye uygun bir arka plan görseli oluşturur ve bütün formlarda arka plan resmi olarak kullanılır.
+│   │
+│   └── Cls_AesHelperp.cs → AES-256 algoritmasını kullanarak bir şifreleme ve şifre çözme metodu içerecek 'IV' değeri sabit olacak ve değişmeyecek.
+│   │                         - Eksta olrak 'AES_KEY' oluşturmak için bir metod içerecek. Bu metodun işlevi: AES algoritması ile şifrelenen metini çözebilmek için gereken 'AES_KEY' burada üretilecek. Bu key                             │   │                            üretimi için bir değer atanması gerekecek. Bu değeri ona başka bir sınıftan dinamik olarak gönderilecek ve gönderildiği anda 'AES_KEY' oluşacak. Aynı değerler her zaman için    │   │                            aynı 'AES_KEY' i oluşturacak.
+│   └── Cls_RsaHelper.cs →  BouncyCastle Kütüphanesinin RSA Algoritmasını kullanan bir metin şifreleme metodu içerecek.
+│   │                         - Şifreleme ve Şifre Çözme esnasında gerekli olana 'Private_Key' ve 'Public_Key'i üreten bir metod daha içerecek.
+│   │                            Bu metod da RSA anahtar çiftini oluşturmak için bir değer atanması gerekecek bu iki anahtar da aynı değer ile oluşturulacak. Bu değer 'DataLayer' katmanındaki         
+│   │                            Config.json dosyasındaki 'SystemIdentity' olacak ve bu değer dinamik olarak sürekli buradan çekilecek. Proje çalışırken de sürekli denetlenecek. Eğer bir değişiklik olursa yeni │   │                            RSA anahar çifti üretecek. 'SystemIdentiy' değeri doğrudan anahtar olmayacak, sadece anahtar bu değer kullanılarak üretilecek. 'SystemIdentity' değeri 10 ila 100 karakter                                                  │   │                            arasında olmalıdır. Bu değer yeni bir RSA anahtar çifti üretmek için kullanılacak. Üretilen anahtarlar 3072 bit uzunluğunda olacak. 'SystemIdentity' değeri ile oluşturulan     │   │                            anahtar çifti her zaman aynı olacak şekilde bir 'SystemIdentity' değerinden 'Private_Key' ve 'Public_Key' oluşturma algoritması oluştur. Eğer 'SystemIdentity' değeri 'null' ise │   │                            'DefaultSystemIdentiy' değerini kullan.
+│   │                         
+│   └── Cls_WaveletHelper.cs → Accord.NET kütüphanesinin Wavelet Algoritmasını kullanarak görsel içerisine metin gizleme ve gizlenen veriyi çıkartma metodu içerecek.
+│   │                         - Veri gizleme/çıkartma işlemleri sırasında veri kaybı %0 olacak.
+│   │                         - Görsele veri saklanırken görselin kalitesinde bozulma minimum seviyede tutulacak.
+│   │                         - PNG formatındaki verilerde arka plan transparan kalacak.
+│   │
+│   └── Cls_Analysis.cs → Accord.NET kütüphanesinin Wavelet Algoritması kullanarak içine veri saklanmış görselin ve projedeki her şifreleme şifre çözme işleminin analizlerini yapacak metodlar bulunacak.
+│   │
+│   └── Cls_DeveloperMode.cs → Geliştirici kimliği ve parola ile giriş yapma metodları yer alacak. Kimlik bilgileri ve parola 'Config.json' içinden dinamik olarak alınacak.
+│   │                         - Yönetici kimliği ile giriş yapan kişilerin Aktif/Deaktif edilebilen bir DeveleperMode için metodlar yer alacak.
+│   │
+│   └── Cls_IdentityCreate.cs → Metoda aktarılan veriye göre 10-100 karakter arasında rastgele bir değer üretecek.
+│
+│
+├── GörüntüTabanlıHibritŞifrelemeSistemi.TypeLayer       → Hazır Mesajların Bulunacağı Katman (Projedeki her metod en detaylı debug yapmak için tasarlanacak ve try-catch bloklarına yazılacak.)
+│   └── Errors.cs → Projede olumsuz sonuç veren her türlü işlemden sonra gösterilecek mesajlar burada yer alacak diğer dosyalar mesajları bu class içinden çekecek.
+│   └── Succsess.cs → Projede Olumlu sonuç veren her türlü işlemden sonra gösterilecek mesajlar burada yer alacak diğer dosyalar mesajları bu class içinden çekecek.
+│
+├── GörüntüTabanlıHibritŞifrelemeSistemi.DataLayer        → Veri dosyalarının bulunacağı katman.
+│   └── Cls_Config.cs → Eğer 'Config.json' bulunamaz ise otomatik olarak 'Default' değerlerin içinde yazılı olduğu bir 'Config.json' dosyası oluşturan bir metod içerecek ve 'Config.json' dosyasını sabit bir              │                        AES_KEY ve IV ile şifreleyecek. Dışa aktarma sonrası kurulum için de şu adımlar izlenecek;
+│                       - Kullanıcının bilgisayarında C:\Users\{KullanıcıAdı}\AppData\Local\ProjeAdı\ klasörü kontrol edilecek.
+│                       - Eğer yoksa bu klasör otomatik oluşturulacak.
+│                       - JSON dosyası burada oluşturulacak.
+│                       - JSON içeriği AES şifreli kaydedilecek.
+│                       - Bu sınıf içinde kullanmak için 'Cls_AesHelper' kullanılmayacak. Sınıf içinde kendi şifreleme metodu olacak ve 'IV','RSA_KEY' sabit olacak.
+│                       - Sonraki açılışlarda program buradaki JSON dosyasını kullanacak.
+│   └── Config.json → 'DefaultSystemIdentity', 'SystemIdentity' değerlerinin ve Geliştirici girişi bilgilerinin bulunacağı dosya.
+│
+│
+
+/////
+
+Developer Mode ile alakalı bütün her şey sorunsuz çalışır durumda!
+

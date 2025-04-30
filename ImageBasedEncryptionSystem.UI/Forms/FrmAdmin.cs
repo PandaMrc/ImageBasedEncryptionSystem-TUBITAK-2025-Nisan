@@ -125,7 +125,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 {
                     string jsonContent = File.ReadAllText(configFilePath);
                     
-                    // SystemIdentity değerini kontrol et
+                    // SystemIdentity değerini kontrol ets
                     if (jsonContent.Contains("SystemIdentity"))
                     {
                         // SystemIdentity değerini çıkar
@@ -138,12 +138,9 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                             txtIdentity.Text = identity;
                             
                             // RSA anahtarlarını yükle ve göster
-                            if (parentForm != null && parentForm.RsaEncrypt != null)
-                            {
-                                // Mevcut kimlik ile RSA anahtarlarını göster
-                                string rsaKeys = $"Private Key:\n{parentForm.RsaEncrypt.PrivateKey}\n\nPublic Key:\n{parentForm.RsaEncrypt.PublicKey}";
-                                txtRsaKey.Text = rsaKeys;
-                            }
+                            Cls_RsaHelper.EnsureKeyPair();
+                            string rsaKeys = $"Private Key:\n{Cls_RsaHelper.GetPrivateKeyPem()}\n\nPublic Key:\n{Cls_RsaHelper.GetPublicKeyPem()}";
+                            txtRsaKey.Text = rsaKeys;
                         }
                         else
                         {
@@ -180,7 +177,8 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             {
                 // Yeni rastgele kimlik oluşturma işlemi
                 Cls_IdentityCreate identityCreator = new Cls_IdentityCreate();
-                string newIdentity = identityCreator.CreateRandomIdentity();
+                int length = new Random().Next(20, 101); // 20 ile 100 arasında bir uzunluk seç
+                string newIdentity = identityCreator.CreateRandomIdentity(length);
                 txtNewIdentity.Text = newIdentity;
             }
             catch (Exception ex)
@@ -202,33 +200,21 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                     return;
                 }
                 
-                // Geliştirici modu izni kontrol et
-                if (devMode == null || !devMode.IsDevModeActive)
+                // Yeni kimliği kaydet ve RSA anahtarlarını güncelle
+                string saveResult = devMode.SaveIdentityToConfig(txtNewIdentity.Text);
+                if (saveResult != Success.MESSAGE_GENERAL_SAVED && saveResult != Success.MESSAGE_GENERAL_UPDATED)
                 {
-                    MessageBox.Show(Errors.ERROR_DEV_MODE_REQUIRED, 
-                        "Geliştirici Modu Gerekli", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(saveResult, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-                
-                // Config.json dosyasına kimliği kaydet
-                string result = devMode.SaveIdentityToConfig(txtNewIdentity.Text);
-                
-                if (result == Success.MESSAGE_GENERAL_SAVED || result == Success.MESSAGE_GENERAL_UPDATED)
-                {
-                    txtIdentity.Text = txtNewIdentity.Text;
-                    
-                    // Yeni RSA anahtarlarını göster
-                    string rsaKeys = $"Private Key:\n{parentForm.RsaEncrypt.PrivateKey}\n\nPublic Key:\n{parentForm.RsaEncrypt.PublicKey}";
-                    txtRsaKey.Text = rsaKeys;
-                    
-                    MessageBox.Show("Yeni kimlik başarıyla kaydedildi ve RSA anahtarları güncellendi.", 
-                        "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    MessageBox.Show($"Kimlik kaydedilirken bir hata oluştu: {result}", 
-                        "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+
+                // Yeni RSA anahtar çifti oluştur
+                Cls_RsaHelper.EnsureKeyPair();
+                string rsaKeys = $"Private Key:\n{Cls_RsaHelper.GetPrivateKeyPem()}\n\nPublic Key:\n{Cls_RsaHelper.GetPublicKeyPem()}";
+                txtRsaKey.Text = rsaKeys;
+
+                MessageBox.Show("Kimlik ve RSA anahtarları başarıyla güncellendi.", 
+                    "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
@@ -330,5 +316,6 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             FrmInfo frmInfo = new FrmInfo();
             frmInfo.Show();
         }
+
     }
 }

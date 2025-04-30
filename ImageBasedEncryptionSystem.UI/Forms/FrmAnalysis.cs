@@ -15,8 +15,6 @@ using ImageBasedEncryptionSystem.BusinessLayer;
 using ImageBasedEncryptionSystem.BusinessLayer.UI;
 using ImageBasedEncryptionSystem.UI.Forms;
 using System.Security.Cryptography;
-
-using ImageBasedEncryptionSystem.TypeLayer.Models;
 using System.Runtime.InteropServices;
 
 namespace ImageBasedEncryptionSystem.UI.Forms

@@ -53,10 +53,20 @@ namespace ImageBasedEncryptionSystem.TypeLayer
         public const string DEV_MODE_DEACTIVATE_SUCCESS = "Geliştirici modu başarıyla devre dışı bırakıldı.";
         #endregion
 
+        #region Geliştirici Modu İşlemleri Başarı Mesajları
+        public const string SUCCESS_DEV_MODE_LOGIN_STARTED = "Login: Başlatılıyor...";
+        public const string SUCCESS_DEV_MODE_LOGIN_PROCESSING = "Login: Kimlik doğrulama yapılıyor...";
+        public const string SUCCESS_DEV_MODE_LOGIN_PROCESSED = "Login: Giriş başarıyla yapıldı.";
+        public const string SUCCESS_DEV_MODE_LOGOUT_STARTED = "Logout: Başlatılıyor...";
+        public const string SUCCESS_DEV_MODE_LOGOUT_PROCESSING = "Logout: Oturum kapatılıyor...";
+        public const string SUCCESS_DEV_MODE_LOGOUT_PROCESSED = "Logout: Oturum başarıyla kapatıldı.";
+        #endregion
+
         #region Görsel İşleme Başarı Mesajları
         public const string IMAGE_LOAD_SUCCESS = "Görüntü başarıyla yüklendi.";
         public const string IMAGE_SAVE_SUCCESS = "Görüntü başarıyla kaydedildi.";
         public const string IMAGE_PROCESS_SUCCESS = "Görüntü işleme başarıyla tamamlandı.";
+        public const string IMAGE_ENCRYPTION_SUCCESS = "Görsel başarıyla şifrelendi.";
         #endregion
 
         #region Kimlik İşlemleri Başarı Mesajları
@@ -66,10 +76,76 @@ namespace ImageBasedEncryptionSystem.TypeLayer
         public const string IDENTITY_GENERATE_SUCCESS = "Rastgele kimlik başarıyla oluşturuldu.";
         #endregion
 
+        #region Kimlik Oluşturma İşlemleri Başarı Mesajları
+        public const string SUCCESS_IDENTITY_CREATE_STARTED = "CreateRandomIdentity: Başlatılıyor...";
+        public const string SUCCESS_IDENTITY_CREATE_PROCESSING = "CreateRandomIdentity: Kimlik oluşturuluyor...";
+        public const string SUCCESS_IDENTITY_CREATE_PROCESSED = "CreateRandomIdentity: Kimlik başarıyla oluşturuldu.";
+        #endregion
+
         #region Sistem İşlemleri Başarı Mesajları
         public const string SYSTEM_INIT_SUCCESS = "Sistem başlatma işlemi başarılı.";
         public const string SYSTEM_CONFIG_SAVE_SUCCESS = "Sistem yapılandırması başarıyla kaydedildi.";
         public const string SYSTEM_CONFIG_LOAD_SUCCESS = "Sistem yapılandırması başarıyla yüklendi.";
+        #endregion
+
+        #region AES İşlemleri Başarı Mesajları
+        public const string SUCCESS_AES_GENERATE_KEY_STARTED = "GenerateAESKey: Başlatılıyor...";
+        public const string SUCCESS_AES_GENERATE_KEY_COMPLETED = "GenerateAESKey: Anahtar başarıyla oluşturuldu.";
+        public const string SUCCESS_AES_ENCRYPT_STARTED = "Encrypt: Başlatılıyor...";
+        public const string SUCCESS_AES_ENCRYPT_ENGINE_INIT = "Encrypt: Şifreleme motoru başlatılıyor...";
+        public const string SUCCESS_AES_ENCRYPT_PROCESSING = "Encrypt: Metin şifreleniyor...";
+        public const string SUCCESS_AES_ENCRYPT_PROCESSED = "Encrypt: Metin başarıyla şifrelendi.";
+        public const string SUCCESS_AES_DECRYPT_STARTED = "Decrypt: Başlatılıyor...";
+        public const string SUCCESS_AES_DECRYPT_ENGINE_INIT = "Decrypt: Şifre çözme motoru başlatılıyor...";
+        public const string SUCCESS_AES_DECRYPT_PROCESSING = "Decrypt: Metin çözülüyor...";
+        public const string SUCCESS_AES_DECRYPT_PROCESSED = "Decrypt: Metin başarıyla çözüldü.";
+        #endregion
+
+        #region RSA İşlemleri Başarı Mesajları
+        public const string SUCCESS_RSA_GET_SYSTEM_IDENTITY_STARTED = "GetSystemIdentity: Başlatılıyor...";
+        public const string SUCCESS_RSA_GET_SYSTEM_IDENTITY_DEFAULT = "GetSystemIdentity: Config dosyası bulunamadı, varsayılan kimlik kullanılacak.";
+        public const string SUCCESS_RSA_GET_SYSTEM_IDENTITY_INVALID = "GetSystemIdentity: Geçersiz kimlik, varsayılan kimlik kullanılacak.";
+        public const string SUCCESS_RSA_GET_SYSTEM_IDENTITY_LOADED = "GetSystemIdentity: Kimlik başarıyla yüklendi.";
+        public const string SUCCESS_RSA_ENSURE_KEY_PAIR_STARTED = "EnsureKeyPair: Başlatılıyor...";
+        public const string SUCCESS_RSA_ENSURE_KEY_PAIR_EXISTING = "EnsureKeyPair: Mevcut anahtar çifti kullanılacak.";
+        public const string SUCCESS_RSA_ENSURE_KEY_PAIR_GENERATING = "EnsureKeyPair: Yeni anahtar çifti oluşturuluyor...";
+        public const string SUCCESS_RSA_ENSURE_KEY_PAIR_GENERATED = "EnsureKeyPair: Anahtar çifti başarıyla oluşturuldu.";
+        public const string SUCCESS_RSA_ENCRYPT_STARTED = "Encrypt: Başlatılıyor...";
+        public const string SUCCESS_RSA_ENCRYPT_ENGINE_INIT = "Encrypt: Şifreleme motoru başlatılıyor...";
+        public const string SUCCESS_RSA_ENCRYPT_PROCESSING = "Encrypt: Metin şifreleniyor...";
+        public const string SUCCESS_RSA_ENCRYPT_PROCESSED = "Encrypt: Metin başarıyla şifrelendi.";
+        public const string SUCCESS_RSA_DECRYPT_STARTED = "Decrypt: Başlatılıyor...";
+        public const string SUCCESS_RSA_DECRYPT_ENGINE_INIT = "Decrypt: Şifre çözme motoru başlatılıyor...";
+        public const string SUCCESS_RSA_DECRYPT_PROCESSING = "Decrypt: Metin çözülüyor...";
+        public const string SUCCESS_RSA_DECRYPT_PROCESSED = "Decrypt: Metin başarıyla çözüldü.";
+        public const string SUCCESS_RSA_GET_PUBLIC_KEY_PEM_STARTED = "GetPublicKeyPem: Başlatılıyor...";
+        public const string SUCCESS_RSA_GET_PUBLIC_KEY_PEM_EXPORTING = "GetPublicKeyPem: Public key dışa aktarılıyor...";
+        public const string SUCCESS_RSA_GET_PUBLIC_KEY_PEM_EXPORTED = "GetPublicKeyPem: Public key başarıyla dışa aktarıldı.";
+        public const string SUCCESS_RSA_GET_PRIVATE_KEY_PEM_STARTED = "GetPrivateKeyPem: Başlatılıyor...";
+        public const string SUCCESS_RSA_GET_PRIVATE_KEY_PEM_EXPORTING = "GetPrivateKeyPem: Private key dışa aktarılıyor...";
+        public const string SUCCESS_RSA_GET_PRIVATE_KEY_PEM_EXPORTED = "GetPrivateKeyPem: Private key başarıyla dışa aktarıldı.";
+        #endregion
+
+        #region Wavelet İşlemleri Başarı Mesajları
+        public const string SUCCESS_WAVELET_EMBED_TEXT_STARTED = "EmbedTextInImage: Başlatılıyor...";
+        public const string SUCCESS_WAVELET_EMBED_TEXT_PROCESSING = "EmbedTextInImage: Metin gömülüyor...";
+        public const string SUCCESS_WAVELET_EMBED_TEXT_PROCESSED = "EmbedTextInImage: Metin başarıyla gömüldü.";
+        public const string SUCCESS_WAVELET_EXTRACT_TEXT_STARTED = "ExtractTextFromImage: Başlatılıyor...";
+        public const string SUCCESS_WAVELET_EXTRACT_TEXT_PROCESSING = "ExtractTextFromImage: Metin çıkarılıyor...";
+        public const string SUCCESS_WAVELET_EXTRACT_TEXT_PROCESSED = "ExtractTextFromImage: Metin başarıyla çıkarıldı.";
+        public const string SUCCESS_WAVELET_TRANSPARENCY_STARTED = "EnsureTransparency: Başlatılıyor...";
+        public const string SUCCESS_WAVELET_TRANSPARENCY_PROCESSING = "EnsureTransparency: Transparanlık sağlanıyor...";
+        public const string SUCCESS_WAVELET_TRANSPARENCY_PROCESSED = "EnsureTransparency: Transparanlık başarıyla sağlandı.";
+        #endregion
+
+        #region Kimlik ve RSA İşlemleri Başarı Mesajları
+        public const string SUCCESS_IDENTITY_SAVED = "Kimlik başarıyla kaydedildi.";
+        public const string SUCCESS_RSA_KEY_GENERATED = "RSA anahtar çifti başarıyla oluşturuldu.";
+        #endregion
+
+        #region RSA Anahtar Üretimi Başarı Mesajları
+        public const string DEBUG_SYSTEM_IDENTITY_RECEIVED = "[DEBUG] Alınan SystemIdentity: {0}";
+        public const string DEBUG_SYSTEM_IDENTITY_BYTE_ARRAY = "[DEBUG] SystemIdentity byte dizisi: {0}";
         #endregion
     }
 }

@@ -34,6 +34,7 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
         {
             try
             {
+                Console.WriteLine(Success.SUCCESS_DEV_MODE_LOGIN_STARTED);
                 // Giriş parametrelerini kontrol et
                 if (string.IsNullOrWhiteSpace(devId))
                     return Errors.ERROR_LOGIN_USERNAME_EMPTY;
@@ -51,6 +52,7 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
                 if (config == null || config.Developers == null || !config.Developers.Any())
                     return string.Format(Errors.ERROR_LOGIN_FAILED, "Geliştirici bilgileri bulunamadı");
 
+                Console.WriteLine(Success.SUCCESS_DEV_MODE_LOGIN_PROCESSING);
                 // Kimlik doğrulama
                 var developer = config.Developers.FirstOrDefault(d => d.DevID == devId && d.Password == password);
                 if (developer == null)
@@ -59,12 +61,13 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
                 // Giriş başarılı
                 _isLoggedIn = true;
                 _currentDevId = devId;
-                
+                Console.WriteLine(Success.SUCCESS_DEV_MODE_LOGIN_PROCESSED);
                 return Success.LOGIN_SUCCESS;
             }
             catch (Exception ex)
             {
-                return string.Format(Errors.ERROR_LOGIN_FAILED, ex.Message);
+                Console.WriteLine(string.Format(Errors.ERROR_DEV_MODE_LOGIN_PROCESS_FAILED, ex.Message));
+                throw;
             }
         }
 
@@ -76,18 +79,18 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
         {
             try
             {
-                if (!_isLoggedIn)
-                    return "Zaten giriş yapılmamış";
-
+                Console.WriteLine(Success.SUCCESS_DEV_MODE_LOGOUT_STARTED);
+                // Oturum kapatma işlemleri
                 _isLoggedIn = false;
-                _isDevModeActive = false;
                 _currentDevId = string.Empty;
-
+                Console.WriteLine(Success.SUCCESS_DEV_MODE_LOGOUT_PROCESSING);
+                Console.WriteLine(Success.SUCCESS_DEV_MODE_LOGOUT_PROCESSED);
                 return Success.LOGOUT_SUCCESS;
             }
             catch (Exception ex)
             {
-                return $"Çıkış sırasında hata oluştu: {ex.Message}";
+                Console.WriteLine(string.Format(Errors.ERROR_DEV_MODE_LOGOUT_PROCESS_FAILED, ex.Message));
+                throw;
             }
         }
         #endregion

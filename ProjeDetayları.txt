@@ -4,15 +4,38 @@
 
 UI/Cls_Backgraund.cs → sürekli Projeye uygun bir arka plan görseli oluşturur ve bütün formlarda arka plan resmi olarak kullanılır.
 Cls_AesEncryp.cs → AES yöntemi kullanarak bir şifreleme metodu içerecek. AES KEY 'FrmMenu' sayfasında 'btnEncrypt' butonuna tıklandığında 'txtPassword' e girilen değer ile oluşacak. Aynı değer aynı KEY i oluşturacak. 'txtPassword' e girilen değer doğrudan KEY olarak kullanılmayacak, oraya girilen değere göre rastgele 256 bitlik bir AES KEY üretilecek.
+
 Cls_AesDecrypt.cs → AES Yöntemini kullanarak bir şifre çözme metodu içerecek. Şifre çözme işlemi için 'AES KEY', 'FrmMenu' de 'btnDecrypt' butonuna basıldığında 'txtPassword' e girilmiş olan değer le üretilmiş KEY ile yapılacak.
-Cls_RsaEncrypt.cs → RSA yöntemi kullanan bir şifreleme metodu içerecek. RSA için gereken 'Private Key' ve 'Public Key', 'DataLayer' katmanında bulunan 'Config.json' dosyasındaki mevcut 'SystemIdentity' değerine göre oluşturulacak. Aynı değerler aynı KEY leri oluşturacak. 'SystemIdentity' değeri doğrudan key olarak kullanılmayacak 'SystemIdentity' değerine göre rastgele 3072 bitlik 'Private Key' ve 'Public KEY' oluşturulur.
+
+// RSA Algoritması
+
+Cls_RsaEncrypt.cs → RSA yöntemi kullanan bir şifreleme metodu içerecek. RSA için gereken 'Private Key' ve 'Public Key', 'DataLayer' katmanında bulunan 'Config.json' dosyasındaki mevcut 'SystemIdentity' değerine göre oluşturulacak. Aynı değerler aynı KEY leri oluşturacak. 'SystemIdentity' değeri doğrudan key olarak kullanılmayacak 'SystemIdentity' değerine göre rastgele 3072 bitlik 'Private Key' ve 'Public KEY' 
+oluşturulur.
+
+Cls_RsaKey.cs → Rsa anahtar oluşturma işlemleri için gereken metodların bulunduğu sınıf. Bu sınıfta RSA keyi üreten bir metod olacak.
+bu metod RSA keyi üretirken bir değere ihtiyaç duyacak(Min. 10 Max. 50 karakter). Bu veri sürekli olarak DataLayer katmanındaki Config.json içerisindeki 'SystemIdentity' değeri olacak. Bu alınan değer ile rastgele 3072 bitlik 'Private Key' ve 'Public Key'  üretilecek.
+
 Cls_RsaEncrypt → RSA yöntemi kullanan bir şifre çözme metodu içerecek. Şifre çözme için gereken 'Private Key' i 'DataLayer' Katmanında bulunan 'Config.json' dosyasındaki 'SystemIdentity' değerinden oluşturulacak. Bu KEY i oluşturma yöntemi 'Cls_RsaEncrypt' teki aynı yöntem le yapılacak.
+
+// Wavelet Algoritması
+
 Cls_WaveletEncrypt → Accord.NET'in Wavelet yöntemi ile görselin içerisine veri saklama metodu içerecek.
+
 Cls_WaveletDecrypt → AccordçNET'in Wavelet yöntemi ile görselin içerisine saklanan veriyi çıkartma metodu içerecek. 'Cls_WaveletEncrypt' içindeki metodla görsel içine sakalanan veriyi görselden çıkartabilecek.
+
+// Ekstra Özellikler
+
 Cls_Developer → aktif-deaktif edilebilir 'Geliştirici Modu' için ve Geliştirici modunun getirdiği özellikler için gerekli metodları içerecek. 
+
 Cls_IdentityCreate → 'FrmAdmin' de 'btnRandom' butonunda kullanmak üzere rastgele kimlik üretmek için bir metod içerecek. Üretilen kimlikte Büyük-Küçük harfler, Rakamlar ve '_','-' değerlerini içerecek ve min. 10 Max. 50 karakterden oluşacak. Boşluk içeremez ve özel karakterlerle başlayamaz.
+
+// Analiz İşlemleri
+
 Cls_Analysis → 'FrmAnalysis' te kullanılmak üzere analiz işlemlerinde kullanılacak bütün metodları içerecek.
 
+
+
+bu veri sürekli olarak DataLayer katmanındaki Config.json içerisindeki SystemIdentity olacak.  SystemIdentity değiştirilebilir olduğu için aynı değerin aynı RSA keylerini üretmesi gerekiyor ve bu değeri sürekli kontrol edip RSA keyleri ona göre güncel tutması gerek. Örnek olarak "'SystemIdentity' = KSSAL_2025_TUBITAK ise 'Private Key = x' ve 'Public Key = y' " olsun. Yani 'SystemIdentity' değeri 'KSSAL_2025_TUBITAK' ise uygulama kapatılıp yeniden açılsa da silinip tekrar yüklensede oluşan keyler her zaman 'Private Key = x' ve 'Public Key = y' olacak. Sürekli olarak SystemIdentity deki değişiklik kontrol edilecek ve değişiklik olursa RSA KEY ler tekrar oluşturulacak.
 ---
 
 ## DataLayer Katmanı;
@@ -63,6 +86,7 @@ btnDevMode : Geliştirici girişi yapılmışsa Geliştirici mdounu aktif-deakti
 btnAdmin : Eğer Geliştirici girişi yapılmışsa ve Geliştirici Modu aktif edilmiş ise 'FrmAdmin' sayfasına yönlendirir.
 btnAnalysis : Eğer Geliştirici girişi yapılmışsa ve Geliştirici Modu aktif edilmiş ise 'FrmAnalysis' sayfasına yönlendirir.
 btnInfo : 'FrmInfo' sayfasına yönlendirir.
+
 
 
 ## Try-Catch ve Hata Yönetimi İçin Geliştirme Önerileri

@@ -151,7 +151,7 @@ namespace ImageBasedEncryptionSystem.DataLayer
 
   ""Identity"": [
     {
-      ""SystemIdentity"": ""pVi4-IFdJkbp_-ETi_6x-RYOd-qD_4"",
+      ""SystemIdentity"": ""VARSAYILAN_KIMLIK_TUBITAK_KSSAL_2025_pVi4-IFdJkbp_-ETi_6x-RYOd-qD_4"",
       ""DefaultSystemIdentity"": ""VARSAYILAN_KIMLIK_TUBITAK_KSSAL_2025_pVi4-IFdJkbp_-ETi_6x-RYOd-qD_4""
     }
   ]
@@ -336,7 +336,7 @@ namespace ImageBasedEncryptionSystem.DataLayer
             }
         }
 
-        public string GetSystemIdentity()
+        public static string GetSystemIdentity()
         {
             string configPath = GetConfigFilePath();
             if (!File.Exists(configPath))
@@ -346,6 +346,47 @@ namespace ImageBasedEncryptionSystem.DataLayer
             if (match.Success && match.Groups.Count > 1)
                 return match.Groups[1].Value;
             return null;
+        }
+
+        public static bool UpdateSystemIdentity(string newIdentity)
+        {
+            try
+            {
+                string configPath = GetConfigFilePath();
+                if (!File.Exists(configPath))
+                    return false;
+
+                string jsonContent = File.ReadAllText(configPath);
+                dynamic config = JsonConvert.DeserializeObject(jsonContent);
+
+                if (config.Identity != null && config.Identity.Count > 0)
+                {
+                    config.Identity[0].SystemIdentity = newIdentity;
+                    string updatedJson = JsonConvert.SerializeObject(config, Formatting.Indented);
+                    File.WriteAllText(configPath, updatedJson);
+                    return true;
+                }
+                return false;
+            }
+            catch (Exception)
+            {
+                // Hata durumunda false döndür
+                return false;
+            }
+        }
+
+        public static void EnsureKeyPair()
+        {
+            // ... mevcut kod ...
+        }
+
+        /// <summary>
+        /// Varsayılan SystemIdentity değerini döndürür.
+        /// </summary>
+        /// <returns>Varsayılan SystemIdentity</returns>
+        public static string GetDefaultSystemIdentity()
+        {
+            return "VARSAYILAN_KIMLIK_TUBITAK_KSSAL_2025_pVi4-IFdJkbp_-ETi_6x-RYOd-qD_4";
         }
     }
 }
