@@ -107,11 +107,13 @@ namespace ImageBasedEncryptionSystem.BusinessLayer.UI
                             {
                                 string[] codeLines = {
                                     "AES-256",
-                                    "RSA-2048",
+                                    "RSA-3062",
                                     "SHA-512",
                                     "ENCRYPT",
                                     "DECRYPT",
-                                    "SECURE"
+                                    "SECURE",
+                                    "ZORLU",
+                                    "IBES"
                                 };
                                 
                                 using (Font codeFont = new Font("Courier New", 10, FontStyle.Bold))

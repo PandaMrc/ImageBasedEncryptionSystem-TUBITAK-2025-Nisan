@@ -4,54 +4,79 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using ImageBasedEncryptionSystem.TypeLayer;
+using System.Windows.Forms;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace ImageBasedEncryptionSystem.BusinessLayer
 {
     /// <summary>
     /// Resim ve veri analizi için çeşitli metotlar içeren sınıf
     /// </summary>
-    public class Cls_Analyse
+
+
+    public class Analysis
     {
-        /// <summary>
-        /// İki resmi karşılaştırır ve farklılıkları gösterir
-        /// </summary>
-        /// <param name="originalImage">Orijinal resim</param>
-        /// <param name="modifiedImage">Değiştirilmiş resim</param>
-        /// <returns>Farklılıkları gösteren resim</returns>
-        public Bitmap CompareImages(Bitmap originalImage, Bitmap modifiedImage)
+        public static Bitmap GetImageDifference(Bitmap img1, Bitmap img2)
         {
-            return new Bitmap(1, 1);
+            Bitmap diff = new Bitmap(img1.Width, img1.Height);
+            for (int y = 0; y < img1.Height; y++)
+            {
+                for (int x = 0; x < img1.Width; x++)
+                {
+                    Color c1 = img1.GetPixel(x, y);
+                    Color c2 = img2.GetPixel(x, y);
+
+                    int r = Math.Abs(c1.R - c2.R);
+                    int g = Math.Abs(c1.G - c2.G);
+                    int b = Math.Abs(c1.B - c2.B);
+
+                    diff.SetPixel(x, y, Color.FromArgb(r, g, b));
+                }
+            }
+            return diff;
         }
 
-        /// <summary>
-        /// Resmin histogramını oluşturur
-        /// </summary>
-        /// <param name="image">Analiz edilecek resim</param>
-        /// <returns>Histogram resmi</returns>
-        public Bitmap CreateHistogram(Bitmap image)
+        public static double CalculateMSE(Bitmap img1, Bitmap img2)
         {
-            return new Bitmap(1, 1);
+            double mse = 0;
+            for (int y = 0; y < img1.Height; y++)
+            {
+                for (int x = 0; x < img1.Width; x++)
+                {
+                    Color c1 = img1.GetPixel(x, y);
+                    Color c2 = img2.GetPixel(x, y);
+
+                    mse += Math.Pow(c1.R - c2.R, 2);
+                    mse += Math.Pow(c1.G - c2.G, 2);
+                    mse += Math.Pow(c1.B - c2.B, 2);
+                }
+            }
+            return mse / (img1.Width * img1.Height * 3.0);
         }
 
-        /// <summary>
-        /// Resim gürültü seviyesini analiz eder
-        /// </summary>
-        /// <param name="image">Analiz edilecek resim</param>
-        /// <returns>Gürültü seviye analiz sonucu</returns>
-        public string AnalyzeNoise(Bitmap image)
+        public static double CalculatePSNR(double mse)
         {
-            return string.Empty;
+            return mse == 0 ? double.PositiveInfinity : 10 * Math.Log10(255 * 255 / mse);
         }
 
-        /// <summary>
-        /// Resimden PSNR (Peak Signal-to-Noise Ratio) değerini hesaplar
-        /// </summary>
-        /// <param name="originalImage">Orijinal resim</param>
-        /// <param name="modifiedImage">Değiştirilmiş resim</param>
-        /// <returns>PSNR değeri</returns>
-        public double CalculatePSNR(Bitmap originalImage, Bitmap modifiedImage)
+        public static double CalculateEntropy(Bitmap bmp)
         {
-            return 0.0;
+            int[] histogram = new int[256];
+            double entropy = 0.0;
+
+            for (int y = 0; y < bmp.Height; y++)
+                for (int x = 0; x < bmp.Width; x++)
+                    histogram[bmp.GetPixel(x, y).R]++;
+
+            int total = bmp.Width * bmp.Height;
+            for (int i = 0; i < 256; i++)
+            {
+                if (histogram[i] == 0) continue;
+                double p = (double)histogram[i] / total;
+                entropy -= p * Math.Log(p, 2);
+            }
+            return entropy;
         }
     }
+
 }

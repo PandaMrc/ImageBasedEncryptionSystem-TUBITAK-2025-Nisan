@@ -66,27 +66,12 @@ namespace ImageBasedEncryptionSystem.TypeLayer
         public const string ERROR_RSA_GET_PRIVATE_KEY_PEM_FAILED = "GetPrivateKeyPem: Hata oluştu - {0}";
         #endregion
 
-        #region Wavelet İşlemleri Hataları
-        public const string ERROR_WAVELET_EMBED_TEXT_INIT_FAILED = "EmbedTextInImage: Başlatılamadı - {0}";
-        public const string ERROR_WAVELET_EMBED_TEXT_PROCESS_FAILED = "EmbedTextInImage: İşlem sırasında hata oluştu - {0}";
-        public const string ERROR_WAVELET_EXTRACT_TEXT_INIT_FAILED = "ExtractTextFromImage: Başlatılamadı - {0}";
-        public const string ERROR_WAVELET_EXTRACT_TEXT_PROCESS_FAILED = "ExtractTextFromImage: İşlem sırasında hata oluştu - {0}";
-        public const string ERROR_WAVELET_TRANSPARENCY_INIT_FAILED = "EnsureTransparency: Başlatılamadı - {0}";
-        public const string ERROR_WAVELET_TRANSPARENCY_PROCESS_FAILED = "EnsureTransparency: İşlem sırasında hata oluştu - {0}";
-        #endregion
-
         #region Kimlik Oluşturma İşlemleri Hataları
-        public const string ERROR_IDENTITY_CREATE_INIT_FAILED = "CreateRandomIdentity: Başlatılamadı - {0}";
         public const string ERROR_IDENTITY_CREATE_PROCESS_FAILED = "CreateRandomIdentity: İşlem sırasında hata oluştu - {0}";
-        #endregion
-
-        #region Kimlik ve RSA İşlemleri Hataları
-        public const string ERROR_IDENTITY_SAVE_FAILED = "Kimlik kaydedilemedi: {0}";
         #endregion
 
         public const string ERROR_IMAGE_TOO_SMALL = "Seçilen resim çok küçük. Minimum boyut 256x256 olmalıdır.";
 
-        public const string ERROR_HASH_ADD_FAILED = "Hash ekleme işlemi başarısız oldu: {0}";
 
     }
 } 

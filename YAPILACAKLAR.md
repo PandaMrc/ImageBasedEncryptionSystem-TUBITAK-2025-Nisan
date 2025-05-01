@@ -1,9 +1,9 @@
 # Yapılacaklar Listesi
 
 1. **BusinessLayer Katmanındaki Eksik Sınıfların Tamamlanması:**
-   - [x] `Cls_AesHelper.cs`, `Cls_RsaHelper.cs`, `Cls_WaveletHelper.cs`, ve `Cls_IdentityCreate` sınıflarını oluşturmalıyız.
+   - [x] `Cls_AesHelper.cs`, `Cls_RsaHelper.cs`, `Cls_LsbHelper.cs`, ve `Cls_IdentityCreate` sınıflarını oluşturmalıyız.
    - [x] Her metodun detaylı debug yapılabilecek şekilde tasarlanması gerekiyor. Debug çıktıları ve mesajlar `TypeLayer` katmanındaki `Errors.cs` ve `Succsess.cs` dosyalarından alınacak.
-   - [x] `Cls_RsaHelper.cs` için BouncyCastle RSA kütüphanesi, `Cls_WaveletHelper.cs` için Accord.NET Wavelet kütüphanesi kullanılacak.
+   - [x] `Cls_RsaHelper.cs` için BouncyCastle RSA kütüphanesi, `Cls_LsbHelper.cs` için Accord.NET Wavelet kütüphanesi kullanılacak.
 
 2. **FrmMenu'deki Şifreleme ve Şifre Çözme İşlemleri:**
    - [x] Yeni oluşturulan sınıflardaki metodlar kullanılarak şifreleme ve şifre çözme işlemleri yapılacak.
@@ -24,5 +24,3 @@
 7. **Loglama Değişiklikleri ve Sabit Mesajların TypeLayer'a Taşınması:**
    - [x] Projedeki tüm sınıflara NLog eklendi ve try-catch blokları ile hata ayıklama geliştirildi.
    - [x] Tüm sabit hata ve başarı mesajları TypeLayer katmanındaki Errors.cs ve Success.cs dosyalarına taşındı. 
-8. **BusinessLayer Katmanındaki Eksik Sınıfların Tamamlanması:**
-   - 'Cls_WaveletHelper' Baştan yapılacak. Görsel içine şifreleme algoritması değiştirelecek yerine daha güçlü bir algoritma kullanılacak. Veri kaybı sorunları çözülecek. DTC Algoritması na geçilebilir. Daha detaylı araştırılacak.

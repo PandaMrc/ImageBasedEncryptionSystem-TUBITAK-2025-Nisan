@@ -74,12 +74,13 @@ namespace ImageBasedEncryptionSystem.TypeLayer
         public const string IDENTITY_UPDATE_SUCCESS = "Kimlik başarıyla güncellendi.";
         public const string IDENTITY_SAVE_SUCCESS = "Kimlik bilgileri başarıyla kaydedildi.";
         public const string IDENTITY_GENERATE_SUCCESS = "Rastgele kimlik başarıyla oluşturuldu.";
-        #endregion
-
-        #region Kimlik Oluşturma İşlemleri Başarı Mesajları
         public const string SUCCESS_IDENTITY_CREATE_STARTED = "CreateRandomIdentity: Başlatılıyor...";
         public const string SUCCESS_IDENTITY_CREATE_PROCESSING = "CreateRandomIdentity: Kimlik oluşturuluyor...";
         public const string SUCCESS_IDENTITY_CREATE_PROCESSED = "CreateRandomIdentity: Kimlik başarıyla oluşturuldu.";
+        #endregion
+
+        #region Kimlik Oluşturma İşlemleri Başarı Mesajları
+
         #endregion
 
         #region Sistem İşlemleri Başarı Mesajları
@@ -144,8 +145,7 @@ namespace ImageBasedEncryptionSystem.TypeLayer
         #endregion
 
         #region RSA Anahtar Üretimi Başarı Mesajları
-        public const string DEBUG_SYSTEM_IDENTITY_RECEIVED = "[DEBUG] Alınan SystemIdentity: {0}";
-        public const string DEBUG_SYSTEM_IDENTITY_BYTE_ARRAY = "[DEBUG] SystemIdentity byte dizisi: {0}";
+
         #endregion
     }
 }

@@ -45,34 +45,18 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             // Geliştirici modu nesnesini başlat
             devMode = new Cls_DeveloperMode();
             
-            // Business Layer sınıflarını başlat
-            InitializeEncryptionClasses();
-            
             // Metin girişi için maksimum karakter sınırı ayarla
-            txtInput.MaxLength = 10000; // Maksimum 10.000 karakter
+            txtInput.MaxLength = 100000000; // Maksimum 100.000.000 karakter
         }
 
-        /// <summary>
-        /// Şifreleme için kullanılan tüm sınıfları başlatır
-        /// </summary>
-        private void InitializeEncryptionClasses()
-        {
-            try
-            {
-                // Sınıfları başlat
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Şifreleme sınıfları başlatılırken bir hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
 
         // Form yükleme işlemi
         private void FrmMenu_Load(object sender, EventArgs e)
         {
             try
             {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_SYSTEM_IDENTITY_CHECK);
+                
                 // Form ayarları
                 txtOutput.ReadOnly = true;
 
@@ -86,14 +70,20 @@ namespace ImageBasedEncryptionSystem.UI.Forms
 
                 // Geliştirici modu durumunu kontrol et ve UI'ı güncelle
                 CheckDeveloperModeStatus();
+
+                // RSA anahtar çiftini oluştur
+                Cls_RsaHelper.EnsureKeyPair();
+                Console.WriteLine(TypeLayer.Debug.DEBUG_RSA_ENSURE_KEY_PAIR_STARTED);
             }
             catch (Exception ex)
             {
+                Console.WriteLine(string.Format(TypeLayer.Debug.DEBUG_SYSTEM_IDENTITY_RECEIVED, ex.Message));
                 MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), 
                     "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
+        #region Şifreleme ve Şifre Çözme İşlemleri
         /// <summary>
         /// Resim seçme butonu işlevi
         /// </summary>
@@ -103,9 +93,10 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             {
                 // Resim seçme işlemi
                 OpenFileDialog openFileDialog = new OpenFileDialog();
-                openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
+                openFileDialog.Filter = "Image Files|*.png;*.bmp";
                 if (openFileDialog.ShowDialog() != DialogResult.OK)
                 {
+                    Console.WriteLine(TypeLayer.Debug.DEBUG_IMAGE_LOAD_STARTED);
                     MessageBox.Show(Errors.ERROR_GENERAL_CANCELED, "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
@@ -116,6 +107,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 // Resim boyut kontrolü
                 if (selectedImage.Width < 256 || selectedImage.Height < 256)
                 {
+                    Console.WriteLine(TypeLayer.Debug.DEBUG_IMAGE_LOAD_SUCCESS);
                     MessageBox.Show(Errors.ERROR_IMAGE_TOO_SMALL, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
@@ -129,6 +121,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             }
             catch (Exception ex)
             {
+                Console.WriteLine(string.Format(TypeLayer.Debug.DEBUG_SYSTEM_IDENTITY_RECEIVED, ex.Message));
                 MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -140,62 +133,80 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             try
             {
-                // Ensure RSA Key Pair
-                Cls_RsaHelper.EnsureKeyPair();
-
-                // Resim seçilip seçilmediğini kontrol et
+                #region Uyarılar
+                // Resim seçilmemişse uyarı ver
                 if (string.IsNullOrEmpty(selectedImagePath))
                 {
-                    MessageBox.Show("Lütfen önce bir resim seçin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Console.WriteLine(TypeLayer.Debug.DEBUG_IMAGE_LOAD_STARTED);
+                    MessageBox.Show("Lütfen bir resim seçin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                // Resmin kopyasını oluştur
-                Bitmap originalImage = new Bitmap(selectedImagePath);
-                Bitmap imageCopy = new Bitmap(originalImage);
-
-                // Kaydetme yeri seçimi
-                SaveFileDialog saveFileDialog = new SaveFileDialog();
-                saveFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
-                if (saveFileDialog.ShowDialog() != DialogResult.OK)
+                // 'txtPassword' boş olamaz ve boşluk karakteri içeremez
+                if (string.IsNullOrWhiteSpace(txtPassword.Text) || txtPassword.Text.Contains(" "))
                 {
-                    MessageBox.Show("Lütfen bir kaydetme yeri seçin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    Console.WriteLine(TypeLayer.Debug.DEBUG_PASSWORD_MATCH);
+                    MessageBox.Show("Parola boş olamaz ve boşluk karakteri içeremez.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                // AES anahtar oluşturma
+                // 'txtInput' boş olamaz
+                if (string.IsNullOrWhiteSpace(txtInput.Text))
+                {
+                    Console.WriteLine(TypeLayer.Debug.DEBUG_DATA_EXTRACTED);
+                    MessageBox.Show("Şifrelenecek metin boş olamaz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                #endregion
+
+                // AES anahtarını oluştur
                 string password = txtPassword.Text;
                 byte[] aesKey = Cls_AesHelper.GenerateAESKey(password);
-                Console.WriteLine(string.Format(TypeLayer.Debug.DEBUG_AES_GENERATE_KEY_COMPLETED, BitConverter.ToString(aesKey)));
+                Console.WriteLine(TypeLayer.Debug.DEBUG_AES_GENERATE_KEY_STARTED);
 
-                // Metni şifreleme
+                // Metni şifrele
                 string inputText = txtInput.Text;
-                string encryptedText = Cls_AesHelper.Encrypt(inputText, aesKey);
-                Console.WriteLine(string.Format(TypeLayer.Debug.DEBUG_AES_ENCRYPT_PROCESSED, encryptedText));
+                string aesEncryptedText = Cls_AesHelper.Encrypt(inputText, aesKey);
+                Console.WriteLine(TypeLayer.Debug.DEBUG_AES_ENCRYPT_STARTED);
 
-                // AES anahtarını RSA ile şifreleme
+                // AES anahtarını RSA ile şifrele
                 string rsaEncryptedAesKey = Cls_RsaHelper.Encrypt(Convert.ToBase64String(aesKey));
-                Console.WriteLine(string.Format(TypeLayer.Debug.DEBUG_RSA_ENCRYPT_PROCESSED, rsaEncryptedAesKey));
+                Console.WriteLine(TypeLayer.Debug.DEBUG_RSA_ENCRYPT_STARTED);
 
-                // Görsele veri gömme
-                Cls_WaveletHelper.EmbedTextInImage(encryptedText, imageCopy);
-                Cls_WaveletHelper.EmbedTextInImage(rsaEncryptedAesKey, imageCopy);
-                Console.WriteLine(TypeLayer.Debug.DEBUG_WAVELET_EMBED_TEXT_PROCESSED);
+                // Resmin kopyasını oluştur
+                Bitmap imageCopy = new Bitmap(selectedImagePath);
+                
+                // Kullanıcıdan kaydedilecek yeri seçmesini iste
+                using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+                {
+                    saveFileDialog.Filter = "PNG Image|*.png";
+                    saveFileDialog.Title = "Şifrelenen resmi kaydet";
+                    saveFileDialog.FileName = "encrypted_image.png";
 
-                // Görsele hash ekleme
-                Cls_WaveletHelper.AddHashToImage(imageCopy);
-                Console.WriteLine(TypeLayer.Debug.DEBUG_HASH_ADD_COMPLETED);
+                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        using (imageCopy)
+                        {
+                            // İmza ekleme işlemi
+                            Console.WriteLine(TypeLayer.Debug.DEBUG_SIGNATURE_ADD_STARTED);
+                            Bitmap signedImage = LsbHelper.EmbedSignature(imageCopy);
+                            Console.WriteLine(TypeLayer.Debug.DEBUG_HASH_ADD_COMPLETED);
 
-                // Görsele hash ekleme
-                Cls_WaveletHelper.EnsureTransparency(imageCopy);
-                Console.WriteLine(TypeLayer.Debug.DEBUG_WAVELET_TRANSPARENCY_PROCESSED);
+                            // Veri ekleme işlemi
+                            using (Bitmap resultImage = LsbHelper.EmbedData(signedImage, Encoding.UTF8.GetBytes(aesEncryptedText + ";" + rsaEncryptedAesKey)))
+                            {
+                                Console.WriteLine(TypeLayer.Debug.DEBUG_IMAGE_LOAD_SUCCESS);
+                                resultImage.Save(saveFileDialog.FileName, ImageFormat.Png);
+                            }
+                        }
 
-                // Kopyayı kaydet
-                imageCopy.Save(saveFileDialog.FileName);
-                MessageBox.Show(Success.IMAGE_ENCRYPTION_SUCCESS, "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(Success.ENCRYPT_SUCCESS_GENERAL, "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
             }
             catch (Exception ex)
             {
+                Console.WriteLine(string.Format(TypeLayer.Debug.DEBUG_SYSTEM_IDENTITY_RECEIVED, ex.Message));
                 MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -207,57 +218,79 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             try
             {
-                // Resim seçilip seçilmediğini kontrol et
+                // Resim seçilmemişse uyarı ver
                 if (string.IsNullOrEmpty(selectedImagePath))
                 {
-                    MessageBox.Show("Lütfen önce bir resim seçin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Lütfen bir resim seçin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // 'txtPassword' boş olamaz ve boşluk karakteri içeremez
+                if (string.IsNullOrWhiteSpace(txtPassword.Text) || txtPassword.Text.Contains(" "))
+                {
+                    MessageBox.Show("Parola boş olamaz ve boşluk karakteri içeremez.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 // Resmi yükle
                 Bitmap image = new Bitmap(selectedImagePath);
 
-                // HASH kontrolü
-                if (!Cls_WaveletHelper.CheckHash(image))
+                // Resimden veri çıkarma
+                byte[] extractedDataBytes = LsbHelper.ExtractData(image);
+                if (extractedDataBytes.Length == 0)
                 {
-                    MessageBox.Show("Görselde geçerli bir HASH bulunamadı.", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Resimde gizlenmiş veri bulunamadı.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
-                Console.WriteLine(TypeLayer.Debug.DEBUG_HASH_CHECK_PASSED);
 
-                // Veriyi dışarı çıkar
-                string extractedData = Cls_WaveletHelper.ExtractDataFromImage(image);
-                Console.WriteLine(string.Format(TypeLayer.Debug.DEBUG_DATA_EXTRACTED, extractedData));
+                 // İmza kontrolü
+                Console.WriteLine("İmza kontrol işlemi başladı.");
+                if (!LsbHelper.CheckSignature(image))
+                {
+                    MessageBox.Show("Bu resim bu uygulama ile şifrelenmemiş.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                Console.WriteLine("İmza kontrolü tamamlandı.");
 
-                // RSA ile şifre çözme
-                string rsaEncryptedAesKey = Cls_WaveletHelper.ExtractRsaEncryptedKey(image);
-                string aesKeyBase64 = Cls_RsaHelper.Decrypt(rsaEncryptedAesKey);
-                byte[] aesKey = Convert.FromBase64String(aesKeyBase64);
-                Console.WriteLine(string.Format(TypeLayer.Debug.DEBUG_RSA_DECRYPT_PROCESSED, aesKeyBase64));
-
-                // Metin karşılaştırma
+                // 'txtPassword' verisiyle AES anahtarı oluştur
                 string password = txtPassword.Text;
-                if (password != Encoding.UTF8.GetString(aesKey))
+                byte[] newAesKey = Cls_AesHelper.GenerateAESKey(password);
+
+                // Veriyi resimden çıkar
+                string extractedData = Encoding.UTF8.GetString(extractedDataBytes);
+                string[] parts = extractedData.Split(';');
+                if (parts.Length != 2)
                 {
-                    MessageBox.Show("Şifreler eşleşmiyor.", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Geçersiz veri formatı.", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-                Console.WriteLine(TypeLayer.Debug.DEBUG_PASSWORD_MATCH);
 
-                // AES ile şifre çözme
-                string aesEncryptedText = Cls_WaveletHelper.ExtractAesEncryptedText(image);
-                string decryptedText = Cls_AesHelper.Decrypt(aesEncryptedText, aesKey);
-                Console.WriteLine(string.Format(TypeLayer.Debug.DEBUG_AES_DECRYPT_PROCESSED, decryptedText));
+                string aesEncryptedText = parts[0];
+                string rsaEncryptedAesKey = parts[1];
 
-                // Sonucu txtOutput'a ilet
+                // RSA ile şifrelenmiş AES anahtarını çöz
+                byte[] decryptedAesKey = Convert.FromBase64String(Cls_RsaHelper.Decrypt(rsaEncryptedAesKey));
+
+                // Çözülen AES anahtarıyla yeni oluşturulan AES anahtarını karşılaştır
+                if (!decryptedAesKey.SequenceEqual(newAesKey))
+                {
+                    MessageBox.Show("Anahtarlar uyuşmuyor.", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Yeni oluşturulan AES anahtarıyla resimden çıkartılan AES ile şifrelenmiş veriyi çöz
+                string decryptedText = Cls_AesHelper.Decrypt(aesEncryptedText, newAesKey);
+
+                // Sonucu 'txtOutput'a ilet
                 txtOutput.Text = decryptedText;
-                MessageBox.Show(Success.DECRYPT_SUCCESS_GENERAL, "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Şifre çözme başarılı!", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Hata: " + ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        #endregion
 
         /// <summary>
         /// Analiz butonuna tıklandığında FrmAnalysis formunu açar veya geliştirici modu kontrolü yapar
@@ -632,7 +665,6 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                     "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
 
     }
 }

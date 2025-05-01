@@ -113,3 +113,14 @@ ve her adımı aşırı şekilde detayı debug yapılacak şekilde ayarla. Debug
 
 Developer Mode ile alakalı bütün her şey sorunsuz çalışır durumda!
 
+
+btnEncrypt ->
+//
+// Resim seçilmemişse uyarı ver
+// txtPassword içindeki veriyle AES anahtarını oluştur
+// Metni AES ile şifrele
+// AES anahtarını RSA ile şifrele
+// Metni ve anahtarı byte dizisine dönüştür
+// Seçilen resimin kopyası nereye oluşturulacak
+// Metni ve anahtarı seçilen resimin kopyasına resme gizle
+
