@@ -10,6 +10,7 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using ImageBasedEncryptionSystem.TypeLayer;
 using ImageBasedEncryptionSystem.DataLayer;
+using System.Drawing;
 
 public static class Cls_RsaHelper
 {
@@ -18,24 +19,26 @@ public static class Cls_RsaHelper
     {
         try
         {
+            Console.WriteLine(string.Format(Debug.DEBUG_DEFAULT_ID_RECEIVING));
             if (!File.Exists(configPath))
             {
                 return Cls_Config.GetDefaultSystemIdentity();
+                
             }
-
+            Console.WriteLine(string.Format(Debug.DEBUG_DEFAULT_ID_RECEIVED));
             var json = JObject.Parse(File.ReadAllText(configPath));
             string defaultIdentity = json["DefaultSystemIdentity"]?.ToString();
-
+            Console.WriteLine(string.Format(Debug.DEBUG_DEFAULT_ID_PROCESSING));
             if (string.IsNullOrWhiteSpace(defaultIdentity))
             {
                 return Cls_Config.GetDefaultSystemIdentity();
             }
-
+            Console.WriteLine(string.Format(Debug.DEBUG_DEFAULT_ID_PROCESSED));
             return defaultIdentity;
         }
         catch (Exception ex)
         {
-            Console.WriteLine(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message));
+            Console.WriteLine(string.Format(Debug.ERROR_DEFAULT_ID_NOT_FOUND, ex.Message));
             return Cls_Config.GetDefaultSystemIdentity();
         }
     }
@@ -57,8 +60,8 @@ public static class Cls_RsaHelper
 
             if (_keyPair != null && currentIdentity == _cachedSystemIdentity)
             {
-                Console.WriteLine(string.Format(Success.SUCCESS_RSA_ENSURE_KEY_PAIR_EXISTING, currentIdentity));
-                Console.WriteLine(Success.SUCCESS_RSA_ENSURE_KEY_PAIR_GENERATED);
+                Console.WriteLine(string.Format(Debug.SUCCESS_RSA_ENSURE_KEY_PAIR_EXISTING, currentIdentity));
+                Console.WriteLine(Debug.SUCCESS_RSA_ENSURE_KEY_PAIR_GENERATED);
                 return; // değişiklik yok, öncekini kullan
             }
 
@@ -103,7 +106,7 @@ public static class Cls_RsaHelper
             Console.WriteLine(Debug.DEBUG_SECURE_RANDOM_CREATED);
             Console.WriteLine(Debug.DEBUG_RSA_KEY_PAIR_GENERATOR_STARTED);
             Console.WriteLine(Debug.DEBUG_RSA_KEY_PAIR_GENERATED);
-            Console.WriteLine(Success.SUCCESS_RSA_ENSURE_KEY_PAIR_GENERATED);
+            Console.WriteLine(Debug.SUCCESS_RSA_ENSURE_KEY_PAIR_GENERATED);
             string publicKey = GetPublicKeyPem();
             string privateKey = GetPrivateKeyPem();
             Console.WriteLine(Debug.DEBUG_NEW_RSA_KEY_PAIR_CREATED);
@@ -111,8 +114,8 @@ public static class Cls_RsaHelper
         }
         catch (Exception ex)
         {
-            Console.WriteLine(string.Format(Errors.ERROR_RSA_ENSURE_KEY_PAIR_FAILED, ex.Message));
-            Console.WriteLine(string.Format(Errors.ERROR_RSA_KEY_GENERATION_FAILED, ex.Message));
+            Console.WriteLine(string.Format(Debug.ERROR_RSA_ENSURE_KEY_PAIR_FAILED, ex.Message));
+            Console.WriteLine(string.Format(Debug.ERROR_RSA_KEY_GENERATION_FAILED, ex.Message));
             throw;
         }
     }
@@ -140,8 +143,8 @@ public static class Cls_RsaHelper
         }
         catch (Exception ex)
         {
-            Console.WriteLine(string.Format(Errors.ERROR_RSA_ENCRYPT_FAILED, ex.Message));
-            Console.WriteLine(string.Format(Errors.ERROR_RSA_ENCRYPTION_PROCESS_FAILED, ex.Message));
+            Console.WriteLine(string.Format(Debug.ERROR_RSA_ENCRYPT_FAILED, ex.Message));
+            Console.WriteLine(string.Format(Debug.ERROR_RSA_ENCRYPTION_PROCESS_FAILED, ex.Message));
             throw;
         }
     }
@@ -169,8 +172,8 @@ public static class Cls_RsaHelper
         }
         catch (Exception ex)
         {
-            Console.WriteLine(string.Format(Errors.ERROR_RSA_DECRYPT_FAILED, ex.Message));
-            Console.WriteLine(string.Format(Errors.ERROR_RSA_DECRYPTION_PROCESS_FAILED, ex.Message));
+            Console.WriteLine(string.Format(Debug.ERROR_RSA_DECRYPT_FAILED, ex.Message));
+            Console.WriteLine(string.Format(Debug.ERROR_RSA_DECRYPTION_PROCESS_FAILED, ex.Message));
             throw;
         }
     }
@@ -197,8 +200,8 @@ public static class Cls_RsaHelper
         }
         catch (Exception ex)
         {
-            Console.WriteLine(string.Format(Errors.ERROR_RSA_GET_PUBLIC_KEY_PEM_FAILED, ex.Message));
-            Console.WriteLine(string.Format(Errors.ERROR_RSA_PUBLIC_KEY_EXPORT_FAILED, ex.Message));
+            Console.WriteLine(string.Format(Debug.ERROR_RSA_GET_PUBLIC_KEY_PEM_FAILED, ex.Message));
+            Console.WriteLine(string.Format(Debug.ERROR_RSA_PUBLIC_KEY_EXPORT_FAILED, ex.Message));
             throw;
         }
     }
@@ -225,8 +228,8 @@ public static class Cls_RsaHelper
         }
         catch (Exception ex)
         {
-            Console.WriteLine(string.Format(Errors.ERROR_RSA_GET_PRIVATE_KEY_PEM_FAILED, ex.Message));
-            Console.WriteLine(string.Format(Errors.ERROR_RSA_PRIVATE_KEY_EXPORT_FAILED, ex.Message));
+            Console.WriteLine(string.Format(Debug.ERROR_RSA_GET_PRIVATE_KEY_PEM_FAILED, ex.Message));
+            Console.WriteLine(string.Format(Debug.ERROR_RSA_PRIVATE_KEY_EXPORT_FAILED, ex.Message));
             throw;
         }
     }

@@ -36,12 +36,14 @@ namespace ImageBasedEncryptionSystem.DataLayer
         {
             try
             {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_GET_CONFIG_FILE_PATH_STARTED);
                 // Geliştirme ortamındaki göreceli yol
                 string relativePath = "../../../ImageBasedEncryptionSystem.DataLayer/Config.json";
                 
                 // Önce göreceli yolu dene
                 if (File.Exists(relativePath))
                 {
+                    Console.WriteLine(TypeLayer.Debug.DEBUG_CONFIG_FILE_FOUND_RELATIVE);
                     return relativePath;
                 }
                 
@@ -52,6 +54,7 @@ namespace ImageBasedEncryptionSystem.DataLayer
                 
                 if (File.Exists(localConfigPath))
                 {
+                    Console.WriteLine(TypeLayer.Debug.DEBUG_CONFIG_FILE_FOUND_LOCAL);
                     return localConfigPath;
                 }
                 
@@ -62,6 +65,7 @@ namespace ImageBasedEncryptionSystem.DataLayer
                 
                 if (File.Exists(appDataConfigPath))
                 {
+                    Console.WriteLine(TypeLayer.Debug.DEBUG_CONFIG_FILE_FOUND_APPDATA);
                     return appDataConfigPath;
                 }
                 
@@ -69,17 +73,20 @@ namespace ImageBasedEncryptionSystem.DataLayer
                 string encryptedConfigPath = appDataConfigPath + ENCRYPTED_EXTENSION;
                 if (File.Exists(encryptedConfigPath))
                 {
+                    Console.WriteLine(TypeLayer.Debug.DEBUG_ENCRYPTED_CONFIG_FILE_FOUND);
                     // Şifrelenmiş dosyayı çöz ve orijinal adla kaydet
                     try
                     {
                         DecryptConfigFile(encryptedConfigPath, appDataConfigPath);
                         if (File.Exists(appDataConfigPath))
                         {
+                            Console.WriteLine(TypeLayer.Debug.DEBUG_CONFIG_FILE_DECRYPTED);
                             return appDataConfigPath;
                         }
                     }
                     catch
                     {
+                        Console.WriteLine(TypeLayer.Debug.ERROR_CONFIG_FILE_DECRYPTION_FAILED);
                         // Şifre çözme başarısız olursa sessizce devam et
                     }
                 }
@@ -98,11 +105,13 @@ namespace ImageBasedEncryptionSystem.DataLayer
                     {
                         // Oluşturulan dosyayı şifrele
                         EncryptConfigFile(appDataConfigPath);
+                        Console.WriteLine(TypeLayer.Debug.DEBUG_DEFAULT_CONFIG_FILE_CREATED);
                         return appDataConfigPath;
                     }
                 }
                 catch
                 {
+                    Console.WriteLine(TypeLayer.Debug.ERROR_DEFAULT_CONFIG_FILE_CREATION_FAILED);
                     // AppData'ya yazılamazsa exe konumunda dene
                     try
                     {
@@ -111,20 +120,24 @@ namespace ImageBasedEncryptionSystem.DataLayer
                         {
                             // Oluşturulan dosyayı şifrele
                             EncryptConfigFile(localConfigPath);
+                            Console.WriteLine(TypeLayer.Debug.DEBUG_DEFAULT_CONFIG_FILE_CREATED_LOCAL);
                             return localConfigPath;
                         }
                     }
                     catch
                     {
+                        Console.WriteLine(TypeLayer.Debug.ERROR_DEFAULT_CONFIG_FILE_CREATION_FAILED_LOCAL);
                         // İki lokasyona da yazılamazsa varsayılan yolu döndür
                     }
                 }
                 
                 // Hiçbir yerde bulunamazsa varsayılan göreceli yolu dön
+                Console.WriteLine(TypeLayer.Debug.DEBUG_RETURNING_DEFAULT_RELATIVE_PATH);
                 return relativePath;
             }
             catch
             {
+                Console.WriteLine(TypeLayer.Debug.ERROR_GET_CONFIG_FILE_PATH_FAILED);
                 // Hata durumunda varsayılan göreceli yolu dön
                 return "../../../ImageBasedEncryptionSystem.DataLayer/Config.json";
             }
@@ -136,6 +149,7 @@ namespace ImageBasedEncryptionSystem.DataLayer
         /// <param name="configPath">Oluşturulacak dosyanın tam yolu</param>
         public static void CreateDefaultConfigFile(string configPath)
         {
+            Console.WriteLine(TypeLayer.Debug.DEBUG_CREATE_DEFAULT_CONFIG_FILE_STARTED);
             // Varsayılan config içeriği
             string defaultConfig = @"{
   ""Developers"": [
@@ -159,6 +173,7 @@ namespace ImageBasedEncryptionSystem.DataLayer
             
             // Dosyayı oluştur
             File.WriteAllText(configPath, defaultConfig);
+            Console.WriteLine(TypeLayer.Debug.DEBUG_CREATE_DEFAULT_CONFIG_FILE_COMPLETED);
         }
         
         /// <summary>
@@ -170,8 +185,12 @@ namespace ImageBasedEncryptionSystem.DataLayer
         {
             try
             {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_ENCRYPT_CONFIG_FILE_STARTED);
                 if (!File.Exists(configPath))
+                {
+                    Console.WriteLine(TypeLayer.Debug.ERROR_CONFIG_FILE_NOT_FOUND);
                     return false;
+                }
                 
                 // Orijinal config içeriğini oku
                 string configContent = File.ReadAllText(configPath);
@@ -197,6 +216,7 @@ namespace ImageBasedEncryptionSystem.DataLayer
                                 using (StreamWriter sw = new StreamWriter(cs))
                                 {
                                     sw.Write(configContent);
+                                    Console.WriteLine(TypeLayer.Debug.DEBUG_ENCRYPT_CONFIG_FILE_COMPLETED);
                                 }
                             }
                         }
@@ -205,8 +225,9 @@ namespace ImageBasedEncryptionSystem.DataLayer
                 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine(string.Format(TypeLayer.Debug.ERROR_ENCRYPT_CONFIG_FILE_FAILED, ex.Message));
                 return false;
             }
         }
@@ -221,8 +242,12 @@ namespace ImageBasedEncryptionSystem.DataLayer
         {
             try
             {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_DECRYPT_CONFIG_FILE_STARTED);
                 if (!File.Exists(encryptedPath))
+                {
+                    Console.WriteLine(TypeLayer.Debug.ERROR_ENCRYPTED_CONFIG_FILE_NOT_FOUND);
                     return false;
+                }
                 
                 // AES ile şifre çöz
                 using (Aes aes = Aes.Create())
@@ -246,6 +271,7 @@ namespace ImageBasedEncryptionSystem.DataLayer
                                     
                                     // Hedef dosyaya kaydet
                                     File.WriteAllText(outputPath, decryptedContent);
+                                    Console.WriteLine(TypeLayer.Debug.DEBUG_DECRYPT_CONFIG_FILE_COMPLETED);
                                 }
                             }
                         }
@@ -254,8 +280,9 @@ namespace ImageBasedEncryptionSystem.DataLayer
                 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine(string.Format(TypeLayer.Debug.ERROR_DECRYPT_CONFIG_FILE_FAILED, ex.Message));
                 return false;
             }
         }
@@ -270,9 +297,13 @@ namespace ImageBasedEncryptionSystem.DataLayer
         {
             try
             {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_READ_CONFIG_VALUE_STARTED);
                 string configPath = GetConfigFilePath();
                 if (!File.Exists(configPath))
+                {
+                    Console.WriteLine(TypeLayer.Debug.ERROR_CONFIG_FILE_NOT_FOUND);
                     return string.Empty;
+                }
                 
                 string jsonContent = File.ReadAllText(configPath);
                 dynamic config = JsonConvert.DeserializeObject(jsonContent);
@@ -283,15 +314,18 @@ namespace ImageBasedEncryptionSystem.DataLayer
                     {
                         if (item[key] != null)
                         {
+                            Console.WriteLine(TypeLayer.Debug.DEBUG_READ_CONFIG_VALUE_COMPLETED);
                             return item[key].ToString();
                         }
                     }
                 }
                 
+                Console.WriteLine(TypeLayer.Debug.ERROR_CONFIG_VALUE_NOT_FOUND);
                 return string.Empty;
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine(string.Format(TypeLayer.Debug.ERROR_READ_CONFIG_VALUE_FAILED, ex.Message));
                 return string.Empty;
             }
         }
@@ -307,9 +341,13 @@ namespace ImageBasedEncryptionSystem.DataLayer
         {
             try
             {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_WRITE_CONFIG_VALUE_STARTED);
                 string configPath = GetConfigFilePath();
                 if (!File.Exists(configPath))
+                {
+                    Console.WriteLine(TypeLayer.Debug.ERROR_CONFIG_FILE_NOT_FOUND);
                     return false;
+                }
                 
                 string jsonContent = File.ReadAllText(configPath);
                 dynamic config = JsonConvert.DeserializeObject(jsonContent);
@@ -324,37 +362,59 @@ namespace ImageBasedEncryptionSystem.DataLayer
                     
                     // Şifreli versiyonu güncelle
                     EncryptConfigFile(configPath);
-                    
+                    Console.WriteLine(TypeLayer.Debug.DEBUG_WRITE_CONFIG_VALUE_COMPLETED);
                     return true;
                 }
                 
+                Console.WriteLine(TypeLayer.Debug.ERROR_CONFIG_SECTION_NOT_FOUND);
                 return false;
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine(string.Format(TypeLayer.Debug.ERROR_WRITE_CONFIG_VALUE_FAILED, ex.Message));
                 return false;
             }
         }
 
         public static string GetSystemIdentity()
         {
-            string configPath = GetConfigFilePath();
-            if (!File.Exists(configPath))
+            try
+            {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_GET_SYSTEM_IDENTITY_STARTED);
+                string configPath = GetConfigFilePath();
+                if (!File.Exists(configPath))
+                {
+                    Console.WriteLine(TypeLayer.Debug.ERROR_CONFIG_FILE_NOT_FOUND);
+                    return null;
+                }
+                string json = File.ReadAllText(configPath);
+                var match = System.Text.RegularExpressions.Regex.Match(json, "\"SystemIdentity\"\\s*:\\s*\"([^\"]+)\"");
+                if (match.Success && match.Groups.Count > 1)
+                {
+                    Console.WriteLine(TypeLayer.Debug.DEBUG_GET_SYSTEM_IDENTITY_COMPLETED);
+                    return match.Groups[1].Value;
+                }
+                Console.WriteLine(TypeLayer.Debug.ERROR_SYSTEM_IDENTITY_NOT_FOUND);
                 return null;
-            string json = File.ReadAllText(configPath);
-            var match = System.Text.RegularExpressions.Regex.Match(json, "\"SystemIdentity\"\\s*:\\s*\"([^\"]+)\"");
-            if (match.Success && match.Groups.Count > 1)
-                return match.Groups[1].Value;
-            return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(string.Format(TypeLayer.Debug.ERROR_GET_SYSTEM_IDENTITY_FAILED, ex.Message));
+                return null;
+            }
         }
 
         public static bool UpdateSystemIdentity(string newIdentity)
         {
             try
             {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_UPDATE_SYSTEM_IDENTITY_STARTED);
                 string configPath = GetConfigFilePath();
                 if (!File.Exists(configPath))
+                {
+                    Console.WriteLine(TypeLayer.Debug.ERROR_CONFIG_FILE_NOT_FOUND);
                     return false;
+                }
 
                 string jsonContent = File.ReadAllText(configPath);
                 dynamic config = JsonConvert.DeserializeObject(jsonContent);
@@ -364,21 +424,19 @@ namespace ImageBasedEncryptionSystem.DataLayer
                     config.Identity[0].SystemIdentity = newIdentity;
                     string updatedJson = JsonConvert.SerializeObject(config, Formatting.Indented);
                     File.WriteAllText(configPath, updatedJson);
+                    Console.WriteLine(TypeLayer.Debug.DEBUG_UPDATE_SYSTEM_IDENTITY_COMPLETED);
                     return true;
                 }
+                Console.WriteLine(TypeLayer.Debug.ERROR_IDENTITY_SECTION_NOT_FOUND);
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Hata durumunda false döndür
+                Console.WriteLine(string.Format(TypeLayer.Debug.ERROR_UPDATE_SYSTEM_IDENTITY_FAILED, ex.Message));
                 return false;
             }
         }
 
-        public static void EnsureKeyPair()
-        {
-            // ... mevcut kod ...
-        }
 
         /// <summary>
         /// Varsayılan SystemIdentity değerini döndürür.
@@ -388,5 +446,8 @@ namespace ImageBasedEncryptionSystem.DataLayer
         {
             return "VARSAYILAN_KIMLIK_TUBITAK_KSSAL_2025_pVi4-IFdJkbp_-ETi_6x-RYOd-qD_4";
         }
+
+
+
     }
 }

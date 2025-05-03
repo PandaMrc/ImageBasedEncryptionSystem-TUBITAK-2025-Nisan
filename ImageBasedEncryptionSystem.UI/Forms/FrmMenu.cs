@@ -42,11 +42,14 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             InitializeComponent();
             
+            Console.WriteLine(TypeLayer.Debug.DEBUG_FORM_INITIALIZE_STARTED);
             // Geliştirici modu nesnesini başlat
             devMode = new Cls_DeveloperMode();
+            Console.WriteLine(TypeLayer.Debug.DEBUG_DEV_MODE_OBJECT_INITIALIZED);
             
             // Metin girişi için maksimum karakter sınırı ayarla
             txtInput.MaxLength = 100000000; // Maksimum 100.000.000 karakter
+            Console.WriteLine(TypeLayer.Debug.DEBUG_MAX_LENGTH_SET);
         }
 
 
@@ -59,17 +62,21 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 
                 // Form ayarları
                 txtOutput.ReadOnly = true;
+                Console.WriteLine(TypeLayer.Debug.DEBUG_FORM_SETTINGS_APPLIED);
 
                 // Arka plan oluştur - Business Layer'daki Cls_Background sınıfını kullan
                 BusinessLayer.UI.Cls_Background.Instance.CreateModernBackground(this);
+                Console.WriteLine(TypeLayer.Debug.DEBUG_BACKGROUND_CREATED);
 
                 // Olayları bağla
                 btnDevMode.Click += btnDevMode_Click;
                 btnAdmin.Click += btnAdmin_Click;
                 btnInfo.Click += btnHelp_Click;
+                Console.WriteLine(TypeLayer.Debug.DEBUG_EVENTS_BOUND);
 
                 // Geliştirici modu durumunu kontrol et ve UI'ı güncelle
                 CheckDeveloperModeStatus();
+                Console.WriteLine(TypeLayer.Debug.DEBUG_DEV_MODE_STATUS_CHECKED);
 
                 // RSA anahtar çiftini oluştur
                 Cls_RsaHelper.EnsureKeyPair();
@@ -91,13 +98,14 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             try
             {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_IMAGE_SELECTION_STARTED);
                 // Resim seçme işlemi
                 OpenFileDialog openFileDialog = new OpenFileDialog();
                 openFileDialog.Filter = "Image Files|*.png;*.bmp";
                 if (openFileDialog.ShowDialog() != DialogResult.OK)
                 {
                     Console.WriteLine(TypeLayer.Debug.DEBUG_IMAGE_LOAD_STARTED);
-                    MessageBox.Show(Errors.ERROR_GENERAL_CANCELED, "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(Errors.ERROR_IMAGE_CANCELED, "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -111,6 +119,8 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                     MessageBox.Show(Errors.ERROR_IMAGE_TOO_SMALL, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+
+
 
                 // Resmi PictureBox'a yükle
                 pboxImage.Image = selectedImage;
@@ -133,12 +143,13 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             try
             {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_ENCRYPTION_STARTED);
                 #region Uyarılar
                 // Resim seçilmemişse uyarı ver
                 if (string.IsNullOrEmpty(selectedImagePath))
                 {
                     Console.WriteLine(TypeLayer.Debug.DEBUG_IMAGE_LOAD_STARTED);
-                    MessageBox.Show("Lütfen bir resim seçin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(Errors.ERROR_IMAGE_NOT_SELECTED, "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -146,7 +157,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 if (string.IsNullOrWhiteSpace(txtPassword.Text) || txtPassword.Text.Contains(" "))
                 {
                     Console.WriteLine(TypeLayer.Debug.DEBUG_PASSWORD_MATCH);
-                    MessageBox.Show("Parola boş olamaz ve boşluk karakteri içeremez.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(Errors.ERROR_PASSWORD_INVALID, "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -154,7 +165,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 if (string.IsNullOrWhiteSpace(txtInput.Text))
                 {
                     Console.WriteLine(TypeLayer.Debug.DEBUG_DATA_EXTRACTED);
-                    MessageBox.Show("Şifrelenecek metin boş olamaz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(Errors.ERROR_TEXT_EMPTY, "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
                 #endregion
@@ -163,11 +174,13 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 string password = txtPassword.Text;
                 byte[] aesKey = Cls_AesHelper.GenerateAESKey(password);
                 Console.WriteLine(TypeLayer.Debug.DEBUG_AES_GENERATE_KEY_STARTED);
+                Console.WriteLine(string.Format(TypeLayer.Debug.DEBUG_AES_KEY_GENERATION_COMPLETED, Convert.ToBase64String(aesKey)));
 
                 // Metni şifrele
                 string inputText = txtInput.Text;
                 string aesEncryptedText = Cls_AesHelper.Encrypt(inputText, aesKey);
                 Console.WriteLine(TypeLayer.Debug.DEBUG_AES_ENCRYPT_STARTED);
+                Console.WriteLine(string.Format(TypeLayer.Debug.DEBUG_AES_ENCRYPTION_COMPLETED, aesEncryptedText));
 
                 // AES anahtarını RSA ile şifrele
                 string rsaEncryptedAesKey = Cls_RsaHelper.Encrypt(Convert.ToBase64String(aesKey));
@@ -189,18 +202,18 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                         {
                             // İmza ekleme işlemi
                             Console.WriteLine(TypeLayer.Debug.DEBUG_SIGNATURE_ADD_STARTED);
-                            Bitmap signedImage = LsbHelper.EmbedSignature(imageCopy);
+                            Bitmap signedImage = Cls_LsbHelper.EmbedSignature(imageCopy);
                             Console.WriteLine(TypeLayer.Debug.DEBUG_HASH_ADD_COMPLETED);
 
-                            // Veri ekleme işlemi
-                            using (Bitmap resultImage = LsbHelper.EmbedData(signedImage, Encoding.UTF8.GetBytes(aesEncryptedText + ";" + rsaEncryptedAesKey)))
+                            // Şifrelenmiş veriyi resme gömme işlemi
+                            using (Bitmap resultImage = Cls_LsbHelper.EmbedData(signedImage, Encoding.UTF8.GetBytes(aesEncryptedText + ";" + rsaEncryptedAesKey)))
                             {
-                                Console.WriteLine(TypeLayer.Debug.DEBUG_IMAGE_LOAD_SUCCESS);
+                                // Sonuç resmini kaydet
                                 resultImage.Save(saveFileDialog.FileName, ImageFormat.Png);
                             }
                         }
 
-                        MessageBox.Show(Success.ENCRYPT_SUCCESS_GENERAL, "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(Success.ENCRYPTION_SUCCESS, "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
             }
@@ -218,17 +231,18 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             try
             {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_DECRYPTION_STARTED);
                 // Resim seçilmemişse uyarı ver
                 if (string.IsNullOrEmpty(selectedImagePath))
                 {
-                    MessageBox.Show("Lütfen bir resim seçin.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(Errors.ERROR_IMAGE_NOT_SELECTED, "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 // 'txtPassword' boş olamaz ve boşluk karakteri içeremez
                 if (string.IsNullOrWhiteSpace(txtPassword.Text) || txtPassword.Text.Contains(" "))
                 {
-                    MessageBox.Show("Parola boş olamaz ve boşluk karakteri içeremez.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(Errors.ERROR_PASSWORD_INVALID, "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -236,21 +250,21 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 Bitmap image = new Bitmap(selectedImagePath);
 
                 // Resimden veri çıkarma
-                byte[] extractedDataBytes = LsbHelper.ExtractData(image);
+                byte[] extractedDataBytes = Cls_LsbHelper.ExtractData(image);
                 if (extractedDataBytes.Length == 0)
                 {
-                    MessageBox.Show("Resimde gizlenmiş veri bulunamadı.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(Errors.ERROR_NO_HIDDEN_DATA, "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                  // İmza kontrolü
-                Console.WriteLine("İmza kontrol işlemi başladı.");
-                if (!LsbHelper.CheckSignature(image))
+                Console.WriteLine(TypeLayer.Debug.DEBUG_SIGNATURE_CHECK_STARTED);
+                if (!Cls_LsbHelper.CheckSignature(image))
                 {
-                    MessageBox.Show("Bu resim bu uygulama ile şifrelenmemiş.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(Errors.ERROR_NOT_ENCRYPTED_WITH_APP, "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
-                Console.WriteLine("İmza kontrolü tamamlandı.");
+                Console.WriteLine(TypeLayer.Debug.DEBUG_SIGNATURE_CHECK_COMPLETED);
 
                 // 'txtPassword' verisiyle AES anahtarı oluştur
                 string password = txtPassword.Text;
@@ -261,7 +275,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 string[] parts = extractedData.Split(';');
                 if (parts.Length != 2)
                 {
-                    MessageBox.Show("Geçersiz veri formatı.", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(Errors.ERROR_INVALID_DATA_FORMAT, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
@@ -274,20 +288,21 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 // Çözülen AES anahtarıyla yeni oluşturulan AES anahtarını karşılaştır
                 if (!decryptedAesKey.SequenceEqual(newAesKey))
                 {
-                    MessageBox.Show("Anahtarlar uyuşmuyor.", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(Errors.ERROR_KEYS_MISMATCH, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
                 // Yeni oluşturulan AES anahtarıyla resimden çıkartılan AES ile şifrelenmiş veriyi çöz
                 string decryptedText = Cls_AesHelper.Decrypt(aesEncryptedText, newAesKey);
+                Console.WriteLine(string.Format(TypeLayer.Debug.DEBUG_AES_DECRYPTION_COMPLETED, decryptedText));
 
                 // Sonucu 'txtOutput'a ilet
                 txtOutput.Text = decryptedText;
-                MessageBox.Show("Şifre çözme başarılı!", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Success.DECRYPTION_SUCCESS, "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Hata: " + ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         #endregion
@@ -299,6 +314,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             try
             {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_ANALYSIS_STARTED);
                 // Geliştirici girişi var ama mod aktif değilse
                 if (devMode != null)
                 {
@@ -308,7 +324,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                     if (isLoggedIn && !isDevModeActive)
                     {
                         // Geliştirici girişi yapılmış ama mod aktif değil
-                        MessageBox.Show("Bu özelliği kullanabilmek için önce geliştirici modunu aktif etmelisiniz.", 
+                        MessageBox.Show(Errors.ERROR_DEV_MODE_REQUIRED, 
                             "Geliştirici Modu Gerekli", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
@@ -331,13 +347,14 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             try
             {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_HELP_STARTED);
                 // Yardım formunu göster
                 FrmInfo frmInfo = new FrmInfo(this);
                 frmInfo.ShowDialog(this);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Yardım formu açılırken bir hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format(Errors.ERROR_HELP_FORM, ex.Message), "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         
@@ -348,6 +365,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             try
             {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_DEV_MODE_TOGGLE_STARTED);
                 // Geliştirici modunu kontrol et
                 if (devMode == null)
                     return;
@@ -389,6 +407,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             try
             {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_LOGIN_ICON_CLICKED);
                 // Geliştirici girişi var mı kontrol et
                 if (devMode != null)
                 {
@@ -398,14 +417,14 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                     {
                         // Çıkış onay mesajı göster
                         DialogResult result = MessageBox.Show(
-                            "Geliştirici hesabından çıkış yaparsanız Geliştirici Modu kapatılacaktır. Yine de devam etmek istiyor musunuz?", 
+                            Errors.ERROR_LOGOUT_CONFIRMATION, 
                             "Onay", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                             
                         if (result == DialogResult.Yes)
                         {
                             // Geliştirici modundan çıkış yap
                             string logoutResult = devMode.Logout();
-                            MessageBox.Show("Geliştirici Hesabından Çıkış Yaptınız", 
+                            MessageBox.Show(Success.DEVELOPER_LOGOUT_SUCCESS, 
                                 "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                 
                             // UI'ı güncelle
@@ -434,6 +453,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         // Login ikonu üzerine gelindiğinde efekt
         private void pbLogin_MouseEnter(object sender, EventArgs e)
         {
+            Console.WriteLine(TypeLayer.Debug.DEBUG_LOGIN_ICON_MOUSE_ENTER);
             // Fare üzerine geldiğinde efekt (büyütme veya parlaklık değişimi)
             pbLogin.Size = new Size(45, 45);
             pbLogin.Location = new Point(8, -4);
@@ -442,6 +462,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         // Login ikonundan ayrılındığında efekt
         private void pbLogin_MouseLeave(object sender, EventArgs e)
         {
+            Console.WriteLine(TypeLayer.Debug.DEBUG_LOGIN_ICON_MOUSE_LEAVE);
             // Normal boyuta dön
             pbLogin.Size = new Size(40, 40);
             pbLogin.Location = new Point(10, -2);
@@ -455,9 +476,10 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             try
             {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_DEV_MODE_ACTIVATION_STARTED);
                 if (developerMode == null)
                 {
-                    MessageBox.Show("Geliştirici modu nesnesi boş!", "Hata", 
+                    MessageBox.Show(Errors.ERROR_DEV_MODE_OBJECT_NULL, "Hata", 
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
@@ -498,6 +520,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             try
             {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_ADMIN_BUTTON_CLICKED);
                 // Geliştirici girişi kontrol et
                 if (devMode == null)
                 {
@@ -546,6 +569,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             try
             {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_ADMIN_FORM_OPENING);
                 // Yeni form oluştur
                 FrmAdmin adminForm = new FrmAdmin(this);
                 
@@ -572,6 +596,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             try
             {
+                Console.WriteLine(TypeLayer.Debug.DEBUG_DEV_MODE_STATUS_CHECK_STARTED);
                 // Geliştirici modu var mı kontrol et
                 if (devMode == null)
                 {

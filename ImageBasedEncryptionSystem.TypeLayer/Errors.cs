@@ -9,69 +9,62 @@ namespace ImageBasedEncryptionSystem.TypeLayer
     public static class Errors
     {
         #region Genel Hatalar
-        public const string ERROR_GENERAL_FAILED = "İşlem Başarısız!";
-        public const string ERROR_GENERAL_UNEXPECTED = "Beklenmeyen bir hata oluştu: {0}";
-        public const string ERROR_GENERAL_TIMEOUT = "İşlem zaman aşımına uğradı!";
-        public const string ERROR_GENERAL_CANCELED = "İşlem kullanıcı tarafından iptal edildi!";
-        public const string ERROR_GENERAL_NOT_SUPPORTED = "Bu işlem desteklenmiyor!";
-        #endregion
-
-        #region Giriş/Kullanıcı Hataları
-        public const string ERROR_LOGIN_USERNAME_EMPTY = "Kullanıcı adı boş olamaz!";
-        public const string ERROR_LOGIN_PASSWORD_EMPTY = "Şifre boş olamaz!";
-        public const string ERROR_LOGIN_CREDENTIALS = "Kullanıcı adı veya şifre hatalı!";
-        public const string ERROR_LOGIN_FAILED = "Giriş işlemi sırasında bir hata oluştu: {0}";
-        public const string ERROR_LOGIN_BACKGROUND = "Arka plan oluşturulurken bir hata oluştu: {0}";
+        public const string ERROR_GENERAL_CANCELED = "[ERROR] İşlem kullanıcı tarafından iptal edildi.";
+        public const string ERROR_GENERAL_UNEXPECTED = "[ERROR] Beklenmeyen bir hata oluştu: {0}";
         #endregion
 
         #region Geliştirici Modu Hataları
-        public const string ERROR_DEV_MODE_ACTIVATE = "Geliştirici modu etkinleştirilirken bir hata oluştu: {0}";
-        public const string ERROR_DEV_MODE_DEACTIVATE = "Geliştirici modu kapatılırken bir hata oluştu: {0}";
-        public const string ERROR_DEV_MODE_ACCESS_DENIED = "Geliştirici moduna erişim izniniz yok!";
-        public const string ERROR_DEV_MODE_ALREADY_ACTIVE = "Geliştirici modu zaten etkin durumda.";
-        public const string ERROR_DEV_MODE_ALREADY_DEACTIVE = "Geliştirici modu zaten devre dışı.";
-        public const string ERROR_DEV_MODE_REQUIRED = "Bu özelliği kullanabilmek için geliştirici modunu etkinleştirmeniz gerekiyor.";
-
+        public const string ERROR_LOGIN_USERNAME_EMPTY = "[ERROR] Giriş kullanıcı adı boş.";
+        public const string ERROR_LOGIN_PASSWORD_EMPTY = "[ERROR] Giriş parolası boş.";
+        public const string ERROR_FILE_NOT_FOUND = "[ERROR] Dosya bulunamadı.";
+        public const string ERROR_NO_DEVELOPERS_FOUND = "[ERROR] Geliştirici bilgileri bulunamadı.";
+        public const string ERROR_LOGIN_CREDENTIALS = "[ERROR] Giriş kimlik bilgileri hatalı.";
+        public const string ERROR_DEV_MODE_ACCESS_DENIED = "[ERROR] Geliştirici modu erişim reddedildi.";
+        public const string ERROR_IDENTITY_EMPTY = "[ERROR] Kimlik boş olamaz.";
+        public const string ERROR_IDENTITY_VERIFICATION_FAILED = "[ERROR] Kimlik doğrulama başarısız.";
+        public const string ERROR_FILE_ACCESS = "[ERROR] Dosya erişimi başarısız.";
+        public const string ERROR_IDENTITY_SAVE_FAILED = "[ERROR] Kimlik kaydedilemedi.";
+        public const string ERROR_LOGIN_FAILED = "[ERROR] Giriş başarısız: {0}";
+        public const string ERROR_DEV_MODE_ACTIVATE = "[ERROR] Geliştirici modu etkinleştirme başarısız oldu: {0}";
+        public const string ERROR_DEV_MODE_DEACTIVATE = "[ERROR] Geliştirici modu devre dışı bırakma başarısız oldu.";
+        public const string ERROR_STATUS_CHECK_FAILED = "[ERROR] Durum kontrolü başarısız oldu.";
+        public const string ERROR_LOGIN_STATUS_CHECK_FAILED = "[ERROR] Giriş durumu kontrolü başarısız oldu.";
+        public const string ERROR_DEV_MODE_INACTIVE = "[ERROR] Geliştirici modu aktif değil.";
+        public const string ERROR_VALIDATE_ACCESS_FAILED = "[ERROR] Erişim doğrulama başarısız oldu.";
+        public const string ERROR_SAVE_ID_CONFIG_FAILED = "[ERROR] Kimlik yapılandırma kaydetme başarısız oldu.";
+        public const string ERROR_DEV_MODE_REQUIRED = "[ERROR] Bu özelliği kullanabilmek için önce geliştirici modunu etkinleştirmelisiniz.";
+        public const string ERROR_LOGIN_BACKGROUND = "[ERROR] Login formu arka planı oluşturulurken hata: {0}";
+        public const string ERROR_LOGIN_CANCEL = "[ERROR] Giriş işlemi iptal edildi.";
+        public const string ERROR_LOGIN_FORM_CLOSING = "[ERROR] Login formu kapatılırken hata: {0}";
         #endregion
 
-        #region Geliştirici Modu İşlemleri Hataları
-        public const string ERROR_DEV_MODE_LOGIN_INIT_FAILED = "Login: Başlatılamadı - {0}";
-        public const string ERROR_DEV_MODE_LOGIN_PROCESS_FAILED = "Login: İşlem sırasında hata oluştu - {0}";
-        public const string ERROR_DEV_MODE_LOGOUT_INIT_FAILED = "Logout: Başlatılamadı - {0}";
-        public const string ERROR_DEV_MODE_LOGOUT_PROCESS_FAILED = "Logout: İşlem sırasında hata oluştu - {0}";
-        public const string ERROR_FILE_NOT_FOUND = "Geliştirici hesabı verileri bulunamadı!";
+        #region Admin Form Hataları
+        public const string ERROR_ADMIN_FORM_LOAD = "[ERROR] Admin formu yüklenirken hata oluştu: {0}";
+        public const string ERROR_ADMIN_BACKGROUND = "[ERROR] Admin formu arka planı oluşturulurken hata: {0}";
+        public const string ERROR_ADMIN_INITIAL_DATA_LOAD = "[ERROR] Admin formu ilk veri yüklenirken hata: {0}";
+        public const string ERROR_ADMIN_CONFIG_FILE_READ = "[ERROR] Config dosyası okunurken hata oluştu: {0}";
+        public const string ERROR_ADMIN_FORM_CLOSING = "[ERROR] Admin formu kapatılırken hata: {0}";
+        public const string ERROR_ADMIN_RANDOM_IDENTITY = "[ERROR] Rastgele kimlik oluşturulurken hata: {0}";
+        public const string ERROR_ADMIN_IDENTITY_EMPTY = "[ERROR] Lütfen önce yeni bir kimlik girin veya oluşturun.";
+        public const string ERROR_ADMIN_IDENTITY_SAVE = "[ERROR] Kimlik kaydedilirken hata oluştu: {0}";
+        public const string ERROR_ADMIN_IDENTITY_RESET_CONFIRM = "[ERROR] Kimliği varsayılan değere sıfırlamak istediğinize emin misiniz?";
+        public const string ERROR_ADMIN_IDENTITY_RESET = "[ERROR] Kimlik sıfırlanırken hata oluştu: {0}";
+        public const string ERROR_ADMIN_DEFAULT_IDENTITY_READ = "[ERROR] Varsayılan kimlik okunurken hata oluştu: {0}";
         #endregion
 
-        #region AES İşlemleri Hataları
-        public const string ERROR_AES_GENERATE_KEY_FAILED = "GenerateAESKey: Hata oluştu - {0}";
-        public const string ERROR_AES_ENCRYPT_INIT_FAILED = "Encrypt: Şifreleme motoru başlatılamadı - {0}";
-        public const string ERROR_AES_ENCRYPT_PROCESS_FAILED = "Encrypt: Şifreleme işlemi sırasında hata oluştu - {0}";
-        public const string ERROR_AES_DECRYPT_INIT_FAILED = "Decrypt: Şifre çözme motoru başlatılamadı - {0}";
-        public const string ERROR_AES_DECRYPT_PROCESS_FAILED = "Decrypt: Şifre çözme işlemi sırasında hata oluştu - {0}";
+        #region Resim İşleme Hataları
+        public const string ERROR_IMAGE_TOO_SMALL = "[ERROR] Seçilen resim çok küçük. En az 256x256 piksel boyutunda olmalıdır.";
+        public const string ERROR_IMAGE_NOT_SELECTED = "[ERROR] Lütfen bir resim seçin.";
+        public const string ERROR_PASSWORD_INVALID = "[ERROR] Parola boş olamaz ve boşluk karakteri içeremez.";
+        public const string ERROR_TEXT_EMPTY = "[ERROR] Şifrelenecek metin boş olamaz.";
+        public const string ERROR_NO_HIDDEN_DATA = "[ERROR] Resimde gizlenmiş veri bulunamadı.";
+        public const string ERROR_NOT_ENCRYPTED_WITH_APP = "[ERROR] Bu resim bu uygulama ile şifrelenmemiş.";
+        public const string ERROR_INVALID_DATA_FORMAT = "[ERROR] Geçersiz veri formatı.";
+        public const string ERROR_KEYS_MISMATCH = "[ERROR] Anahtarlar uyuşmuyor.";
+        public const string ERROR_DEV_MODE_OBJECT_NULL = "[ERROR] Geliştirici modu nesnesi boş!";
+        public const string ERROR_HELP_FORM = "[ERROR] Yardım formu açılırken bir hata oluştu: {0}";
+        public const string ERROR_LOGOUT_CONFIRMATION = "[ERROR] Geliştirici hesabından çıkış yaparsanız Geliştirici Modu kapatılacaktır. Yine de devam etmek istiyor musunuz?";
+        public const string ERROR_IMAGE_CANCELED = "[ERROR] Resim seçme işlemi iptal edildi.";
         #endregion
-
-        #region RSA İşlemleri Hataları
-        public const string ERROR_RSA_KEY_GENERATION_FAILED = "RSA anahtar çifti oluşturulamadı: {0}";
-        public const string ERROR_RSA_ENCRYPTION_INIT_FAILED = "RSA şifreleme motoru başlatılamadı: {0}";
-        public const string ERROR_RSA_ENCRYPTION_PROCESS_FAILED = "RSA şifreleme işlemi sırasında bir hata oluştu: {0}";
-        public const string ERROR_RSA_DECRYPTION_INIT_FAILED = "RSA şifre çözme motoru başlatılamadı: {0}";
-        public const string ERROR_RSA_DECRYPTION_PROCESS_FAILED = "RSA şifre çözme işlemi sırasında bir hata oluştu: {0}";
-        public const string ERROR_RSA_PUBLIC_KEY_EXPORT_FAILED = "RSA public key dışa aktarma işlemi sırasında bir hata oluştu: {0}";
-        public const string ERROR_RSA_PRIVATE_KEY_EXPORT_FAILED = "RSA private key dışa aktarma işlemi sırasında bir hata oluştu: {0}";
-        public const string ERROR_RSA_GET_SYSTEM_IDENTITY_FAILED = "GetSystemIdentity: Hata oluştu - {0}";
-        public const string ERROR_RSA_ENSURE_KEY_PAIR_FAILED = "EnsureKeyPair: Hata oluştu - {0}";
-        public const string ERROR_RSA_ENCRYPT_FAILED = "Encrypt: Hata oluştu - {0}";
-        public const string ERROR_RSA_DECRYPT_FAILED = "Decrypt: Hata oluştu - {0}";
-        public const string ERROR_RSA_GET_PUBLIC_KEY_PEM_FAILED = "GetPublicKeyPem: Hata oluştu - {0}";
-        public const string ERROR_RSA_GET_PRIVATE_KEY_PEM_FAILED = "GetPrivateKeyPem: Hata oluştu - {0}";
-        #endregion
-
-        #region Kimlik Oluşturma İşlemleri Hataları
-        public const string ERROR_IDENTITY_CREATE_PROCESS_FAILED = "CreateRandomIdentity: İşlem sırasında hata oluştu - {0}";
-        #endregion
-
-        public const string ERROR_IMAGE_TOO_SMALL = "Seçilen resim çok küçük. Minimum boyut 256x256 olmalıdır.";
-
-
     }
 } 

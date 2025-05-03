@@ -29,10 +29,12 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         /// </summary>
         public FrmAdmin()
         {
+            Console.WriteLine(Debug.DEBUG_ADMIN_FORM_INITIALIZE_STARTED);
             InitializeComponent();
             
             // FormClosing olayını ekle
             this.FormClosing += FrmAdmin_FormClosing;
+            Console.WriteLine(Debug.DEBUG_ADMIN_FORM_CLOSING_EVENT_BOUND);
         }
         
         /// <summary>
@@ -52,8 +54,10 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             try
             {
+                Console.WriteLine(Debug.DEBUG_ADMIN_SET_DEV_MODE_STARTED);
                 if (developerMode == null || !developerMode.IsLoggedIn)
                 {
+                    Console.WriteLine(Debug.DEBUG_ADMIN_DEV_MODE_ACCESS_DENIED);
                     MessageBox.Show(Errors.ERROR_DEV_MODE_ACCESS_DENIED, 
                         "Erişim Hatası", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     this.Close();
@@ -61,9 +65,11 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 }
                 
                 var (devModeMessage, isDevModeActive) = developerMode.CheckDevModeStatus();
+                Console.WriteLine(Debug.DEBUG_ADMIN_DEV_MODE_STATUS_CHECKED);
                 
                 if (!isDevModeActive)
                 {
+                    Console.WriteLine(Debug.DEBUG_ADMIN_DEV_MODE_NOT_ACTIVE);
                     MessageBox.Show(Errors.ERROR_DEV_MODE_REQUIRED, 
                         "Geliştirici Modu Gerekli", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     this.Close();
@@ -71,16 +77,19 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 }
                 
                 this.devMode = developerMode;
+                Console.WriteLine(Debug.DEBUG_ADMIN_DEV_MODE_SET_SUCCESS);
                 
                 // Geliştirici modu bilgisini UI'a yansıt
                 if (lblDevModeStatus != null)
                 {
                     lblDevModeStatus.Text = $"Geliştirici: {developerMode.CurrentDevId}";
                     lblDevModeStatus.ForeColor = Color.Lime;
+                    Console.WriteLine(string.Format(Debug.DEBUG_ADMIN_DEV_MODE_UI_UPDATED, developerMode.CurrentDevId));
                 }
             }
             catch (Exception ex)
             {
+                Console.WriteLine(string.Format(Debug.DEBUG_SYSTEM_IDENTITY_RECEIVED, ex.Message));
                 MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), 
                     "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
@@ -91,26 +100,34 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             try
             {
+                Console.WriteLine(Debug.DEBUG_ADMIN_FORM_LOADED);
                 // Form ayarları
                 this.TopMost = true;
+                Console.WriteLine(Debug.DEBUG_ADMIN_FORM_SETTINGS_APPLIED);
                 
                 // Geliştirici modu etiketi ayarla
                 lblDevModeStatus.Parent = pnlTitleBar;
                 lblDevModeStatus.BringToFront();
+                Console.WriteLine(Debug.DEBUG_ADMIN_TITLE_BAR_SETUP);
                 
                 // Modern arka planı ayarla
                 Cls_Background.Instance.CreateModernBackground(this);
+                Console.WriteLine(Debug.DEBUG_ADMIN_BACKGROUND_CREATED);
                 
                 // Metin kutularını hazırla
                 txtRsaKey.ReadOnly = true;
                 txtIdentity.ReadOnly = true;
+                Console.WriteLine(Debug.DEBUG_ADMIN_TEXT_BOXES_PREPARED);
                 
                 // Form Load olayında yapılacak diğer işlemler...
                 LoadInitialData();
+                
+                Console.WriteLine(Success.ADMIN_FORM_SUCCESS);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), 
+                Console.WriteLine(string.Format(Debug.DEBUG_SYSTEM_IDENTITY_RECEIVED, ex.Message));
+                MessageBox.Show(string.Format(Errors.ERROR_ADMIN_FORM_LOAD, ex.Message), 
                     "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -119,11 +136,15 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             try
             {
+                Console.WriteLine(Debug.DEBUG_ADMIN_INITIAL_DATA_LOAD_STARTED);
                 // Mevcut kimlik bilgisini yükle
                 string configFilePath = Cls_Config.GetConfigFilePath();
+                Console.WriteLine(string.Format(Debug.DEBUG_ADMIN_CONFIG_FILE_PATH_OBTAINED, configFilePath));
+                
                 if (File.Exists(configFilePath))
                 {
                     string jsonContent = File.ReadAllText(configFilePath);
+                    Console.WriteLine(Debug.DEBUG_ADMIN_CONFIG_FILE_CHECKED);
                     
                     // SystemIdentity değerini kontrol ets
                     if (jsonContent.Contains("SystemIdentity"))
@@ -136,30 +157,36 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                         {
                             string identity = match.Groups[1].Value;
                             txtIdentity.Text = identity;
+                            Console.WriteLine(string.Format(Debug.DEBUG_ADMIN_IDENTITY_EXTRACTED, identity));
                             
                             // RSA anahtarlarını yükle ve göster
                             Cls_RsaHelper.EnsureKeyPair();
                             string rsaKeys = $"Private Key:\n{Cls_RsaHelper.GetPrivateKeyPem()}\n\nPublic Key:\n{Cls_RsaHelper.GetPublicKeyPem()}";
                             txtRsaKey.Text = rsaKeys;
+                            Console.WriteLine(Debug.DEBUG_ADMIN_RSA_KEYS_LOADED);
                         }
                         else
                         {
                             txtIdentity.Text = "Sistem_Varsayılan_Kimlik";
+                            Console.WriteLine(Debug.DEBUG_ADMIN_DEFAULT_IDENTITY_USED);
                         }
                     }
                     else
                     {
                         txtIdentity.Text = "Sistem_Varsayılan_Kimlik";
+                        Console.WriteLine(Debug.DEBUG_ADMIN_DEFAULT_IDENTITY_USED);
                     }
                 }
                 else
                 {
                     txtIdentity.Text = "Sistem_Varsayılan_Kimlik";
+                    Console.WriteLine(Debug.DEBUG_ADMIN_DEFAULT_IDENTITY_USED);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), 
+                Console.WriteLine(string.Format(Debug.DEBUG_SYSTEM_IDENTITY_RECEIVED, ex.Message));
+                MessageBox.Show(string.Format(Errors.ERROR_ADMIN_INITIAL_DATA_LOAD, ex.Message), 
                     "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 txtIdentity.Text = "Sistem_Varsayılan_Kimlik";
             }
@@ -167,23 +194,41 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         
         private void FrmAdmin_FormClosing(object sender, FormClosingEventArgs e)
         {
-            // Form kapatıldığında dispose et
-            this.Dispose();
+            try
+            {
+                Console.WriteLine(Debug.DEBUG_ADMIN_FORM_CLOSING);
+                // Form kapatıldığında dispose et
+                this.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(string.Format(Debug.DEBUG_SYSTEM_IDENTITY_RECEIVED, ex.Message));
+                MessageBox.Show(string.Format(Errors.ERROR_ADMIN_FORM_CLOSING, ex.Message), 
+                    "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
         
         private void btnRandom_Click(object sender, EventArgs e)
         {
             try
             {
+                Console.WriteLine(Debug.DEBUG_ADMIN_RANDOM_IDENTITY_STARTED);
                 // Yeni rastgele kimlik oluşturma işlemi
                 Cls_IdentityCreate identityCreator = new Cls_IdentityCreate();
                 int length = new Random().Next(20, 101); // 20 ile 100 arasında bir uzunluk seç
+                Console.WriteLine(string.Format(Debug.DEBUG_ADMIN_RANDOM_IDENTITY_LENGTH, length));
+                
                 string newIdentity = identityCreator.CreateRandomIdentity(length);
                 txtNewIdentity.Text = newIdentity;
+                Console.WriteLine(string.Format(Debug.DEBUG_ADMIN_RANDOM_IDENTITY_CREATED, newIdentity));
+                
+                MessageBox.Show(Success.ADMIN_RANDOM_IDENTITY_SUCCESS, 
+                    "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), 
+                Console.WriteLine(string.Format(Debug.DEBUG_SYSTEM_IDENTITY_RECEIVED, ex.Message));
+                MessageBox.Show(string.Format(Errors.ERROR_ADMIN_RANDOM_IDENTITY, ex.Message), 
                     "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -192,10 +237,12 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             try
             {
+                Console.WriteLine(Debug.DEBUG_ADMIN_SAVE_IDENTITY_STARTED);
                 // Kimliği kaydetme işlemi burada yapılacak
                 if (string.IsNullOrEmpty(txtNewIdentity.Text))
                 {
-                    MessageBox.Show("Lütfen önce yeni bir kimlik girin veya oluşturun.", 
+                    Console.WriteLine(Debug.DEBUG_ADMIN_SAVE_IDENTITY_VALIDATION);
+                    MessageBox.Show(Errors.ERROR_ADMIN_IDENTITY_EMPTY, 
                         "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
@@ -204,20 +251,25 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 string saveResult = devMode.SaveIdentityToConfig(txtNewIdentity.Text);
                 if (saveResult != Success.MESSAGE_GENERAL_SAVED && saveResult != Success.MESSAGE_GENERAL_UPDATED)
                 {
-                    MessageBox.Show(saveResult, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(string.Format(Errors.ERROR_ADMIN_IDENTITY_SAVE, saveResult), 
+                        "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+
+                Console.WriteLine(Debug.DEBUG_ADMIN_IDENTITY_SAVED);
 
                 // Yeni RSA anahtar çifti oluştur
                 Cls_RsaHelper.EnsureKeyPair();
                 string rsaKeys = $"Private Key:\n{Cls_RsaHelper.GetPrivateKeyPem()}\n\nPublic Key:\n{Cls_RsaHelper.GetPublicKeyPem()}";
                 txtRsaKey.Text = rsaKeys;
+                Console.WriteLine(Debug.DEBUG_ADMIN_RSA_KEYS_UPDATED);
 
-                MessageBox.Show("Kimlik ve RSA anahtarları başarıyla güncellendi.", 
+                MessageBox.Show(Success.ADMIN_IDENTITY_SAVED_SUCCESS, 
                     "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
+                Console.WriteLine(string.Format(Debug.DEBUG_SYSTEM_IDENTITY_RECEIVED, ex.Message));
                 MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), 
                     "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -227,15 +279,19 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         {
             try
             {
+                Console.WriteLine(Debug.DEBUG_ADMIN_RESET_IDENTITY_STARTED);
                 // Kimliği sıfırlama işlemi burada yapılacak
-                DialogResult result = MessageBox.Show("Kimliği varsayılan değere sıfırlamak istediğinize emin misiniz?", 
+                DialogResult result = MessageBox.Show(Errors.ERROR_ADMIN_IDENTITY_RESET_CONFIRM, 
                     "Uyarı", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                
+                Console.WriteLine(Debug.DEBUG_ADMIN_RESET_CONFIRMATION);
                 
                 if (result == DialogResult.Yes)
                 {
                     // Geliştirici modu izni kontrol et
                     if (devMode == null || !devMode.IsDevModeActive)
                     {
+                        Console.WriteLine(Debug.DEBUG_ADMIN_RESET_DEV_MODE_CHECKED);
                         MessageBox.Show(Errors.ERROR_DEV_MODE_REQUIRED, 
                             "Geliştirici Modu Gerekli", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
@@ -258,6 +314,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                             if (match.Success && match.Groups.Count > 1)
                             {
                                 defaultIdentity = match.Groups[1].Value;
+                                Console.WriteLine(string.Format(Debug.DEBUG_ADMIN_DEFAULT_IDENTITY_LOADED, defaultIdentity));
                             }
                             else
                             {
@@ -268,6 +325,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                                 if (match.Success && match.Groups.Count > 1)
                                 {
                                     defaultIdentity = match.Groups[1].Value;
+                                    Console.WriteLine(string.Format(Debug.DEBUG_ADMIN_DEFAULT_IDENTITY_LOADED, defaultIdentity));
                                 }
                             }
                         }
@@ -278,11 +336,13 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                             
                             // Varsayılan değeri kullan
                             defaultIdentity = "VARSAYILAN_KIMLIK_TUBITAK_KSSAL_2025_pVi4-IFdJkbp_-ETi_6x-RYOd-qD_4";
+                            Console.WriteLine(string.Format(Debug.DEBUG_ADMIN_DEFAULT_IDENTITY_LOADED, defaultIdentity));
                         }
                     }
                     catch (Exception readEx)
                     {
-                        MessageBox.Show($"Config dosyası okunurken bir hata oluştu: {readEx.Message}", 
+                        Console.WriteLine(string.Format(Debug.DEBUG_SYSTEM_IDENTITY_RECEIVED, readEx.Message));
+                        MessageBox.Show(string.Format(Errors.ERROR_ADMIN_DEFAULT_IDENTITY_READ, readEx.Message), 
                             "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                     
@@ -293,18 +353,20 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                     {
                         txtIdentity.Text = defaultIdentity;
                         txtNewIdentity.Text = "";
-                        MessageBox.Show("Kimlik varsayılan değere sıfırlandı.", 
+                        Console.WriteLine(Debug.DEBUG_ADMIN_IDENTITY_RESET_SUCCESS);
+                        MessageBox.Show(Success.ADMIN_IDENTITY_RESET_SUCCESS, 
                             "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else
                     {
-                        MessageBox.Show($"Kimlik sıfırlanırken bir hata oluştu: {saveResult}", 
+                        MessageBox.Show(string.Format(Errors.ERROR_ADMIN_IDENTITY_RESET, saveResult), 
                             "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
             catch (Exception ex)
             {
+                Console.WriteLine(string.Format(Debug.DEBUG_SYSTEM_IDENTITY_RECEIVED, ex.Message));
                 MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), 
                     "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -312,9 +374,19 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         
         private void btnHelp_Click(object sender, EventArgs e)
         {
-            // Yardım butonuna tıklandığında bilgi formunu aç
-            FrmInfo frmInfo = new FrmInfo();
-            frmInfo.Show();
+            try
+            {
+                Console.WriteLine(Debug.DEBUG_ADMIN_HELP_BUTTON_CLICKED);
+                // Yardım butonuna tıklandığında bilgi formunu aç
+                FrmInfo frmInfo = new FrmInfo();
+                frmInfo.Show();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(string.Format(Debug.DEBUG_SYSTEM_IDENTITY_RECEIVED, ex.Message));
+                MessageBox.Show(string.Format(Errors.ERROR_HELP_FORM, ex.Message), 
+                    "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
     }

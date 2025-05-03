@@ -16,7 +16,7 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
         {
             try
             {
-                Console.WriteLine(Success.SUCCESS_IDENTITY_CREATE_STARTED);
+                Console.WriteLine(string.Format(Debug.DEBUG_IDENTITY_CREATE_STARTED, length));
                 if (length < 10 || length > 100)
                     throw new ArgumentException("Length must be between 10 and 100.");
 
@@ -26,7 +26,7 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
 
                 StringBuilder identity = new StringBuilder();
 
-                Console.WriteLine(Success.SUCCESS_IDENTITY_CREATE_PROCESSING);
+                Console.WriteLine(Debug.SUCCESS_IDENTITY_CREATE_PROCESSING);
                 // İlk karakter harf veya rakam olmalı
                 identity.Append(chars[random.Next(chars.Length)]);
 
@@ -34,23 +34,27 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
                 {
                     if (random.NextDouble() < 0.8)
                     {
-                        identity.Append(chars[random.Next(chars.Length)]);
+                        char addedChar = chars[random.Next(chars.Length)];
+                        identity.Append(addedChar);
+                        Console.WriteLine(string.Format(Debug.DEBUG_IDENTITY_CREATE_CHARACTER_ADDED, addedChar));
                     }
                     else
                     {
-                        identity.Append(specialChars[random.Next(specialChars.Length)]);
+                        char addedSpecialChar = specialChars[random.Next(specialChars.Length)];
+                        identity.Append(addedSpecialChar);
+                        Console.WriteLine(string.Format(Debug.DEBUG_IDENTITY_CREATE_SPECIAL_CHARACTER_ADDED, addedSpecialChar));
                     }
                 }
 
                 // Son karakter harf veya rakam olmalı
                 identity.Append(chars[random.Next(chars.Length)]);
 
-                Console.WriteLine(Success.SUCCESS_IDENTITY_CREATE_PROCESSED);
+                Console.WriteLine(string.Format(Debug.DEBUG_IDENTITY_CREATE_COMPLETED, identity.ToString()));
                 return identity.ToString();
             }
             catch (Exception ex)
             {
-                Console.WriteLine(string.Format(Errors.ERROR_IDENTITY_CREATE_PROCESS_FAILED, ex.Message));
+                Console.WriteLine(string.Format(Debug.ERROR_IDENTITY_CREATE_PROCESS_FAILED, ex.Message));
                 throw;
             }
         }

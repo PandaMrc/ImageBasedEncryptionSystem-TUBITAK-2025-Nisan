@@ -34,39 +34,54 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
         {
             try
             {
-                Console.WriteLine(Success.SUCCESS_DEV_MODE_LOGIN_STARTED);
+                Console.WriteLine(Debug.DEBUG_DEV_MODE_LOGIN_STARTED);
                 // Giriş parametrelerini kontrol et
                 if (string.IsNullOrWhiteSpace(devId))
+                {
+                    Console.WriteLine(Errors.ERROR_LOGIN_USERNAME_EMPTY);
                     return Errors.ERROR_LOGIN_USERNAME_EMPTY;
+                }
 
                 if (string.IsNullOrWhiteSpace(password))
+                {
+                    Console.WriteLine(Errors.ERROR_LOGIN_PASSWORD_EMPTY);
                     return Errors.ERROR_LOGIN_PASSWORD_EMPTY;
+                }
 
                 // Config.json dosyasını oku
                 if (!File.Exists(ConfigFilePath))
+                {
+                    Console.WriteLine(Errors.ERROR_FILE_NOT_FOUND);
                     return string.Format(Errors.ERROR_LOGIN_FAILED, Errors.ERROR_FILE_NOT_FOUND);
+                }
 
                 string jsonContent = File.ReadAllText(ConfigFilePath);
                 var config = JsonConvert.DeserializeObject<ConfigModel>(jsonContent);
 
                 if (config == null || config.Developers == null || !config.Developers.Any())
+                {
+                    Console.WriteLine(Errors.ERROR_NO_DEVELOPERS_FOUND);
                     return string.Format(Errors.ERROR_LOGIN_FAILED, "Geliştirici bilgileri bulunamadı");
+                }
 
-                Console.WriteLine(Success.SUCCESS_DEV_MODE_LOGIN_PROCESSING);
+                Console.WriteLine(Debug.DEBUG_DEV_MODE_LOGIN_PROCESSING);
                 // Kimlik doğrulama
                 var developer = config.Developers.FirstOrDefault(d => d.DevID == devId && d.Password == password);
                 if (developer == null)
+                {
+                    Console.WriteLine(Errors.ERROR_LOGIN_CREDENTIALS);
                     return Errors.ERROR_LOGIN_CREDENTIALS;
+                }
 
                 // Giriş başarılı
                 _isLoggedIn = true;
                 _currentDevId = devId;
-                Console.WriteLine(Success.SUCCESS_DEV_MODE_LOGIN_PROCESSED);
+                Console.WriteLine(Debug.DEBUG_DEV_MODE_LOGIN_PROCESSED);
                 return Success.LOGIN_SUCCESS;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(string.Format(Errors.ERROR_DEV_MODE_LOGIN_PROCESS_FAILED, ex.Message));
+                Console.WriteLine(string.Format(Debug.ERROR_DEV_MODE_LOGIN_PROCESS_FAILED, ex.Message));
                 throw;
             }
         }
@@ -79,17 +94,17 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
         {
             try
             {
-                Console.WriteLine(Success.SUCCESS_DEV_MODE_LOGOUT_STARTED);
+                Console.WriteLine(Debug.DEBUG_DEV_MODE_LOGOUT_STARTED);
                 // Oturum kapatma işlemleri
                 _isLoggedIn = false;
                 _currentDevId = string.Empty;
-                Console.WriteLine(Success.SUCCESS_DEV_MODE_LOGOUT_PROCESSING);
-                Console.WriteLine(Success.SUCCESS_DEV_MODE_LOGOUT_PROCESSED);
+                Console.WriteLine(Debug.DEBUG_DEV_MODE_LOGOUT_PROCESSING);
+                Console.WriteLine(Debug.DEBUG_DEV_MODE_LOGOUT_PROCESSED);
                 return Success.LOGOUT_SUCCESS;
             }
             catch (Exception ex)
             {
-                Console.WriteLine(string.Format(Errors.ERROR_DEV_MODE_LOGOUT_PROCESS_FAILED, ex.Message));
+                Console.WriteLine(string.Format(Debug.ERROR_DEV_MODE_LOGOUT_PROCESS_FAILED, ex.Message));
                 throw;
             }
         }
@@ -104,14 +119,20 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
         {
             try
             {
+                Console.WriteLine(Debug.DEBUG_DEV_MODE_ACTIVATE_STARTED);
                 if (!_isLoggedIn)
+                {
+                    Console.WriteLine(Errors.ERROR_DEV_MODE_ACCESS_DENIED);
                     return Errors.ERROR_DEV_MODE_ACCESS_DENIED;
+                }
 
                 _isDevModeActive = true;
+                Console.WriteLine(Debug.DEBUG_DEV_MODE_ACTIVATE_COMPLETED);
                 return Success.DEV_MODE_ACTIVATE_SUCCESS;
             }
             catch (Exception ex)
             {
+                Console.WriteLine(string.Format(Debug.ERROR_DEV_MODE_ACTIVATE, ex.Message));
                 return string.Format(Errors.ERROR_DEV_MODE_ACTIVATE, ex.Message);
             }
         }
@@ -124,89 +145,24 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
         {
             try
             {
+                Console.WriteLine(Debug.DEBUG_DEV_MODE_DEACTIVATE_STARTED);
                 if (!_isLoggedIn)
+                {
+                    Console.WriteLine(Errors.ERROR_DEV_MODE_ACCESS_DENIED);
                     return Errors.ERROR_DEV_MODE_ACCESS_DENIED;
+                }
 
                 _isDevModeActive = false;
+                Console.WriteLine(Debug.DEBUG_DEV_MODE_DEACTIVATE_COMPLETED);
                 return Success.DEV_MODE_DEACTIVATE_SUCCESS;
             }
             catch (Exception ex)
             {
+                Console.WriteLine(string.Format(Debug.ERROR_DEV_MODE_DEACTIVATE, ex.Message));
                 return string.Format(Errors.ERROR_DEV_MODE_DEACTIVATE, ex.Message);
             }
         }
 
-        /// <summary>
-        /// Geliştiricilerin kullanabileceği gizli özelliklere erişim sağlar
-        /// </summary>
-        /// <param name="feature">Erişilmek istenen özellik</param>
-        /// <returns>İşlem sonucu veya özellik sonucu</returns>
-        public string AccessDevFeature(DevFeature feature)
-        {
-            try
-            {
-                if (!_isLoggedIn)
-                    return Errors.ERROR_DEV_MODE_ACCESS_DENIED;
-
-                if (!_isDevModeActive)
-                    return "Geliştirici modu aktif değil. Önce geliştirici modunu etkinleştirin.";
-
-                // Özelliğe göre farklı işlemler yap
-                switch (feature)
-                {
-                    case DevFeature.ViewSystemInfo:
-                        return GetSystemInfo();
-                    case DevFeature.RunDiagnostics:
-                        return RunDiagnostics();
-                    case DevFeature.EnableDebugLogging:
-                        return EnableDebugLogging();
-                    case DevFeature.AccessHiddenSettings:
-                        return AccessHiddenSettings();
-                    default:
-                        return Errors.ERROR_GENERAL_NOT_SUPPORTED;
-                }
-            }
-            catch (Exception ex)
-            {
-                return string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message);
-            }
-        }
-
-        #region Dev Feature Helper Methods
-        private string GetSystemInfo()
-        {
-            // Sistem bilgilerini döndür
-            return "Sistem Bilgileri:\n" +
-                   $"- İşletim Sistemi: {Environment.OSVersion}\n" +
-                   $"- Makine Adı: {Environment.MachineName}\n" +
-                   $"- İşlemci Sayısı: {Environment.ProcessorCount}\n" +
-                   $"- .NET Sürümü: {Environment.Version}";
-        }
-
-        private string RunDiagnostics()
-        {
-            // Tanılama işlemlerini gerçekleştir
-            return "Tanılama Sonuçları:\n" +
-                   "- Tüm bileşenler kontrol edildi.\n" +
-                   "- Şifreleme modülleri çalışıyor.\n" +
-                   "- Veri gizleme bileşenleri çalışıyor.";
-        }
-
-        private string EnableDebugLogging()
-        {
-            // Hata ayıklama günlüklerini etkinleştir
-            return "Hata ayıklama günlükleri etkinleştirildi. Günlük dosyası: logs/debug.log";
-        }
-
-        private string AccessHiddenSettings()
-        {
-            // Gizli ayarlara erişim sağla
-            return "Gizli Ayarlar:\n" +
-                   "- Gelişmiş şifreleme algoritmaları etkinleştirildi\n" +
-                   "- Test modu kullanılabilir\n" +
-                   "- Özelleştirilebilir bit derinliği ayarları etkinleştirildi";
-        }
-        #endregion
         #endregion
 
         #region History Methods
@@ -218,8 +174,12 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
         {
             try
             {
+                Console.WriteLine(Debug.DEBUG_ENCRYPTION_HISTORY_ADD_STARTED);
                 if (!_isLoggedIn || !_isDevModeActive)
+                {
+                    Console.WriteLine(Errors.ERROR_DEV_MODE_ACCESS_DENIED);
                     return;
+                }
 
                 // Geçmiş dosyasının yolunu belirle
                 string historyFilePath = Path.Combine(
@@ -231,7 +191,7 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
                 if (File.Exists(historyFilePath))
                 {
                     string jsonContent = File.ReadAllText(historyFilePath);
-                    historyList = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(jsonContent) 
+                    historyList = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(jsonContent)
                                  ?? new List<Dictionary<string, object>>();
                 }
                 else
@@ -248,43 +208,12 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
                 // Dosyaya kaydet
                 string updatedJson = JsonConvert.SerializeObject(historyList, Formatting.Indented);
                 File.WriteAllText(historyFilePath, updatedJson);
+                Console.WriteLine(Debug.DEBUG_ENCRYPTION_HISTORY_ADD_COMPLETED);
             }
             catch (Exception ex)
             {
-                // Geçmiş kaydında hata - sessizce göz ardı et
+                Console.WriteLine(string.Format(Debug.ERROR_ENCRYPTION_HISTORY_ADD_FAILED, ex.Message));
                 System.Diagnostics.Debug.WriteLine($"Şifreleme geçmişi kaydedilirken hata: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Şifreleme geçmişini okur ve döndürür
-        /// </summary>
-        /// <returns>Şifreleme işlemleri geçmişi</returns>
-        public List<Dictionary<string, object>> GetEncryptionHistory()
-        {
-            try
-            {
-                if (!_isLoggedIn || !_isDevModeActive)
-                    return new List<Dictionary<string, object>>();
-
-                // Geçmiş dosyasının yolunu belirle
-                string historyFilePath = Path.Combine(
-                    Path.GetDirectoryName(ConfigFilePath),
-                    "encryption_history.json");
-
-                // Dosya yoksa boş liste döndür
-                if (!File.Exists(historyFilePath))
-                    return new List<Dictionary<string, object>>();
-
-                // Geçmiş verilerini yükle
-                string jsonContent = File.ReadAllText(historyFilePath);
-                return JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(jsonContent) 
-                       ?? new List<Dictionary<string, object>>();
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Şifreleme geçmişi okunurken hata: {ex.Message}");
-                return new List<Dictionary<string, object>>();
             }
         }
         #endregion
@@ -298,19 +227,30 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
         {
             try
             {
+                Console.WriteLine(Debug.DEBUG_DEV_MODE_STATUS_CHECK_STARTED);
                 // Önce giriş yapılmış mı kontrol et
                 if (!_isLoggedIn)
+                {
+                    Console.WriteLine(Errors.ERROR_DEV_MODE_ACCESS_DENIED);
                     return (Errors.ERROR_DEV_MODE_ACCESS_DENIED, false);
+                }
 
                 // Geliştirici modu aktif mi kontrol et
                 if (_isDevModeActive)
+                {
+                    Console.WriteLine(Debug.DEBUG_DEV_MODE_ACTIVE);
                     return ($"Geliştirici modu şu anda aktif. Geliştirici: {_currentDevId}", true);
+                }
                 else
+                {
+                    Console.WriteLine(Debug.DEBUG_DEV_MODE_INACTIVE);
                     return ("Geliştirici modu şu anda devre dışı.", false);
+                }
             }
             catch (Exception ex)
             {
-                return (string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), false);
+                Console.WriteLine(string.Format(Errors.ERROR_STATUS_CHECK_FAILED, ex.Message));
+                return (string.Format(Errors.ERROR_STATUS_CHECK_FAILED, ex.Message), false);
             }
         }
 
@@ -322,14 +262,22 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
         {
             try
             {
+                Console.WriteLine(Debug.DEBUG_LOGIN_STATUS_CHECK_STARTED);
                 if (_isLoggedIn)
+                {
+                    Console.WriteLine(Debug.DEBUG_LOGIN_ACTIVE);
                     return ($"Geliştirici girişi yapılmış. Geliştirici: {_currentDevId}", true);
+                }
                 else
+                {
+                    Console.WriteLine(Debug.DEBUG_LOGIN_INACTIVE);
                     return ("Henüz geliştirici girişi yapılmamış.", false);
+                }
             }
             catch (Exception ex)
             {
-                return (string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), false);
+                Console.WriteLine(string.Format(Errors.ERROR_LOGIN_STATUS_CHECK_FAILED, ex.Message));
+                return (string.Format(Errors.ERROR_LOGIN_STATUS_CHECK_FAILED, ex.Message), false);
             }
         }
 
@@ -342,20 +290,29 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
         {
             try
             {
+                Console.WriteLine(Debug.DEBUG_ACCESS_VALIDATION_STARTED);
                 // Giriş yapılmış mı kontrol et
                 if (!_isLoggedIn)
+                {
+                    Console.WriteLine(Errors.ERROR_DEV_MODE_ACCESS_DENIED);
                     return Errors.ERROR_DEV_MODE_ACCESS_DENIED;
+                }
 
                 // Geliştirici modu gerekiyorsa kontrol et
                 if (requireDevMode && !_isDevModeActive)
+                {
+                    Console.WriteLine(Errors.ERROR_DEV_MODE_INACTIVE);
                     return "Geliştirici modu aktif değil. Önce geliştirici modunu etkinleştirin.";
+                }
 
                 // Erişim izni verildi
+                Console.WriteLine(Debug.DEBUG_ACCESS_VALIDATION_COMPLETED);
                 return Success.MESSAGE_GENERAL_SUCCESS;
             }
             catch (Exception ex)
             {
-                return string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message);
+                Console.WriteLine(string.Format(Errors.ERROR_VALIDATE_ACCESS_FAILED, ex.Message));
+                return string.Format(Errors.ERROR_VALIDATE_ACCESS_FAILED, ex.Message);
             }
         }
         #endregion
@@ -370,16 +327,26 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
         {
             try
             {
+                Console.WriteLine(Debug.DEBUG_SAVE_IDENTITY_STARTED);
                 // Girişi kontrol et
                 if (!_isLoggedIn || !_isDevModeActive)
+                {
+                    Console.WriteLine(Errors.ERROR_DEV_MODE_ACCESS_DENIED);
                     return Errors.ERROR_DEV_MODE_ACCESS_DENIED;
+                }
 
                 if (string.IsNullOrWhiteSpace(identity))
+                {
+                    Console.WriteLine(Errors.ERROR_IDENTITY_EMPTY);
                     return "Kimlik boş olamaz!";
+                }
 
                 // Config.json dosyasını oku
                 if (!File.Exists(ConfigFilePath))
+                {
+                    Console.WriteLine(Errors.ERROR_FILE_NOT_FOUND);
                     return string.Format(Errors.ERROR_FILE_NOT_FOUND, ConfigFilePath);
+                }
 
                 string jsonContent = File.ReadAllText(ConfigFilePath);
                 var config = JsonConvert.DeserializeObject<ConfigModel>(jsonContent);
@@ -398,47 +365,52 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
                         if (lastBraceIndex > 0)
                         {
                             // Öncesinde başka veri varsa virgül ekle
-                            string insertion = jsonContent.Substring(0, lastBraceIndex).TrimEnd().EndsWith("]") 
-                                ? ",\n  \"SystemIdentity\": \"" + identity + "\"\n" 
+                            string insertion = jsonContent.Substring(0, lastBraceIndex).TrimEnd().EndsWith("]")
+                                ? ",\n  \"SystemIdentity\": \"" + identity + "\"\n"
                                 : "\n  \"SystemIdentity\": \"" + identity + "\"\n";
-                                
+
                             jsonContent = jsonContent.Insert(lastBraceIndex, insertion);
-                            
+
                             // Dosyayı kalıcı olarak kaydetme
                             string absolutePath = Path.GetFullPath(ConfigFilePath);
                             File.WriteAllText(absolutePath, jsonContent);
-                            
+
                             // Dosya erişimini kontrol et
                             if (File.Exists(absolutePath))
                             {
                                 string verification = File.ReadAllText(absolutePath);
                                 if (verification.Contains(identity))
                                 {
+                                    Console.WriteLine(Debug.DEBUG_SAVE_IDENTITY_COMPLETED);
                                     return Success.MESSAGE_GENERAL_SAVED;
                                 }
                                 else
                                 {
+                                    Console.WriteLine(Errors.ERROR_IDENTITY_VERIFICATION_FAILED);
                                     return "Kimlik dosyaya yazıldı ancak doğrulama başarısız oldu.";
                                 }
                             }
                             else
                             {
+                                Console.WriteLine(Errors.ERROR_FILE_ACCESS);
                                 return "Dosya kaydedildi ancak dosyaya erişilemiyor.";
                             }
                         }
                     }
                     catch (Exception saveEx)
                     {
+                        Console.WriteLine(string.Format(Debug.ERROR_SAVE_IDENTITY_FAILED, saveEx.Message));
                         // Alternatif yöntem dene
                         try
                         {
                             // ConfigModel'i doğrudan güncelle ve yeniden serialize et
                             dynamic expandoConfig = Newtonsoft.Json.Linq.JObject.Parse(jsonContent);
                             expandoConfig.SystemIdentity = identity;
-                            
+
                             string updatedJson = JsonConvert.SerializeObject(expandoConfig, Formatting.Indented);
                             File.WriteAllText(ConfigFilePath, updatedJson);
-                            
+
+                            Console.WriteLine(Debug.DEBUG_SAVE_IDENTITY_COMPLETED);
                             return Success.MESSAGE_GENERAL_SAVED;
                         }
                         catch
@@ -455,41 +427,46 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
                         string pattern = "\"SystemIdentity\"\\s*:\\s*\"[^\"]*\"";
                         string replacement = "\"SystemIdentity\": \"" + identity + "\"";
                         string updatedJson = System.Text.RegularExpressions.Regex.Replace(jsonContent, pattern, replacement);
-                        
+
                         // Kalıcı olarak kaydetme
                         string absolutePath = Path.GetFullPath(ConfigFilePath);
                         File.WriteAllText(absolutePath, updatedJson);
-                        
+
                         // Dosya erişimini kontrol et
                         if (File.Exists(absolutePath))
                         {
                             string verification = File.ReadAllText(absolutePath);
                             if (verification.Contains(identity))
                             {
+                                Console.WriteLine(Debug.DEBUG_SAVE_IDENTITY_COMPLETED);
                                 return Success.MESSAGE_GENERAL_UPDATED;
                             }
                             else
                             {
+                                Console.WriteLine(Errors.ERROR_IDENTITY_VERIFICATION_FAILED);
                                 return "Kimlik dosyaya yazıldı ancak doğrulama başarısız oldu.";
                             }
                         }
                         else
                         {
+                            Console.WriteLine(Errors.ERROR_FILE_ACCESS);
                             return "Dosya güncellendi ancak dosyaya erişilemiyor.";
                         }
                     }
                     catch (Exception updateEx)
                     {
+                        Console.WriteLine(string.Format(Debug.ERROR_SAVE_IDENTITY_FAILED, updateEx.Message));
                         // Alternatif yöntem dene
                         try
                         {
                             // ConfigModel'i doğrudan güncelle ve yeniden serialize et
                             dynamic expandoConfig = Newtonsoft.Json.Linq.JObject.Parse(jsonContent);
                             expandoConfig.SystemIdentity = identity;
-                            
+
                             string updatedJson = JsonConvert.SerializeObject(expandoConfig, Formatting.Indented);
                             File.WriteAllText(ConfigFilePath, updatedJson);
-                            
+
+                            Console.WriteLine(Debug.DEBUG_SAVE_IDENTITY_COMPLETED);
                             return Success.MESSAGE_GENERAL_UPDATED;
                         }
                         catch
@@ -499,17 +476,19 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
                     }
                 }
 
+                Console.WriteLine(Errors.ERROR_IDENTITY_SAVE_FAILED);
                 return "Kimlik bilgisi kaydedilemedi!";
             }
             catch (Exception ex)
             {
-                return string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message);
+                Console.WriteLine(string.Format(Errors.ERROR_SAVE_ID_CONFIG_FAILED, ex.Message));
+                return string.Format(Errors.ERROR_SAVE_ID_CONFIG_FAILED, ex.Message);
             }
         }
         #endregion
     }
-
-    #region Helper Classes and Enums
+}
+    
     /// <summary>
     /// Config.json dosyasındaki yapıyı temsil eden sınıf
     /// </summary>
@@ -526,16 +505,5 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
         public string DevID { get; set; }
         public string Password { get; set; }
     }
+    
 
-    /// <summary>
-    /// Geliştirici modunda kullanılabilecek özellikler
-    /// </summary>
-    public enum DevFeature
-    {
-        ViewSystemInfo,
-        RunDiagnostics,
-        EnableDebugLogging,
-        AccessHiddenSettings
-    }
-    #endregion
-}
