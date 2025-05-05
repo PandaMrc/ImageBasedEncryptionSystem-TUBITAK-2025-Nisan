@@ -1,373 +1,174 @@
-# Görüntü Tabanlı Hibrit Şifreleme Sistemi
+# Görsel Tabanlı Şifreleme Sistemi (Image Based Encryption System)
 
-Görüntü Tabanlı Hibrit Şifreleme Sistemi, metin mesajlarını şifreleyerek görüntü dosyaları içerisine güvenli bir şekilde gizleyen, C# tabanlı bir kriptografi ve steganografi uygulamasıdır.
+## Proje Özeti
 
-## Proje Hakkında
-
-Bu proje, AES, RSA gibi güçlü şifreleme algoritmalarını ve gelişmiş steganografi tekniklerini birleştirerek, hassas verilerin güvenli bir şekilde iletilmesini sağlamaktadır. Katmanlı mimarisi ile modüler bir yapı sunan proje, geliştirici modu ve analiz araçları ile de ileri seviye güvenlik değerlendirmesi yapabilmektedir.
-
-### Kullanılan Teknolojiler
-
-- C# / .NET Framework
-- WinForms (Guna UI2 kütüphanesi)
-- AES (Advanced Encryption Standard)
-- RSA (Rivest-Shamir-Adleman)
-- Wavelet Dönüşümü tabanlı Steganografi
+Bu proje, görsel tabanlı bir şifreleme sistemi geliştirerek verilerin güvenli bir şekilde saklanması ve iletilmesi amacıyla tasarlanmıştır. Sistem, çeşitli kriptografik algoritmalar kullanarak metin verilerini şifrelemekte ve bu şifrelenmiş verileri görseller içerisine LSB (Least Significant Bit) steganografi tekniği ile gizlemektedir. Bu yöntem ile hem veri güvenliği sağlanmakta hem de steganografi tekniklerinden faydalanılarak şifrelenmiş verilerin fark edilebilirliği azaltılmaktadır.
 
 ## Proje Mimarisi
 
-### BusinessLayer
-- `Cls_AesEncrypt.cs`: AES şifreleme işlemleri
-- `Cls_AesDecrypt.cs`: AES şifre çözme işlemleri
-- `Cls_RsaEncrypt.cs`: RSA şifreleme işlemleri
-- `Cls_RsaDecrypt.cs`: RSA şifre çözme işlemleri
-- `Cls_WaveletEncrypt.cs`: Wavelet tabanlı veri gizleme
-- `Cls_WaveletDecrypt.cs`: Wavelet tabanlı veri çıkarma
-- `Cls_Developer.cs`: Geliştirici modu yönetimi
-- `Cls_IdentityCreate.cs`: Kimlik oluşturma işlemleri
-- `Cls_Analysis.cs`: Analiz işlemleri
+Proje, katmanlı mimari kullanılarak geliştirilmiştir:
 
-### DataLayer
-- `Cls_Config.cs`: Yapılandırma yönetimi
-- `Config.json`: Sistem kimlikleri ve geliştirici bilgileri
+1. **BusinessLayer**: Şifreleme ve veri gizleme mantığını içerir
+2. **DataLayer**: Yapılandırma ve veri yönetimini sağlar
+3. **TypeLayer**: Hata ve başarı mesajları için tip tanımlamaları
+4. **UI Katmanı**: Kullanıcı arayüzü bileşenlerini içerir
 
-### TypeLayer
-- `Errors.cs`: Hata mesajları
-- `Success.cs`: Başarı mesajları
+## Kullanılan Teknolojiler
 
-### UI Katmanı
-- `FrmMenu.cs`: Ana menü formu
-- `FrmAdmin.cs`: Yönetim paneli
-- `FrmAnalysis.cs`: Analiz paneli
-- `FrmInfo.cs`: Bilgilendirme sayfası
-- `FrmLogin.cs`: Giriş sayfası
+### Programlama Dili ve Framework
+- **C#**: Ana programlama dili
+- **.NET Framework**: Uygulama çerçevesi
+- **Windows Forms**: Kullanıcı arayüzü için
+- **Guna.UI2.WinForms**: Modern ve etkileşimli UI bileşenleri için
 
-## Özellikler
+### Kriptografik Algoritmalar ve Kütüphaneler
+- **AES (Advanced Encryption Standard)**: 256-bit şifreleme anahtarı ile simetrik şifreleme
+- **RSA (Rivest-Shamir-Adleman)**: 3072-bit anahtar uzunluğu ile asimetrik şifreleme (BouncyCastle kütüphanesi ile)
+- **LSB (Least Significant Bit)**: Görsellerin içerisine veri gizleme için kullanılan steganografi tekniği
+- **BouncyCastle**: Güçlü kriptografik işlemler için kullanılan açık kaynaklı kütüphane
 
-### Şifreleme Sistemi
-- AES ile metin şifreleme
-- RSA ile AES anahtarı koruma
-- Wavelet dönüşümü ile görüntüye veri gizleme
-- Gelişmiş parola güvenliği kontrolü
+## Temel Bileşenler ve İşlevleri
 
-### Geliştirici Modu
-- Geliştirici girişi
-- Geliştirici modu aktifleştirme/devre dışı bırakma
-- Yönetim paneline erişim
-- Analiz paneline erişim
+### Şifreleme Modülleri
 
-### Analiz Özellikleri
-- Görüntü karşılaştırma
-- Veri gizleme analizi
-- Şifreleme gücü değerlendirmesi
+#### AES Şifreleme (Cls_AesHelper.cs)
+- Kullanıcı tarafından girilen parola ile 256-bit AES anahtarı oluşturulur
+- Parolaya dayalı anahtar türetme işlemi ile aynı parola her zaman aynı anahtarı üretir
+- Metin verisi bu anahtar ile şifrelenir
 
-## Kurulum ve Kullanım
+#### RSA Şifreleme (Cls_RsaHelper.cs)
+- Config.json dosyasındaki SystemIdentity değerine bağlı olarak BouncyCastle kütüphanesi kullanılarak 3072-bit RSA anahtar çifti oluşturulur
+- AES anahtarları RSA ile şifrelenerek ek bir güvenlik katmanı sağlanır
+- Aynı SystemIdentity değeri her zaman aynı RSA anahtar çiftini üretir, böylece farklı oturumlarda tutarlılık sağlanır
 
-1. Projeyi klonlayın
-2. Visual Studio ile açın
-3. Gerekli NuGet paketlerini yükleyin
-4. Projeyi derleyin ve çalıştırın
+#### LSB Tabanlı Veri Gizleme (Cls_LsbHelper.cs)
+- Least Significant Bit (En Önemsiz Bit) tekniği kullanılarak şifrelenmiş veriler görsellerin içine gizlenir
+- Görsellerin her pikselindeki renk bileşenlerinin (R, G, B) en düşük değerli bitlerini değiştirerek veri gizlenir
+- Veri gizlenmiş görsele özel bir imza (ZORLU) eklenerek daha sonra tanınabilirliği sağlanır
+- Görsel üzerinde yapılan değişiklikler insan gözüyle fark edilemeyecek düzeydedir
+
+### Yapılandırma ve Yönetim
+
+#### Yapılandırma Yönetimi (Cls_Config.cs)
+- Config.json.secure dosyası üzerinden sistem ayarları yönetilir
+- Varsayılan değerler ile ilk çalıştırmada otomatik yapılandırma oluşturulur
+- Yapılandırma verileri AES ile şifrelenerek saklanır
+
+#### Geliştirici Modu (Cls_DeveloperMode.cs)
+- Sistem üzerinde gelişmiş işlemler yapabilmek için geliştirici modu bulunur
+- Sadece yetkili kimlik bilgileri ile erişilebilir
+- Kimlik yönetimi ve analiz işlemleri için ek özellikler sunar
+
+#### Kimlik Yönetimi (Cls_IdentityCreate.cs)
+- Sistem için benzersiz kimlikler oluşturulabilir
+- Bu kimlikler RSA anahtar çiftlerinin oluşturulmasında kullanılır
+- Min. 10, Max. 50 karakter uzunluğunda, büyük-küçük harfler, rakamlar ve özel karakterlerden oluşabilir
+
+## Kullanıcı Arayüzü
+
+### FrmMenu (Ana Sayfa)
+- Resim seçme, metin girme ve şifreleme/şifre çözme işlemlerini gerçekleştirme
+- Şifre verisi için parola belirleme
+- Geliştirici modu ve diğer sayfalara erişim
+
+### FrmAdmin (Yönetim Paneli)
+- Sistem kimliği yönetimi (Değiştirme, rastgele oluşturma)
+- RSA anahtar çiftlerinin yeniden yapılandırılması
+- Gelişmiş sistem ayarları
+
+### FrmAnalysis (Analiz Paneli)
+- Veri gizlenmiş görsellerin analizi
+- Orijinal görselle farkların tespit edilmesi
+- Görsel üzerindeki değişikliklerin çeşitli yöntemlerle görselleştirilmesi
+
+### FrmLogin (Giriş Sayfası)
+- Geliştirici kimliği ve parola ile güvenli giriş
+- Yetkilendirme yönetimi
+
+### FrmInfo (Bilgi Sayfası)
+- Sistem hakkında genel bilgiler
+- Kullanım kılavuzu ve yardım içeriği
 
 ## Güvenlik Özellikleri
 
-- 256-bit AES şifreleme
-- 3072-bit RSA anahtarları
-- Güvenli parola türetme
-- Görüntü bütünlük kontrolü
-- Hata yönetimi ve günlükleme
+1. **Çoklu Şifreleme Katmanları**: 
+   - Metin verisi AES ile şifrelenir
+   - AES anahtarı RSA ile şifrelenir
+   - Tüm şifrelenmiş veri görsele LSB tekniği ile gizlenir
+
+2. **Güvenli Anahtar Yönetimi**:
+   - Parolalar doğrudan kullanılmaz, anahtar türetme fonksiyonları kullanılır
+   - RSA anahtar çiftleri BouncyCastle kütüphanesi ile sistem kimliğine bağlı olarak oluşturulur
+   - Yapılandırma dosyaları şifreli saklanır
+
+3. **Veri Bütünlüğü Kontrolü**:
+   - Şifrelenmiş görseller özel imza (ZORLU) ile işaretlenir
+   - Şifre çözme işlemi öncesi imza kontrolü yapılır
+
+4. **Yetkisiz Erişim Koruması**:
+   - Geliştirici özellikleri yalnızca yetkili kullanıcılar tarafından erişilebilir
+   - Oturum yönetimi ve güvenli giriş mekanizmaları
 
 ## Hata Yönetimi
 
-Proje, kapsamlı bir hata yönetim sistemi içermektedir:
-- Tüm kritik işlemler try-catch blokları ile korunmuştur
-- Özelleştirilmiş hata mesajları kullanıcıya sunulur
-- Hata durumları günlüğe kaydedilir
-- Bellek sızıntıları önlenir
+- TypeLayer katmanında tanımlanan hata ve başarı mesajları
+- Kategorize edilmiş ve detaylı hata açıklamaları
+- Try-Catch blokları ile güvenli hata yakalama ve kullanıcı bilgilendirme
+
+## Teknik Gereksinimler
+
+### Minimum Sistem Gereksinimleri
+- İşletim Sistemi: Windows 10 veya üzeri
+- .NET Framework 4.7.2 veya üzeri
+- 4 GB RAM
+- 100 MB boş disk alanı
+- 1366x768 ekran çözünürlüğü
+
+### Bağımlılıklar
+- BouncyCastle.NetFramework 1.8.5 (kriptografik işlemler için)
+- Guna.UI2.WinForms (kullanıcı arayüzü için)
+- Newtonsoft.Json (yapılandırma yönetimi için)
+
+## Kurulum ve Kullanım
+
+1. Uygulamayı çalıştırdıktan sonra ana menü (FrmMenu) üzerinden resim seçme işlemi yapılır
+2. Şifrelenecek metin ve parola girişi yapılır
+3. "Şifrele" butonuna basılarak metin şifrelenir ve seçilen görsele gizlenir
+4. Şifre çözmek için, veri gizlenmiş görsel seçilir ve doğru parola girilerek "Şifre Çöz" butonuna basılır
+5. Çözülen metin ekranda görüntülenir
+
+## LSB Steganografi Tekniği
+
+LSB (Least Significant Bit - En Önemsiz Bit) steganografi tekniği, dijital görsellerdeki her pikselin renk bileşenlerinin (Kırmızı, Yeşil, Mavi) en düşük değerli bitlerini değiştirerek verileri gizlemeye dayanır. Bu teknik, görselde insan gözüyle fark edilemeyecek minimal değişiklikler yaparak büyük miktarda veri gizlenmesine olanak tanır.
+
+Projemizde kullanılan LSB steganografi algoritması şu özelliklere sahiptir:
+- Her pikselin R, G, B değerlerinin her birinin en düşük değerli biti değiştirilerek veri gizlenir
+- Veri sonu için özel bir işaretçi (endMarker) kullanılır
+- Görsel tanımlama için ilk 20 piksele "ZORLU" imzası yerleştirilir
+- Veri çıkarma işlemi, önce imza kontrolü yaparak devam eder
+
+## BouncyCastle ile RSA Şifreleme
+
+Projede kullanılan RSA şifreleme, açık kaynaklı BouncyCastle kriptografi kütüphanesi ile gerçekleştirilmektedir. Bu kütüphane ile:
+- Deterministik RSA anahtar çiftleri oluşturulur (aynı giriş her zaman aynı anahtarı üretir)
+- 3072-bit uzunluğunda güçlü RSA anahtarları kullanılır
+- PEM formatında anahtar dışa aktarımı desteklenir
+- Yüksek güvenlikli şifreleme işlemleri gerçekleştirilir
+
+## Geliştirici Notları
+
+- Sistemde geliştirici modu, gelişmiş analizler ve kimlik yönetimi için kullanılabilir
+- Kimlik değişiklikleri RSA anahtar çiftlerini değiştirir, bu nedenle dikkatli kullanılmalıdır
+- Yeni özellikler eklenirken mevcut kod yapısı ve mimari prensiplerine uyulması önerilir
+
+## Proje Ekibi
+
+Bu proje, TÜBİTA'a sunmak üzere geliştirilmiştir. Proje ekibi, İzmir Kanuni Sultan Süleyman Anadolu Lisesi 12/A öğrencilerinden oluşmaktadır.
 
 ## Lisans
 
-Bu proje MIT lisansı altında lisanslanmıştır.
+Bu proje, TÜBİTAK projesi kapsamında geliştirilmiştir. Tüm hakları saklıdır.
 
-## İletişim
+---
 
-Proje ile ilgili sorularınız için: [İletişim bilgileri]
-
-## Gelecek Güncellemeler - Yol Haritası
-
-### 1. Gün - Altyapı ve Wavelet Entegrasyonu
-- Accord.NET veya AForge.NET kütüphanesinin projeye eklenmesi - Tamamlandı
-- `Cls_WaveletEncrypt.cs` ve `Cls_WaveletDecrypt.cs` sınıflarının oluşturulması - Tamamlandı
-- Wavelet dönüşümü için temel metotların uygulanması - Tamamlandı
-- Görüntüye veri gömme fonksiyonlarının yazılması - Tamamlandı
-- Dönüşüm katsayılarını değiştirerek veri gizleme algoritmalarının uygulanması - Tamamlandı
-- Temel birim testlerinin oluşturulması ve çalıştırılması
-
-### 2. Gün - Şifreleme/Çözme Sistemi Tamamlama
-- `FrmMenu.cs` içindeki `btnEncrypt_Click` ve `btnDecrypt_Click` fonksiyonlarının tamamlanması - Tamamlandı
-- Görüntü yükleme ve kaydetme özelliklerinin eklenmesi - Tamamlandı
-- AES ve RSA şifreleme entegrasyonunun kontrol edilmesi - Tamamlandı
-- UI iyileştirmeleri ve kullanıcı deneyiminin geliştirilmesi - Tamamlandı
-- Hata yakalama ve kullanıcı bildirimlerinin iyileştirilmesi
-- İlk end-to-end test: şifreleme ve çözme sürecinin test edilmesi
-
-### 3. Gün - Yapay Zeka Modeli Entegrasyonu
-- ML.NET kütüphanesinin projeye eklenmesi
-- `Cls_ImageAnalysis.cs` sınıfının oluşturulması
-- Görüntü karşılaştırma algoritmaları için yapının hazırlanması
-- Basit bir görüntü fark analizi modelinin entegre edilmesi
-- Piksel değişimlerini tespit edip ısı haritası oluşturan fonksiyonların eklenmesi
-- Gizli veri yoğunluğunu tahmin eden yapay zeka algoritmasının uygulanması
-
-### 4. Gün - Analiz Paneli Geliştirme
-- `FrmAnalysis.cs` sınıfının düzenlenmesi 
-- Görüntü karşılaştırma sonuçlarını gösteren UI bileşenlerinin eklenmesi
-- Orijinal ve şifrelenmiş görüntü için yan yana görüntüleme panelinin hazırlanması
-- Isı haritası görselleştirme kontrollerinin eklenmesi
-- Wavelet katsayılarının görsel analizini yapan grafiklerin eklenmesi
-- Şifreleme gücünü ve dayanıklılığını gösteren metriklerin eklenmesi
-
-### 5. Gün - Şifre Analizi ve Kanıt Sistemi
-- Görüntüden çıkarılan anahtarları görselleştirme özelliğinin eklenmesi
-- Kullanılan şifreleme algoritmalarını tespit eden fonksiyonların yazılması
-- Şifreleme gücü analizi ve rapor oluşturma özelliklerinin eklenmesi
-- Elde edilen şifreleme bilgilerini kanıt olarak raporlayan sistemin eklenmesi
-- Tüm analizlerin PDF/HTML formatında dışa aktarılmasının sağlanması
-- Analiz sonuçlarını görsel ve sayısal olarak değerlendiren özet panelinin eklenmesi
-
-
-//////// -- /////////
-### 6. Gün - Test ve Hata Ayıklama
-- Kapsamlı test senaryolarının hazırlanması ve uygulanması
-- Farklı boyut ve formattaki görüntülerle testlerin yapılması
-- Performans ve bellek optimizasyonunun yapılması
-- Kullanıcı geri bildirimlerine göre UI iyileştirmeleri
-- Çökme ve hata durumlarını ele alan kodların güçlendirilmesi
-- Tüm fonksiyonların dokümantasyonunun tamamlanması
-
-### 7. Gün - Bilimsel Raporlama ve Son Rötuşlar
-- TÜBİTAK için bilimsel rapor hazırlanması
-- Algoritma karşılaştırmaları ve performans metriklerinin derlenmesi
-- Kullanım kılavuzunun oluşturulması
-- Son hatalar ve iyileştirmeler
-- Derleme ve kurulum paketi oluşturma
-- Proje sunumu için demo hazırlama
-
-## Teknik Notlar
-
-### Wavelet Entegrasyonu
-
-```csharp
-// Accord.NET veya AForge.NET ile Wavelet Dönüşümü
-using Accord.Math.Transforms;
-// veya
-using AForge.Imaging;
-
-// Wavelet Dönüşümü uygulama
-public byte[] ApplyWaveletTransform(Bitmap image) {
-    // Görüntüyü gri tona çevir veya RGB kanalları üzerinde ayrı ayrı çalış
-    // Haar dalgacık dönüşümü uygula
-    // Katsayıları değiştirerek veri göm
-    // Ters dönüşüm uygula
-}
-```
-
-### ML.NET Entegrasyonu
-
-```csharp
-// ML.NET ile görüntü analizi
-using Microsoft.ML;
-using Microsoft.ML.Vision;
-
-// Görüntü farkı analizi
-public Bitmap AnalyzeImageDifference(Bitmap original, Bitmap encrypted) {
-    // Piksel farklarını hesapla
-    // Isı haritası oluştur
-    // Anomali tespiti yap
-}
-```
-
-### Analiz Raporu Oluşturma
-
-```csharp
-public void GenerateAnalysisReport(string outputPath) {
-    // Analiz sonuçlarını topla
-    // PDF veya HTML raporu oluştur
-    // Görselleştirmeleri ekle
-}
-```
-
-## YAPILACAKLAR LİSTESİ
-
-### Acil Tamamlanması Gerekenler (1-2 Gün)
-
-1. **BusinessLayer Tamamlanması**
-   - Wavelet dönüşümü için yeni sınıflar oluştur ve uygula:
-     - `Cls_WaveletEncrypt.cs`
-     - `Cls_WaveletDecrypt.cs`
-   - AES ve RSA entegrasyonunu kontrol et/tamamla
-
-2. **UI Katmanı Tamamlanması**
-   - `FrmMenu.cs` içindeki şifreleme ve şifre çözme butonlarının işlevlerini tamamla
-   - Hata işleme ve kullanıcı bildirimlerini ekle
-
-3. **Temel Dosya İşlemleri**
-   - Görüntü seçme, kaydetme işlemlerini tamamla
-   - Şifrelenmiş görüntüleri kaydetme ve yükleme fonksiyonlarını ekle
-
-### Orta Öncelikli İşler (3-4 Gün)
-
-4. **Analiz Paneli Geliştirme**
-   - `FrmAnalysis.cs` formunu tamamla
-   - ML.NET kütüphanesini entegre et
-   - Görüntü karşılaştırma algoritmasını uygula
-   - Isı haritası oluşturma fonksiyonunu ekle
-
-5. **Yapay Zeka Entegrasyonu**
-   - Basit görüntü fark analizi modelini ekle
-   - Şifreleme gücü analizi algoritmasını uygula
-
-6. **Testler ve Hata Ayıklama**
-   - Her fonksiyon için birim testleri yaz
-   - Farklı boyuttaki görüntülerle end-to-end testler yap
-   - Performans ve bellek optimizasyonu yap
-
-### Son Rötuşlar (5-7 Gün)
-
-7. **Dokümantasyon ve Raporlama**
-   - Analiz sonuçlarını PDF/HTML olarak dışa aktarma özelliği ekle
-   - Kullanım kılavuzu hazırla
-   - Bilimsel rapor hazırla (TÜBİTAK için)
-
-8. **Dağıtım Hazırlığı**
-   - Derleme ve kurulum paketi oluştur
-   - Proje sunumu için demo hazırla
-
-### Örnek Kod Parçaları
-
-#### FrmMenu.cs için Şifreleme Butonu
-```csharp
-private void btnEncrypt_Click(object sender, EventArgs e) {
-    try {
-        // Metin kontrolü
-        if (string.IsNullOrEmpty(txtInput.Text))
-            throw new ArgumentException(Errors.ERROR_TEXT_EMPTY);
-            
-        // Parola kontrolü
-        if (string.IsNullOrEmpty(txtPassword.Text))
-            throw new ArgumentException(Errors.ERROR_PASSWORD_EMPTY);
-            
-        // Görüntü kontrolü
-        if (selectedImagePath == string.Empty)
-            throw new ArgumentException(Errors.ERROR_IMAGE_NOT_SELECTED);
-        
-        // AES şifreleme
-        string encryptedText = aesEncrypt.EncryptTextToBase64(txtInput.Text, txtPassword.Text);
-        
-        // AES anahtarını al ve RSA ile şifrele
-        byte[] aesKey = aesEncrypt.GetLastAesKey();
-        byte[] encryptedKey = rsaEncrypt.EncryptData(aesKey);
-        
-        // Şifrelenmiş metni ve anahtarı Wavelet dönüşümü ile görüntüye gizle
-        Bitmap resultImage = waveletEncrypt.HideData(
-            new Bitmap(selectedImagePath), 
-            encryptedText, 
-            Convert.ToBase64String(encryptedKey)
-        );
-        
-        // Sonucu göster
-        pboxImage.Image = resultImage;
-        
-        // Kullanıcıya bilgi ver
-        MessageBox.Show(Success.SUCCESS_ENCRYPTION_COMPLETED, "Başarılı", 
-                      MessageBoxButtons.OK, MessageBoxIcon.Information);
-        
-        // Kaydetme seçeneği
-        SaveResultImage(resultImage);
-    }
-    catch (Exception ex) {
-        MessageBox.Show(ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-    }
-}
-```
-
-#### Wavelet Sınıfı İçin Temel Uygulama
-```csharp
-public class Cls_WaveletEncrypt {
-    // DWT (Ayrık Dalgacık Dönüşümü) parametreleri
-    private const string WaveletType = "Haar";
-    private const int DecompositionLevel = 3;
-    
-    public Bitmap HideData(Bitmap originalImage, string encryptedText, string encryptedKey) {
-        // Veri boyutunu kontrol et
-        if (IsDataTooLarge(originalImage, encryptedText, encryptedKey))
-            throw new ArgumentException(Errors.ERROR_DATA_TOO_LARGE);
-            
-        // Görüntüyü kopyala
-        Bitmap resultImage = new Bitmap(originalImage);
-        
-        // Her renk kanalı için (R, G, B) ayrı ayrı DWT uygula
-        // Kırmızı kanal için örnek
-        double[,] redChannel = GetChannel(resultImage, 0); // Kırmızı kanal
-        double[,] transformedRed = ApplyDWT(redChannel);
-        
-        // Veriyi katsayılara gizle
-        // Genellikle yüksek frekans bandı (HH) tercih edilir
-        transformedRed = HideDataInCoefficients(transformedRed, encryptedText);
-        
-        // Ters DWT uygula
-        double[,] recoveredRed = ApplyInverseDWT(transformedRed);
-        
-        // Kanalı görüntüye yaz
-        SetChannel(resultImage, 0, recoveredRed);
-        
-        // Yeşil ve mavi kanallar için benzer işlemler...
-        // ...
-        
-        return resultImage;
-    }
-    
-    // Yardımcı metotlar...
-}
-```
-
-#### Görüntü Analizi İçin ML.NET Entegrasyonu
-```csharp
-public class Cls_ImageAnalysis {
-    private MLContext mlContext;
-    
-    public Cls_ImageAnalysis() {
-        mlContext = new MLContext(seed: 1);
-    }
-    
-    public Bitmap CreateHeatmap(Bitmap original, Bitmap steganographic) {
-        // İki görüntü arasındaki farkları hesapla
-        Bitmap heatmap = new Bitmap(original.Width, original.Height);
-        
-        // Her piksel için karşılaştırma yap
-        for (int x = 0; x < original.Width; x++) {
-            for (int y = 0; y < original.Height; y++) {
-                Color originalColor = original.GetPixel(x, y);
-                Color stegoColor = steganographic.GetPixel(x, y);
-                
-                // Renk farklarını hesapla
-                int diffR = Math.Abs(originalColor.R - stegoColor.R);
-                int diffG = Math.Abs(originalColor.G - stegoColor.G);
-                int diffB = Math.Abs(originalColor.B - stegoColor.B);
-                
-                // Farkın derecesine göre ısı haritası oluştur
-                // Kırmızı = Çok değişiklik, Mavi = Az değişiklik
-                Color heatColor = CalculateHeatColor(diffR, diffG, diffB);
-                heatmap.SetPixel(x, y, heatColor);
-            }
-        }
-        
-        return heatmap;
-    }
-    
-    // ML.NET ile şifreleme gücü analizi
-    public double AnalyzeEncryptionStrength(string encryptedText) {
-        // ML.NET ile basit bir model kullanarak şifreleme entropisini değerlendir
-        // ...
-        return 0.0; // Puan (0-1 arası)
-    }
-}
+**Not**: Bu README dosyası, projenin genel yapısı ve temel özellikleri hakkında bilgi vermek amacıyla hazırlanmıştır. Daha detaylı teknik dokümantasyon için ilgili sınıf dosyalarına ve yorum satırlarına bakınız.

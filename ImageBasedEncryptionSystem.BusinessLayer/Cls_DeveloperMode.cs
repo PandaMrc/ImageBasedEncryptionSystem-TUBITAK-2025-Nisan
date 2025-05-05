@@ -48,17 +48,9 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
                     return Errors.ERROR_LOGIN_PASSWORD_EMPTY;
                 }
 
-                // Config.json dosyasını oku
-                if (!File.Exists(ConfigFilePath))
-                {
-                    Console.WriteLine(Errors.ERROR_FILE_NOT_FOUND);
-                    return string.Format(Errors.ERROR_LOGIN_FAILED, Errors.ERROR_FILE_NOT_FOUND);
-                }
-
-                string jsonContent = File.ReadAllText(ConfigFilePath);
-                var config = JsonConvert.DeserializeObject<ConfigModel>(jsonContent);
-
-                if (config == null || config.Developers == null || !config.Developers.Any())
+                // Geliştirici bilgilerini al
+                var developers = Cls_Config.GetDeveloperID();
+                if (developers == null || !developers.Any())
                 {
                     Console.WriteLine(Errors.ERROR_NO_DEVELOPERS_FOUND);
                     return string.Format(Errors.ERROR_LOGIN_FAILED, "Geliştirici bilgileri bulunamadı");
@@ -66,7 +58,7 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
 
                 Console.WriteLine(Debug.DEBUG_DEV_MODE_LOGIN_PROCESSING);
                 // Kimlik doğrulama
-                var developer = config.Developers.FirstOrDefault(d => d.DevID == devId && d.Password == password);
+                var developer = developers.FirstOrDefault(d => d.DevID == devId && d.Password == password);
                 if (developer == null)
                 {
                     Console.WriteLine(Errors.ERROR_LOGIN_CREDENTIALS);
@@ -165,59 +157,6 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
 
         #endregion
 
-        #region History Methods
-        /// <summary>
-        /// Şifreleme veya şifre çözme işlemlerinin geçmişini kaydeder
-        /// </summary>
-        /// <param name="historyData">Kaydedilecek işlem verileri</param>
-        public void AddToEncryptionHistory(Dictionary<string, object> historyData)
-        {
-            try
-            {
-                Console.WriteLine(Debug.DEBUG_ENCRYPTION_HISTORY_ADD_STARTED);
-                if (!_isLoggedIn || !_isDevModeActive)
-                {
-                    Console.WriteLine(Errors.ERROR_DEV_MODE_ACCESS_DENIED);
-                    return;
-                }
-
-                // Geçmiş dosyasının yolunu belirle
-                string historyFilePath = Path.Combine(
-                    Path.GetDirectoryName(ConfigFilePath),
-                    "encryption_history.json");
-
-                // Mevcut geçmiş verilerini yükle veya yeni oluştur
-                List<Dictionary<string, object>> historyList;
-                if (File.Exists(historyFilePath))
-                {
-                    string jsonContent = File.ReadAllText(historyFilePath);
-                    historyList = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(jsonContent)
-                                 ?? new List<Dictionary<string, object>>();
-                }
-                else
-                {
-                    historyList = new List<Dictionary<string, object>>();
-                }
-
-                // Geliştirici bilgisini ekle
-                historyData["DeveloperId"] = _currentDevId;
-
-                // Geçmişe yeni kaydı ekle
-                historyList.Add(historyData);
-
-                // Dosyaya kaydet
-                string updatedJson = JsonConvert.SerializeObject(historyList, Formatting.Indented);
-                File.WriteAllText(historyFilePath, updatedJson);
-                Console.WriteLine(Debug.DEBUG_ENCRYPTION_HISTORY_ADD_COMPLETED);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(string.Format(Debug.ERROR_ENCRYPTION_HISTORY_ADD_FAILED, ex.Message));
-                System.Diagnostics.Debug.WriteLine($"Şifreleme geçmişi kaydedilirken hata: {ex.Message}");
-            }
-        }
-        #endregion
-
         #region Status Check Methods
         /// <summary>
         /// Geliştirici modunun aktif olup olmadığını kontrol eder
@@ -313,176 +252,6 @@ namespace ImageBasedEncryptionSystem.BusinessLayer
             {
                 Console.WriteLine(string.Format(Errors.ERROR_VALIDATE_ACCESS_FAILED, ex.Message));
                 return string.Format(Errors.ERROR_VALIDATE_ACCESS_FAILED, ex.Message);
-            }
-        }
-        #endregion
-
-        #region Config File Operations
-        /// <summary>
-        /// Sistem kimliğini Config.json dosyasına kaydeder
-        /// </summary>
-        /// <param name="identity">Kaydedilecek kimlik</param>
-        /// <returns>İşlem sonucu mesajı</returns>
-        public string SaveIdentityToConfig(string identity)
-        {
-            try
-            {
-                Console.WriteLine(Debug.DEBUG_SAVE_IDENTITY_STARTED);
-                // Girişi kontrol et
-                if (!_isLoggedIn || !_isDevModeActive)
-                {
-                    Console.WriteLine(Errors.ERROR_DEV_MODE_ACCESS_DENIED);
-                    return Errors.ERROR_DEV_MODE_ACCESS_DENIED;
-                }
-
-                if (string.IsNullOrWhiteSpace(identity))
-                {
-                    Console.WriteLine(Errors.ERROR_IDENTITY_EMPTY);
-                    return "Kimlik boş olamaz!";
-                }
-
-                // Config.json dosyasını oku
-                if (!File.Exists(ConfigFilePath))
-                {
-                    Console.WriteLine(Errors.ERROR_FILE_NOT_FOUND);
-                    return string.Format(Errors.ERROR_FILE_NOT_FOUND, ConfigFilePath);
-                }
-
-                string jsonContent = File.ReadAllText(ConfigFilePath);
-                var config = JsonConvert.DeserializeObject<ConfigModel>(jsonContent);
-
-                if (config == null)
-                    config = new ConfigModel { Developers = new List<Developer>() };
-
-                // SystemIdentity ekle veya güncelle
-                if (!jsonContent.Contains("SystemIdentity"))
-                {
-                    try
-                    {
-                        // JsonContent içine doğrudan ekleme yapıyoruz
-                        // Son süslü parantezden önce ekleme yap
-                        int lastBraceIndex = jsonContent.LastIndexOf('}');
-                        if (lastBraceIndex > 0)
-                        {
-                            // Öncesinde başka veri varsa virgül ekle
-                            string insertion = jsonContent.Substring(0, lastBraceIndex).TrimEnd().EndsWith("]")
-                                ? ",\n  \"SystemIdentity\": \"" + identity + "\"\n"
-                                : "\n  \"SystemIdentity\": \"" + identity + "\"\n";
-
-                            jsonContent = jsonContent.Insert(lastBraceIndex, insertion);
-
-                            // Dosyayı kalıcı olarak kaydetme
-                            string absolutePath = Path.GetFullPath(ConfigFilePath);
-                            File.WriteAllText(absolutePath, jsonContent);
-
-                            // Dosya erişimini kontrol et
-                            if (File.Exists(absolutePath))
-                            {
-                                string verification = File.ReadAllText(absolutePath);
-                                if (verification.Contains(identity))
-                                {
-                                    Console.WriteLine(Debug.DEBUG_SAVE_IDENTITY_COMPLETED);
-                                    return Success.MESSAGE_GENERAL_SAVED;
-                                }
-                                else
-                                {
-                                    Console.WriteLine(Errors.ERROR_IDENTITY_VERIFICATION_FAILED);
-                                    return "Kimlik dosyaya yazıldı ancak doğrulama başarısız oldu.";
-                                }
-                            }
-                            else
-                            {
-                                Console.WriteLine(Errors.ERROR_FILE_ACCESS);
-                                return "Dosya kaydedildi ancak dosyaya erişilemiyor.";
-                            }
-                        }
-                    }
-                    catch (Exception saveEx)
-                    {
-                        Console.WriteLine(string.Format(Debug.ERROR_SAVE_IDENTITY_FAILED, saveEx.Message));
-                        // Alternatif yöntem dene
-                        try
-                        {
-                            // ConfigModel'i doğrudan güncelle ve yeniden serialize et
-                            dynamic expandoConfig = Newtonsoft.Json.Linq.JObject.Parse(jsonContent);
-                            expandoConfig.SystemIdentity = identity;
-
-                            string updatedJson = JsonConvert.SerializeObject(expandoConfig, Formatting.Indented);
-                            File.WriteAllText(ConfigFilePath, updatedJson);
-
-                            Console.WriteLine(Debug.DEBUG_SAVE_IDENTITY_COMPLETED);
-                            return Success.MESSAGE_GENERAL_SAVED;
-                        }
-                        catch
-                        {
-                            throw saveEx; // İlk hatayı yeniden fırlat
-                        }
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        // SystemIdentity zaten var, güncelle
-                        string pattern = "\"SystemIdentity\"\\s*:\\s*\"[^\"]*\"";
-                        string replacement = "\"SystemIdentity\": \"" + identity + "\"";
-                        string updatedJson = System.Text.RegularExpressions.Regex.Replace(jsonContent, pattern, replacement);
-
-                        // Kalıcı olarak kaydetme
-                        string absolutePath = Path.GetFullPath(ConfigFilePath);
-                        File.WriteAllText(absolutePath, updatedJson);
-
-                        // Dosya erişimini kontrol et
-                        if (File.Exists(absolutePath))
-                        {
-                            string verification = File.ReadAllText(absolutePath);
-                            if (verification.Contains(identity))
-                            {
-                                Console.WriteLine(Debug.DEBUG_SAVE_IDENTITY_COMPLETED);
-                                return Success.MESSAGE_GENERAL_UPDATED;
-                            }
-                            else
-                            {
-                                Console.WriteLine(Errors.ERROR_IDENTITY_VERIFICATION_FAILED);
-                                return "Kimlik dosyaya yazıldı ancak doğrulama başarısız oldu.";
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine(Errors.ERROR_FILE_ACCESS);
-                            return "Dosya güncellendi ancak dosyaya erişilemiyor.";
-                        }
-                    }
-                    catch (Exception updateEx)
-                    {
-                        Console.WriteLine(string.Format(Debug.ERROR_SAVE_IDENTITY_FAILED, updateEx.Message));
-                        // Alternatif yöntem dene
-                        try
-                        {
-                            // ConfigModel'i doğrudan güncelle ve yeniden serialize et
-                            dynamic expandoConfig = Newtonsoft.Json.Linq.JObject.Parse(jsonContent);
-                            expandoConfig.SystemIdentity = identity;
-
-                            string updatedJson = JsonConvert.SerializeObject(expandoConfig, Formatting.Indented);
-                            File.WriteAllText(ConfigFilePath, updatedJson);
-
-                            Console.WriteLine(Debug.DEBUG_SAVE_IDENTITY_COMPLETED);
-                            return Success.MESSAGE_GENERAL_UPDATED;
-                        }
-                        catch
-                        {
-                            throw updateEx; // İlk hatayı yeniden fırlat
-                        }
-                    }
-                }
-
-                Console.WriteLine(Errors.ERROR_IDENTITY_SAVE_FAILED);
-                return "Kimlik bilgisi kaydedilemedi!";
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(string.Format(Errors.ERROR_SAVE_ID_CONFIG_FAILED, ex.Message));
-                return string.Format(Errors.ERROR_SAVE_ID_CONFIG_FAILED, ex.Message);
             }
         }
         #endregion

@@ -71,7 +71,6 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 // Olayları bağla
                 btnDevMode.Click += btnDevMode_Click;
                 btnAdmin.Click += btnAdmin_Click;
-                btnInfo.Click += btnHelp_Click;
                 Console.WriteLine(TypeLayer.Debug.DEBUG_EVENTS_BOUND);
 
                 // Geliştirici modu durumunu kontrol et ve UI'ı güncelle
@@ -101,7 +100,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 Console.WriteLine(TypeLayer.Debug.DEBUG_IMAGE_SELECTION_STARTED);
                 // Resim seçme işlemi
                 OpenFileDialog openFileDialog = new OpenFileDialog();
-                openFileDialog.Filter = "Image Files|*.png;*.bmp";
+                openFileDialog.Filter = "Image Files|*.jpeg;*jpg;*.png;*.bmp";
                 if (openFileDialog.ShowDialog() != DialogResult.OK)
                 {
                     Console.WriteLine(TypeLayer.Debug.DEBUG_IMAGE_LOAD_STARTED);
@@ -342,22 +341,42 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                     "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        
+
         private void btnHelp_Click(object sender, EventArgs e)
         {
-            try
-            {
-                Console.WriteLine(TypeLayer.Debug.DEBUG_HELP_STARTED);
+            // Yardım butonuna animasyon ekleme
+            Guna2Button helpButton = (Guna2Button)sender;
+
+            // Animasyon başlangıcı - büyütme efekti
+            var originalSize = helpButton.Size;
+            var originalFont = helpButton.Font;
+
+            // Büyütme efekti
+            helpButton.Size = new Size(originalSize.Width + 5, originalSize.Height + 5);
+            helpButton.Font = new Font(originalFont.FontFamily, originalFont.Size + 2f, originalFont.Style);
+            helpButton.ForeColor = Color.Gold;
+
+            // Animasyon için timer
+            System.Windows.Forms.Timer animTimer = new System.Windows.Forms.Timer();
+            animTimer.Interval = 300;
+            animTimer.Tick += (s, args) => {
+                // Efekti geri al
+                helpButton.Size = originalSize;
+                helpButton.Font = originalFont;
+                helpButton.ForeColor = Color.White;
+
+                animTimer.Stop();
+                animTimer.Dispose();
+
                 // Yardım formunu göster
-                FrmInfo frmInfo = new FrmInfo(this);
-                frmInfo.ShowDialog(this);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(string.Format(Errors.ERROR_HELP_FORM, ex.Message), "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+                FrmInfo frmInfo = new FrmInfo();
+                frmInfo.StartPosition = FormStartPosition.CenterScreen;
+                frmInfo.Show();
+            };
+
+            animTimer.Start();
         }
-        
+
         /// <summary>
         /// Geliştirici modu etiketi tıklandığında modu aktifleştirir veya devre dışı bırakır
         /// </summary>

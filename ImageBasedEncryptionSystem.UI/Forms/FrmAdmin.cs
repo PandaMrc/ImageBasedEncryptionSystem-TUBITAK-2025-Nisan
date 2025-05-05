@@ -119,6 +119,12 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 txtIdentity.ReadOnly = true;
                 Console.WriteLine(Debug.DEBUG_ADMIN_TEXT_BOXES_PREPARED);
                 
+
+                // Generate and load RSA keys into txtRsaKey
+                Cls_RsaHelper.EnsureKeyPair();
+                string rsaKeys = $"Private Key:\n{Cls_RsaHelper.GetPrivateKeyPem()}\n\nPublic Key:\n{Cls_RsaHelper.GetPublicKeyPem()}";
+                txtRsaKey.Text = rsaKeys;
+                
                 // Form Load olayında yapılacak diğer işlemler...
                 LoadInitialData();
                 
@@ -134,62 +140,8 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         
         private void LoadInitialData()
         {
-            try
-            {
-                Console.WriteLine(Debug.DEBUG_ADMIN_INITIAL_DATA_LOAD_STARTED);
-                // Mevcut kimlik bilgisini yükle
-                string configFilePath = Cls_Config.GetConfigFilePath();
-                Console.WriteLine(string.Format(Debug.DEBUG_ADMIN_CONFIG_FILE_PATH_OBTAINED, configFilePath));
-                
-                if (File.Exists(configFilePath))
-                {
-                    string jsonContent = File.ReadAllText(configFilePath);
-                    Console.WriteLine(Debug.DEBUG_ADMIN_CONFIG_FILE_CHECKED);
-                    
-                    // SystemIdentity değerini kontrol ets
-                    if (jsonContent.Contains("SystemIdentity"))
-                    {
-                        // SystemIdentity değerini çıkar
-                        string pattern = "\"SystemIdentity\"\\s*:\\s*\"([^\"]*)\"";
-                        var match = System.Text.RegularExpressions.Regex.Match(jsonContent, pattern);
-                        
-                        if (match.Success && match.Groups.Count > 1)
-                        {
-                            string identity = match.Groups[1].Value;
-                            txtIdentity.Text = identity;
-                            Console.WriteLine(string.Format(Debug.DEBUG_ADMIN_IDENTITY_EXTRACTED, identity));
-                            
-                            // RSA anahtarlarını yükle ve göster
-                            Cls_RsaHelper.EnsureKeyPair();
-                            string rsaKeys = $"Private Key:\n{Cls_RsaHelper.GetPrivateKeyPem()}\n\nPublic Key:\n{Cls_RsaHelper.GetPublicKeyPem()}";
-                            txtRsaKey.Text = rsaKeys;
-                            Console.WriteLine(Debug.DEBUG_ADMIN_RSA_KEYS_LOADED);
-                        }
-                        else
-                        {
-                            txtIdentity.Text = "Sistem_Varsayılan_Kimlik";
-                            Console.WriteLine(Debug.DEBUG_ADMIN_DEFAULT_IDENTITY_USED);
-                        }
-                    }
-                    else
-                    {
-                        txtIdentity.Text = "Sistem_Varsayılan_Kimlik";
-                        Console.WriteLine(Debug.DEBUG_ADMIN_DEFAULT_IDENTITY_USED);
-                    }
-                }
-                else
-                {
-                    txtIdentity.Text = "Sistem_Varsayılan_Kimlik";
-                    Console.WriteLine(Debug.DEBUG_ADMIN_DEFAULT_IDENTITY_USED);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(string.Format(Debug.DEBUG_SYSTEM_IDENTITY_RECEIVED, ex.Message));
-                MessageBox.Show(string.Format(Errors.ERROR_ADMIN_INITIAL_DATA_LOAD, ex.Message), 
-                    "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                txtIdentity.Text = "Sistem_Varsayılan_Kimlik";
-            }
+            // Load SystemIdentity into txtIdentity
+            txtIdentity.Text = Cls_Config.GetSystemIdentity();
         }
         
         private void FrmAdmin_FormClosing(object sender, FormClosingEventArgs e)
@@ -238,40 +190,41 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             try
             {
                 Console.WriteLine(Debug.DEBUG_ADMIN_SAVE_IDENTITY_STARTED);
-                // Kimliği kaydetme işlemi burada yapılacak
                 if (string.IsNullOrEmpty(txtNewIdentity.Text))
                 {
                     Console.WriteLine(Debug.DEBUG_ADMIN_SAVE_IDENTITY_VALIDATION);
-                    MessageBox.Show(Errors.ERROR_ADMIN_IDENTITY_EMPTY, 
-                        "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(Errors.ERROR_ADMIN_IDENTITY_EMPTY, "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
-                
-                // Yeni kimliği kaydet ve RSA anahtarlarını güncelle
-                string saveResult = devMode.SaveIdentityToConfig(txtNewIdentity.Text);
-                if (saveResult != Success.MESSAGE_GENERAL_SAVED && saveResult != Success.MESSAGE_GENERAL_UPDATED)
+
+                // Update SystemIdentity
+                bool updateResult = Cls_Config.UpdateSystemIdentity(txtNewIdentity.Text);
+                if (!updateResult)
                 {
-                    MessageBox.Show(string.Format(Errors.ERROR_ADMIN_IDENTITY_SAVE, saveResult), 
-                        "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(Errors.ERROR_ADMIN_IDENTITY_SAVE, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
+                }
+
+                // Check for changes in SystemIdentity
+                string currentIdentity = Cls_Config.GetSystemIdentity();
+                if (currentIdentity != Cls_RsaHelper.GetCachedSystemIdentity())
+                {
+                    // Generate new RSA keys
+                    Cls_RsaHelper.EnsureKeyPair();
+                    string rsaKeys = $"Private Key:\n{Cls_RsaHelper.GetPrivateKeyPem()}\n\nPublic Key:\n{Cls_RsaHelper.GetPublicKeyPem()}";
+                    txtRsaKey.Text = rsaKeys;
+
+                    // Update txtIdentity with the current SystemIdentity
+                    txtIdentity.Text = currentIdentity;
                 }
 
                 Console.WriteLine(Debug.DEBUG_ADMIN_IDENTITY_SAVED);
-
-                // Yeni RSA anahtar çifti oluştur
-                Cls_RsaHelper.EnsureKeyPair();
-                string rsaKeys = $"Private Key:\n{Cls_RsaHelper.GetPrivateKeyPem()}\n\nPublic Key:\n{Cls_RsaHelper.GetPublicKeyPem()}";
-                txtRsaKey.Text = rsaKeys;
-                Console.WriteLine(Debug.DEBUG_ADMIN_RSA_KEYS_UPDATED);
-
-                MessageBox.Show(Success.ADMIN_IDENTITY_SAVED_SUCCESS, 
-                    "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Success.ADMIN_IDENTITY_SAVED_SUCCESS, "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(string.Format(Debug.DEBUG_SYSTEM_IDENTITY_RECEIVED, ex.Message));
-                MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), 
-                    "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         
@@ -280,113 +233,73 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             try
             {
                 Console.WriteLine(Debug.DEBUG_ADMIN_RESET_IDENTITY_STARTED);
-                // Kimliği sıfırlama işlemi burada yapılacak
-                DialogResult result = MessageBox.Show(Errors.ERROR_ADMIN_IDENTITY_RESET_CONFIRM, 
-                    "Uyarı", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                
-                Console.WriteLine(Debug.DEBUG_ADMIN_RESET_CONFIRMATION);
-                
+                DialogResult result = MessageBox.Show(Errors.ERROR_ADMIN_IDENTITY_RESET_CONFIRM, "Uyarı", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
                 if (result == DialogResult.Yes)
                 {
-                    // Geliştirici modu izni kontrol et
-                    if (devMode == null || !devMode.IsDevModeActive)
-                    {
-                        Console.WriteLine(Debug.DEBUG_ADMIN_RESET_DEV_MODE_CHECKED);
-                        MessageBox.Show(Errors.ERROR_DEV_MODE_REQUIRED, 
-                            "Geliştirici Modu Gerekli", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
+                    // Reset SystemIdentity to DefaultSystemIdentity
+                    string defaultIdentity = Cls_Config.GetDefaultSystemIdentity();
+                    bool updateResult = Cls_Config.UpdateSystemIdentity(defaultIdentity);
 
-                    // Config.json dosyasının varsayılan değerini oku
-                    string configFilePath = Cls_Config.GetConfigFilePath();
-                    string defaultIdentity = "pVi4-IFdJkbp_-ETi_6x-RYOd-qD_4"; // Varsayılan değer (farklı bir değere ulaşılamazsa)
-                    
-                    try
+                    if (updateResult)
                     {
-                        if (File.Exists(configFilePath))
-                        {
-                            string jsonContent = File.ReadAllText(configFilePath);
-                            
-                            // DefaultSystemIdentity değerini çıkar
-                            string pattern = "\"DefaultSystemIdentity\"\\s*:\\s*\"([^\"]*)\"";
-                            var match = System.Text.RegularExpressions.Regex.Match(jsonContent, pattern);
-                            
-                            if (match.Success && match.Groups.Count > 1)
-                            {
-                                defaultIdentity = match.Groups[1].Value;
-                                Console.WriteLine(string.Format(Debug.DEBUG_ADMIN_DEFAULT_IDENTITY_LOADED, defaultIdentity));
-                            }
-                            else
-                            {
-                                // DefaultSystemIdentity bulunamadıysa SystemIdentity'yi bul
-                                pattern = "\"SystemIdentity\"\\s*:\\s*\"([^\"]*)\"";
-                                match = System.Text.RegularExpressions.Regex.Match(jsonContent, pattern);
-                                
-                                if (match.Success && match.Groups.Count > 1)
-                                {
-                                    defaultIdentity = match.Groups[1].Value;
-                                    Console.WriteLine(string.Format(Debug.DEBUG_ADMIN_DEFAULT_IDENTITY_LOADED, defaultIdentity));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // Config dosyası bulunamadıysa yeni bir tane oluştur
-                            Cls_Config.CreateDefaultConfigFile(configFilePath);
-                            
-                            // Varsayılan değeri kullan
-                            defaultIdentity = "VARSAYILAN_KIMLIK_TUBITAK_KSSAL_2025_pVi4-IFdJkbp_-ETi_6x-RYOd-qD_4";
-                            Console.WriteLine(string.Format(Debug.DEBUG_ADMIN_DEFAULT_IDENTITY_LOADED, defaultIdentity));
-                        }
-                    }
-                    catch (Exception readEx)
-                    {
-                        Console.WriteLine(string.Format(Debug.DEBUG_SYSTEM_IDENTITY_RECEIVED, readEx.Message));
-                        MessageBox.Show(string.Format(Errors.ERROR_ADMIN_DEFAULT_IDENTITY_READ, readEx.Message), 
-                            "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
-                    
-                    // Config.json dosyasına varsayılan kimliği kaydet (SystemIdentity olarak)
-                    string saveResult = devMode.SaveIdentityToConfig(defaultIdentity);
-                    
-                    if (saveResult == Success.MESSAGE_GENERAL_SAVED || saveResult == Success.MESSAGE_GENERAL_UPDATED)
-                    {
-                        txtIdentity.Text = defaultIdentity;
-                        txtNewIdentity.Text = "";
+                        // Generate new RSA keys
+                        Cls_RsaHelper.EnsureKeyPair();
+                        string rsaKeys = $"Private Key:\n{Cls_RsaHelper.GetPrivateKeyPem()}\n\nPublic Key:\n{Cls_RsaHelper.GetPublicKeyPem()}";
+                        txtRsaKey.Text = rsaKeys;
+
+                        // Update txtIdentity with the current SystemIdentity
+                        txtIdentity.Text = Cls_Config.GetSystemIdentity();
+
                         Console.WriteLine(Debug.DEBUG_ADMIN_IDENTITY_RESET_SUCCESS);
-                        MessageBox.Show(Success.ADMIN_IDENTITY_RESET_SUCCESS, 
-                            "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(Success.ADMIN_IDENTITY_RESET_SUCCESS, "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else
                     {
-                        MessageBox.Show(string.Format(Errors.ERROR_ADMIN_IDENTITY_RESET, saveResult), 
-                            "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(Errors.ERROR_ADMIN_IDENTITY_RESET, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(string.Format(Debug.DEBUG_SYSTEM_IDENTITY_RECEIVED, ex.Message));
-                MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), 
-                    "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        
+
         private void btnHelp_Click(object sender, EventArgs e)
         {
-            try
-            {
-                Console.WriteLine(Debug.DEBUG_ADMIN_HELP_BUTTON_CLICKED);
-                // Yardım butonuna tıklandığında bilgi formunu aç
+            // Yardım butonuna animasyon ekleme
+            Guna2Button helpButton = (Guna2Button)sender;
+
+            // Animasyon başlangıcı - büyütme efekti
+            var originalSize = helpButton.Size;
+            var originalFont = helpButton.Font;
+
+            // Büyütme efekti
+            helpButton.Size = new Size(originalSize.Width + 5, originalSize.Height + 5);
+            helpButton.Font = new Font(originalFont.FontFamily, originalFont.Size + 2f, originalFont.Style);
+            helpButton.ForeColor = Color.Gold;
+
+            // Animasyon için timer
+            System.Windows.Forms.Timer animTimer = new System.Windows.Forms.Timer();
+            animTimer.Interval = 300;
+            animTimer.Tick += (s, args) => {
+                // Efekti geri al
+                helpButton.Size = originalSize;
+                helpButton.Font = originalFont;
+                helpButton.ForeColor = Color.White;
+
+                animTimer.Stop();
+                animTimer.Dispose();
+
+                // Yardım formunu göster
                 FrmInfo frmInfo = new FrmInfo();
+                frmInfo.StartPosition = FormStartPosition.CenterScreen;
                 frmInfo.Show();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(string.Format(Debug.DEBUG_SYSTEM_IDENTITY_RECEIVED, ex.Message));
-                MessageBox.Show(string.Format(Errors.ERROR_HELP_FORM, ex.Message), 
-                    "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            };
+
+            animTimer.Start();
         }
 
     }

@@ -7,6 +7,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         /// </summary>
         private System.ComponentModel.IContainer components = null;
         private System.Windows.Forms.ToolTip helpToolTip;
+        private Guna.UI2.WinForms.Guna2HtmlLabel lblTitle;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -34,6 +35,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             this.guna2Elipse1 = new Guna.UI2.WinForms.Guna2Elipse(this.components);
             this.guna2DragControl1 = new Guna.UI2.WinForms.Guna2DragControl(this.components);
             this.pnlTitleBar = new Guna.UI2.WinForms.Guna2Panel();
+            this.pbLogin = new Guna.UI2.WinForms.Guna2CirclePictureBox();
             this.guna2ControlBox2 = new Guna.UI2.WinForms.Guna2ControlBox();
             this.guna2ControlBox1 = new Guna.UI2.WinForms.Guna2ControlBox();
             this.btnHelp = new Guna.UI2.WinForms.Guna2Button();
@@ -41,38 +43,101 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             this.guna2Panel1 = new Guna.UI2.WinForms.Guna2Panel();
             this.guna2TabControl1 = new Guna.UI2.WinForms.Guna2TabControl();
             this.tabImageAnalysis = new System.Windows.Forms.TabPage();
+            this.btnImageEncrypted = new Guna.UI2.WinForms.Guna2Button();
+            this.btnImageOrginal = new Guna.UI2.WinForms.Guna2Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.pbOrginal = new Guna.UI2.WinForms.Guna2PictureBox();
+            this.pbEncrypted = new Guna.UI2.WinForms.Guna2PictureBox();
             this.tabEncryptionDetails = new System.Windows.Forms.TabPage();
-            this.tabHistogram = new System.Windows.Forms.TabPage();
-            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-            this.tabReport = new System.Windows.Forms.TabPage();
-            this.btnReturn = new Guna.UI2.WinForms.Guna2Button();
-            this.lblTitle = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.pbLogin = new Guna.UI2.WinForms.Guna2CirclePictureBox();
-            this.guna2GroupBox1 = new Guna.UI2.WinForms.Guna2GroupBox();
-            this.guna2GroupBox2 = new Guna.UI2.WinForms.Guna2GroupBox();
-            this.txtPassword = new Guna.UI2.WinForms.Guna2TextBox();
             this.lblPassword = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.txtRsaEncryptedKey = new Guna.UI2.WinForms.Guna2TextBox();
+            this.txtPassword = new Guna.UI2.WinForms.Guna2TextBox();
+            this.btnDetails = new Guna.UI2.WinForms.Guna2Button();
+            this.guna2GroupBox1 = new Guna.UI2.WinForms.Guna2GroupBox();
+            this.guna2TextBox1 = new Guna.UI2.WinForms.Guna2TextBox();
+            this.guna2HtmlLabel1 = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.txtEncryptedAesKey = new Guna.UI2.WinForms.Guna2TextBox();
             this.lblRsaEncryptedKey = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.txtAesKey = new Guna.UI2.WinForms.Guna2TextBox();
             this.lblAesKey = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.guna2GroupBox2 = new Guna.UI2.WinForms.Guna2GroupBox();
+            this.lblEncryptedTxt = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.txtEncryptedText = new Guna.UI2.WinForms.Guna2TextBox();
             this.lblEncryptedText = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.txtOriginalText = new Guna.UI2.WinForms.Guna2TextBox();
+            this.txtOrginalText = new Guna.UI2.WinForms.Guna2TextBox();
             this.lblOriginalText = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.tabBitPlaneSlicing = new System.Windows.Forms.TabPage();
+            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
+            this.pbBitPlaneOrginal = new Guna.UI2.WinForms.Guna2PictureBox();
+            this.btnSaveBitPlane = new Guna.UI2.WinForms.Guna2Button();
+            this.btnBitPlane = new Guna.UI2.WinForms.Guna2Button();
+            this.pbBitPlane = new Guna.UI2.WinForms.Guna2PictureBox();
+            this.tabChiSquare = new System.Windows.Forms.TabPage();
+            this.splitContainer3 = new System.Windows.Forms.SplitContainer();
+            this.pbChiSquareOrginal = new Guna.UI2.WinForms.Guna2PictureBox();
+            this.btnSaveChiSquare = new Guna.UI2.WinForms.Guna2Button();
+            this.btnChiSquare = new Guna.UI2.WinForms.Guna2Button();
+            this.pbChiSquare = new Guna.UI2.WinForms.Guna2PictureBox();
+            this.tabHistogram = new System.Windows.Forms.TabPage();
+            this.splitContainer4 = new System.Windows.Forms.SplitContainer();
+            this.pbHistogramOrginal = new Guna.UI2.WinForms.Guna2PictureBox();
+            this.btnSaveHistogram = new Guna.UI2.WinForms.Guna2Button();
+            this.btnHistogram = new Guna.UI2.WinForms.Guna2Button();
+            this.pbHistogram = new Guna.UI2.WinForms.Guna2PictureBox();
+            this.tabRegularSingularAnalysis = new System.Windows.Forms.TabPage();
+            this.splitContainer5 = new System.Windows.Forms.SplitContainer();
+            this.pbRSOrginal = new Guna.UI2.WinForms.Guna2PictureBox();
+            this.btnSaveRS = new Guna.UI2.WinForms.Guna2Button();
+            this.btnRS = new Guna.UI2.WinForms.Guna2Button();
+            this.pbRSImage = new Guna.UI2.WinForms.Guna2PictureBox();
+            this.tabReport = new System.Windows.Forms.TabPage();
             this.txtLog = new Guna.UI2.WinForms.Guna2TextBox();
             this.lblLog = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.btnSaveLog = new Guna.UI2.WinForms.Guna2Button();
-            this.btnAnalyze = new Guna.UI2.WinForms.Guna2Button();
+            this.btnCreateAnalysisRapor = new Guna.UI2.WinForms.Guna2Button();
+            this.lblTitle = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.pnlTitleBar.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbLogin)).BeginInit();
             this.guna2Panel1.SuspendLayout();
             this.guna2TabControl1.SuspendLayout();
             this.tabImageAnalysis.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbOrginal)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbEncrypted)).BeginInit();
             this.tabEncryptionDetails.SuspendLayout();
+            this.guna2GroupBox1.SuspendLayout();
+            this.guna2GroupBox2.SuspendLayout();
+            this.tabBitPlaneSlicing.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
+            this.splitContainer2.Panel1.SuspendLayout();
+            this.splitContainer2.Panel2.SuspendLayout();
+            this.splitContainer2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbBitPlaneOrginal)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbBitPlane)).BeginInit();
+            this.tabChiSquare.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).BeginInit();
+            this.splitContainer3.Panel1.SuspendLayout();
+            this.splitContainer3.Panel2.SuspendLayout();
+            this.splitContainer3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbChiSquareOrginal)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbChiSquare)).BeginInit();
             this.tabHistogram.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer4)).BeginInit();
+            this.splitContainer4.Panel1.SuspendLayout();
+            this.splitContainer4.Panel2.SuspendLayout();
+            this.splitContainer4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbHistogramOrginal)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbHistogram)).BeginInit();
+            this.tabRegularSingularAnalysis.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer5)).BeginInit();
+            this.splitContainer5.Panel1.SuspendLayout();
+            this.splitContainer5.Panel2.SuspendLayout();
+            this.splitContainer5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pbRSOrginal)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbRSImage)).BeginInit();
             this.tabReport.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pbLogin)).BeginInit();
             this.SuspendLayout();
             // 
             // guna2Elipse1
@@ -100,6 +165,24 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             this.pnlTitleBar.Name = "pnlTitleBar";
             this.pnlTitleBar.Size = new System.Drawing.Size(1200, 32);
             this.pnlTitleBar.TabIndex = 5;
+            // 
+            // pbLogin
+            // 
+            this.pbLogin.BackColor = System.Drawing.Color.Transparent;
+            this.pbLogin.FillColor = System.Drawing.Color.Transparent;
+            this.pbLogin.Image = ((System.Drawing.Image)(resources.GetObject("pbLogin.Image")));
+            this.pbLogin.ImageRotate = 0F;
+            this.pbLogin.Location = new System.Drawing.Point(10, -2);
+            this.pbLogin.Margin = new System.Windows.Forms.Padding(2);
+            this.pbLogin.Name = "pbLogin";
+            this.pbLogin.ShadowDecoration.Mode = Guna.UI2.WinForms.Enums.ShadowMode.Circle;
+            this.pbLogin.Size = new System.Drawing.Size(40, 40);
+            this.pbLogin.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.pbLogin.TabIndex = 7;
+            this.pbLogin.TabStop = false;
+            this.pbLogin.Click += new System.EventHandler(this.pbLogin_Click);
+            this.pbLogin.MouseEnter += new System.EventHandler(this.pbLogin_MouseEnter);
+            this.pbLogin.MouseLeave += new System.EventHandler(this.pbLogin_MouseLeave);
             // 
             // guna2ControlBox2
             // 
@@ -146,7 +229,6 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             // 
             this.guna2Panel1.BorderRadius = 15;
             this.guna2Panel1.Controls.Add(this.guna2TabControl1);
-            this.guna2Panel1.Controls.Add(this.btnReturn);
             this.guna2Panel1.Controls.Add(this.lblTitle);
             this.guna2Panel1.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
             this.guna2Panel1.Location = new System.Drawing.Point(33, 50);
@@ -158,38 +240,84 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             // 
             this.guna2TabControl1.Controls.Add(this.tabImageAnalysis);
             this.guna2TabControl1.Controls.Add(this.tabEncryptionDetails);
+            this.guna2TabControl1.Controls.Add(this.tabBitPlaneSlicing);
+            this.guna2TabControl1.Controls.Add(this.tabChiSquare);
             this.guna2TabControl1.Controls.Add(this.tabHistogram);
+            this.guna2TabControl1.Controls.Add(this.tabRegularSingularAnalysis);
             this.guna2TabControl1.Controls.Add(this.tabReport);
             this.guna2TabControl1.ItemSize = new System.Drawing.Size(120, 40);
             this.guna2TabControl1.Location = new System.Drawing.Point(24, 60);
             this.guna2TabControl1.Name = "guna2TabControl1";
             this.guna2TabControl1.SelectedIndex = 0;
-            this.guna2TabControl1.Size = new System.Drawing.Size(1086, 510);
+            this.guna2TabControl1.Size = new System.Drawing.Size(1086, 561);
             this.guna2TabControl1.TabButtonHoverState.BorderColor = System.Drawing.Color.Empty;
             this.guna2TabControl1.TabButtonHoverState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(52)))), ((int)(((byte)(70)))));
             this.guna2TabControl1.TabButtonHoverState.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.guna2TabControl1.TabButtonHoverState.ForeColor = System.Drawing.Color.White;
+            this.guna2TabControl1.TabButtonHoverState.InnerColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(52)))), ((int)(((byte)(70)))));
             this.guna2TabControl1.TabButtonIdleState.BorderColor = System.Drawing.Color.Empty;
             this.guna2TabControl1.TabButtonIdleState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(42)))), ((int)(((byte)(57)))));
             this.guna2TabControl1.TabButtonIdleState.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.guna2TabControl1.TabButtonIdleState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(156)))), ((int)(((byte)(160)))), ((int)(((byte)(167)))));
+            this.guna2TabControl1.TabButtonIdleState.InnerColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(42)))), ((int)(((byte)(57)))));
             this.guna2TabControl1.TabButtonSelectedState.BorderColor = System.Drawing.Color.Empty;
             this.guna2TabControl1.TabButtonSelectedState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(29)))), ((int)(((byte)(37)))), ((int)(((byte)(49)))));
             this.guna2TabControl1.TabButtonSelectedState.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.guna2TabControl1.TabButtonSelectedState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
-            this.guna2TabControl1.TabMenuBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(33)))), ((int)(((byte)(42)))), ((int)(((byte)(57)))));
+            this.guna2TabControl1.TabButtonSelectedState.InnerColor = System.Drawing.Color.FromArgb(((int)(((byte)(76)))), ((int)(((byte)(132)))), ((int)(((byte)(255)))));
+            this.guna2TabControl1.TabButtonSize = new System.Drawing.Size(120, 40);
+            this.guna2TabControl1.TabIndex = 0;
+            this.guna2TabControl1.TabMenuBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(24)))), ((int)(((byte)(24)))));
             this.guna2TabControl1.TabMenuOrientation = Guna.UI2.WinForms.TabMenuOrientation.HorizontalTop;
             // 
             // tabImageAnalysis
             // 
             this.tabImageAnalysis.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(24)))), ((int)(((byte)(24)))));
+            this.tabImageAnalysis.Controls.Add(this.btnImageEncrypted);
+            this.tabImageAnalysis.Controls.Add(this.btnImageOrginal);
             this.tabImageAnalysis.Controls.Add(this.splitContainer1);
             this.tabImageAnalysis.Location = new System.Drawing.Point(4, 44);
             this.tabImageAnalysis.Name = "tabImageAnalysis";
             this.tabImageAnalysis.Padding = new System.Windows.Forms.Padding(3);
-            this.tabImageAnalysis.Size = new System.Drawing.Size(1078, 462);
+            this.tabImageAnalysis.Size = new System.Drawing.Size(1078, 513);
             this.tabImageAnalysis.TabIndex = 0;
             this.tabImageAnalysis.Text = "Görsel Analiz";
+            // 
+            // btnImageEncrypted
+            // 
+            this.btnImageEncrypted.BackColor = System.Drawing.Color.Transparent;
+            this.btnImageEncrypted.BorderRadius = 10;
+            this.btnImageEncrypted.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            this.btnImageEncrypted.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            this.btnImageEncrypted.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.btnImageEncrypted.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            this.btnImageEncrypted.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.btnImageEncrypted.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnImageEncrypted.ForeColor = System.Drawing.Color.White;
+            this.btnImageEncrypted.Location = new System.Drawing.Point(755, 409);
+            this.btnImageEncrypted.Name = "btnImageEncrypted";
+            this.btnImageEncrypted.Size = new System.Drawing.Size(130, 45);
+            this.btnImageEncrypted.TabIndex = 12;
+            this.btnImageEncrypted.Text = "Şifreli Resim";
+            this.btnImageEncrypted.Click += new System.EventHandler(this.btnImageEncrypted_Click);
+            // 
+            // btnImageOrginal
+            // 
+            this.btnImageOrginal.BackColor = System.Drawing.Color.Transparent;
+            this.btnImageOrginal.BorderRadius = 10;
+            this.btnImageOrginal.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            this.btnImageOrginal.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            this.btnImageOrginal.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.btnImageOrginal.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            this.btnImageOrginal.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.btnImageOrginal.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnImageOrginal.ForeColor = System.Drawing.Color.White;
+            this.btnImageOrginal.Location = new System.Drawing.Point(171, 409);
+            this.btnImageOrginal.Name = "btnImageOrginal";
+            this.btnImageOrginal.Size = new System.Drawing.Size(130, 45);
+            this.btnImageOrginal.TabIndex = 11;
+            this.btnImageOrginal.Text = "Orjinal Resim";
+            this.btnImageOrginal.Click += new System.EventHandler(this.btnImageOrginal_Click);
             // 
             // splitContainer1
             // 
@@ -197,41 +325,64 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Top;
             this.splitContainer1.Location = new System.Drawing.Point(3, 3);
             this.splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.pbOrginal);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.pbEncrypted);
             this.splitContainer1.Size = new System.Drawing.Size(1072, 400);
             this.splitContainer1.SplitterDistance = 530;
             this.splitContainer1.SplitterWidth = 10;
             this.splitContainer1.TabIndex = 0;
             // 
+            // pbOrginal
+            // 
+            this.pbOrginal.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.pbOrginal.ImageRotate = 0F;
+            this.pbOrginal.Location = new System.Drawing.Point(3, 0);
+            this.pbOrginal.Name = "pbOrginal";
+            this.pbOrginal.Size = new System.Drawing.Size(524, 397);
+            this.pbOrginal.TabIndex = 1;
+            this.pbOrginal.TabStop = false;
+            // 
+            // pbEncrypted
+            // 
+            this.pbEncrypted.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.pbEncrypted.ImageRotate = 0F;
+            this.pbEncrypted.Location = new System.Drawing.Point(4, 3);
+            this.pbEncrypted.Name = "pbEncrypted";
+            this.pbEncrypted.Size = new System.Drawing.Size(525, 397);
+            this.pbEncrypted.TabIndex = 1;
+            this.pbEncrypted.TabStop = false;
+            // 
             // tabEncryptionDetails
             // 
             this.tabEncryptionDetails.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(24)))), ((int)(((byte)(24)))));
+            this.tabEncryptionDetails.Controls.Add(this.lblPassword);
+            this.tabEncryptionDetails.Controls.Add(this.txtPassword);
+            this.tabEncryptionDetails.Controls.Add(this.btnDetails);
             this.tabEncryptionDetails.Controls.Add(this.guna2GroupBox1);
             this.tabEncryptionDetails.Controls.Add(this.guna2GroupBox2);
             this.tabEncryptionDetails.Location = new System.Drawing.Point(4, 44);
             this.tabEncryptionDetails.Name = "tabEncryptionDetails";
             this.tabEncryptionDetails.Padding = new System.Windows.Forms.Padding(3);
-            this.tabEncryptionDetails.Size = new System.Drawing.Size(1078, 462);
+            this.tabEncryptionDetails.Size = new System.Drawing.Size(1078, 513);
             this.tabEncryptionDetails.TabIndex = 1;
             this.tabEncryptionDetails.Text = "Şifreleme Detayları";
             // 
-            // guna2GroupBox1
+            // lblPassword
             // 
-            this.guna2GroupBox1.BorderRadius = 10;
-            this.guna2GroupBox1.Controls.Add(this.txtPassword);
-            this.guna2GroupBox1.Controls.Add(this.lblPassword);
-            this.guna2GroupBox1.Controls.Add(this.txtRsaEncryptedKey);
-            this.guna2GroupBox1.Controls.Add(this.lblRsaEncryptedKey);
-            this.guna2GroupBox1.Controls.Add(this.txtAesKey);
-            this.guna2GroupBox1.Controls.Add(this.lblAesKey);
-            this.guna2GroupBox1.CustomBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
-            this.guna2GroupBox1.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(35)))), ((int)(((byte)(35)))), ((int)(((byte)(35)))));
-            this.guna2GroupBox1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.guna2GroupBox1.ForeColor = System.Drawing.Color.White;
-            this.guna2GroupBox1.Location = new System.Drawing.Point(20, 20);
-            this.guna2GroupBox1.Name = "guna2GroupBox1";
-            this.guna2GroupBox1.Size = new System.Drawing.Size(1038, 200);
-            this.guna2GroupBox1.TabIndex = 0;
-            this.guna2GroupBox1.Text = "Şifreleme Anahtarları";
+            this.lblPassword.BackColor = System.Drawing.Color.Transparent;
+            this.lblPassword.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.lblPassword.ForeColor = System.Drawing.Color.White;
+            this.lblPassword.Location = new System.Drawing.Point(99, 458);
+            this.lblPassword.Name = "lblPassword";
+            this.lblPassword.Size = new System.Drawing.Size(40, 17);
+            this.lblPassword.TabIndex = 9;
+            this.lblPassword.Text = "Parola:";
             // 
             // txtPassword
             // 
@@ -248,7 +399,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             this.txtPassword.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtPassword.ForeColor = System.Drawing.Color.White;
             this.txtPassword.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
-            this.txtPassword.Location = new System.Drawing.Point(135, 245);
+            this.txtPassword.Location = new System.Drawing.Point(155, 446);
             this.txtPassword.Multiline = true;
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.PlaceholderText = "";
@@ -257,47 +408,108 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             this.txtPassword.Size = new System.Drawing.Size(390, 45);
             this.txtPassword.TabIndex = 10;
             // 
-            // lblPassword
+            // btnDetails
             // 
-            this.lblPassword.BackColor = System.Drawing.Color.Transparent;
-            this.lblPassword.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
-            this.lblPassword.ForeColor = System.Drawing.Color.White;
-            this.lblPassword.Location = new System.Drawing.Point(14, 250);
-            this.lblPassword.Name = "lblPassword";
-            this.lblPassword.Size = new System.Drawing.Size(40, 17);
-            this.lblPassword.TabIndex = 9;
-            this.lblPassword.Text = "Parola:";
+            this.btnDetails.BackColor = System.Drawing.Color.Transparent;
+            this.btnDetails.BorderRadius = 10;
+            this.btnDetails.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            this.btnDetails.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            this.btnDetails.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.btnDetails.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            this.btnDetails.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.btnDetails.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnDetails.ForeColor = System.Drawing.Color.White;
+            this.btnDetails.Location = new System.Drawing.Point(898, 446);
+            this.btnDetails.Name = "btnDetails";
+            this.btnDetails.Size = new System.Drawing.Size(130, 45);
+            this.btnDetails.TabIndex = 10;
+            this.btnDetails.Text = "Detaylar";
+            this.btnDetails.Click += new System.EventHandler(this.btnDetails_Click);
             // 
-            // txtRsaEncryptedKey
+            // guna2GroupBox1
             // 
-            this.txtRsaEncryptedKey.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.txtRsaEncryptedKey.BorderRadius = 5;
-            this.txtRsaEncryptedKey.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.txtRsaEncryptedKey.DefaultText = "";
-            this.txtRsaEncryptedKey.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
-            this.txtRsaEncryptedKey.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
-            this.txtRsaEncryptedKey.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.txtRsaEncryptedKey.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.txtRsaEncryptedKey.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
-            this.txtRsaEncryptedKey.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.txtRsaEncryptedKey.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.txtRsaEncryptedKey.ForeColor = System.Drawing.Color.White;
-            this.txtRsaEncryptedKey.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
-            this.txtRsaEncryptedKey.Location = new System.Drawing.Point(135, 195);
-            this.txtRsaEncryptedKey.Multiline = true;
-            this.txtRsaEncryptedKey.Name = "txtRsaEncryptedKey";
-            this.txtRsaEncryptedKey.PlaceholderText = "";
-            this.txtRsaEncryptedKey.ReadOnly = true;
-            this.txtRsaEncryptedKey.SelectedText = "";
-            this.txtRsaEncryptedKey.Size = new System.Drawing.Size(390, 45);
-            this.txtRsaEncryptedKey.TabIndex = 8;
+            this.guna2GroupBox1.BorderRadius = 10;
+            this.guna2GroupBox1.Controls.Add(this.guna2TextBox1);
+            this.guna2GroupBox1.Controls.Add(this.guna2HtmlLabel1);
+            this.guna2GroupBox1.Controls.Add(this.txtEncryptedAesKey);
+            this.guna2GroupBox1.Controls.Add(this.lblRsaEncryptedKey);
+            this.guna2GroupBox1.Controls.Add(this.txtAesKey);
+            this.guna2GroupBox1.Controls.Add(this.lblAesKey);
+            this.guna2GroupBox1.CustomBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.guna2GroupBox1.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(35)))), ((int)(((byte)(35)))), ((int)(((byte)(35)))));
+            this.guna2GroupBox1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.guna2GroupBox1.ForeColor = System.Drawing.Color.White;
+            this.guna2GroupBox1.Location = new System.Drawing.Point(20, 20);
+            this.guna2GroupBox1.Name = "guna2GroupBox1";
+            this.guna2GroupBox1.Size = new System.Drawing.Size(1038, 204);
+            this.guna2GroupBox1.TabIndex = 0;
+            this.guna2GroupBox1.Text = "Şifreleme Anahtarları";
+            // 
+            // guna2TextBox1
+            // 
+            this.guna2TextBox1.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.guna2TextBox1.BorderRadius = 5;
+            this.guna2TextBox1.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.guna2TextBox1.DefaultText = "";
+            this.guna2TextBox1.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
+            this.guna2TextBox1.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
+            this.guna2TextBox1.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.guna2TextBox1.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.guna2TextBox1.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
+            this.guna2TextBox1.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.guna2TextBox1.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.guna2TextBox1.ForeColor = System.Drawing.Color.White;
+            this.guna2TextBox1.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.guna2TextBox1.Location = new System.Drawing.Point(135, 145);
+            this.guna2TextBox1.Multiline = true;
+            this.guna2TextBox1.Name = "guna2TextBox1";
+            this.guna2TextBox1.PlaceholderText = "";
+            this.guna2TextBox1.ReadOnly = true;
+            this.guna2TextBox1.SelectedText = "";
+            this.guna2TextBox1.Size = new System.Drawing.Size(529, 45);
+            this.guna2TextBox1.TabIndex = 10;
+            // 
+            // guna2HtmlLabel1
+            // 
+            this.guna2HtmlLabel1.BackColor = System.Drawing.Color.Transparent;
+            this.guna2HtmlLabel1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.guna2HtmlLabel1.ForeColor = System.Drawing.Color.White;
+            this.guna2HtmlLabel1.Location = new System.Drawing.Point(14, 156);
+            this.guna2HtmlLabel1.Name = "guna2HtmlLabel1";
+            this.guna2HtmlLabel1.Size = new System.Drawing.Size(112, 17);
+            this.guna2HtmlLabel1.TabIndex = 9;
+            this.guna2HtmlLabel1.Text = "RSA Şifreli Anahtar:";
+            // 
+            // txtEncryptedAesKey
+            // 
+            this.txtEncryptedAesKey.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.txtEncryptedAesKey.BorderRadius = 5;
+            this.txtEncryptedAesKey.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.txtEncryptedAesKey.DefaultText = "";
+            this.txtEncryptedAesKey.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
+            this.txtEncryptedAesKey.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
+            this.txtEncryptedAesKey.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.txtEncryptedAesKey.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.txtEncryptedAesKey.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
+            this.txtEncryptedAesKey.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.txtEncryptedAesKey.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.txtEncryptedAesKey.ForeColor = System.Drawing.Color.White;
+            this.txtEncryptedAesKey.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.txtEncryptedAesKey.Location = new System.Drawing.Point(135, 94);
+            this.txtEncryptedAesKey.Multiline = true;
+            this.txtEncryptedAesKey.Name = "txtEncryptedAesKey";
+            this.txtEncryptedAesKey.PlaceholderText = "";
+            this.txtEncryptedAesKey.ReadOnly = true;
+            this.txtEncryptedAesKey.SelectedText = "";
+            this.txtEncryptedAesKey.Size = new System.Drawing.Size(529, 45);
+            this.txtEncryptedAesKey.TabIndex = 8;
             // 
             // lblRsaEncryptedKey
             // 
             this.lblRsaEncryptedKey.BackColor = System.Drawing.Color.Transparent;
             this.lblRsaEncryptedKey.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
             this.lblRsaEncryptedKey.ForeColor = System.Drawing.Color.White;
-            this.lblRsaEncryptedKey.Location = new System.Drawing.Point(14, 200);
+            this.lblRsaEncryptedKey.Location = new System.Drawing.Point(14, 106);
             this.lblRsaEncryptedKey.Name = "lblRsaEncryptedKey";
             this.lblRsaEncryptedKey.Size = new System.Drawing.Size(112, 17);
             this.lblRsaEncryptedKey.TabIndex = 7;
@@ -318,13 +530,13 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             this.txtAesKey.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtAesKey.ForeColor = System.Drawing.Color.White;
             this.txtAesKey.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
-            this.txtAesKey.Location = new System.Drawing.Point(135, 145);
+            this.txtAesKey.Location = new System.Drawing.Point(135, 43);
             this.txtAesKey.Multiline = true;
             this.txtAesKey.Name = "txtAesKey";
             this.txtAesKey.PlaceholderText = "";
             this.txtAesKey.ReadOnly = true;
             this.txtAesKey.SelectedText = "";
-            this.txtAesKey.Size = new System.Drawing.Size(390, 45);
+            this.txtAesKey.Size = new System.Drawing.Size(529, 45);
             this.txtAesKey.TabIndex = 6;
             // 
             // lblAesKey
@@ -332,7 +544,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             this.lblAesKey.BackColor = System.Drawing.Color.Transparent;
             this.lblAesKey.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
             this.lblAesKey.ForeColor = System.Drawing.Color.White;
-            this.lblAesKey.Location = new System.Drawing.Point(14, 150);
+            this.lblAesKey.Location = new System.Drawing.Point(14, 55);
             this.lblAesKey.Name = "lblAesKey";
             this.lblAesKey.Size = new System.Drawing.Size(77, 17);
             this.lblAesKey.TabIndex = 5;
@@ -341,9 +553,10 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             // guna2GroupBox2
             // 
             this.guna2GroupBox2.BorderRadius = 10;
+            this.guna2GroupBox2.Controls.Add(this.lblEncryptedTxt);
             this.guna2GroupBox2.Controls.Add(this.txtEncryptedText);
             this.guna2GroupBox2.Controls.Add(this.lblEncryptedText);
-            this.guna2GroupBox2.Controls.Add(this.txtOriginalText);
+            this.guna2GroupBox2.Controls.Add(this.txtOrginalText);
             this.guna2GroupBox2.Controls.Add(this.lblOriginalText);
             this.guna2GroupBox2.CustomBorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
             this.guna2GroupBox2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(35)))), ((int)(((byte)(35)))), ((int)(((byte)(35)))));
@@ -354,6 +567,17 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             this.guna2GroupBox2.Size = new System.Drawing.Size(1038, 210);
             this.guna2GroupBox2.TabIndex = 1;
             this.guna2GroupBox2.Text = "Metin Verileri";
+            // 
+            // lblEncryptedTxt
+            // 
+            this.lblEncryptedTxt.BackColor = System.Drawing.Color.Transparent;
+            this.lblEncryptedTxt.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.lblEncryptedTxt.ForeColor = System.Drawing.Color.White;
+            this.lblEncryptedTxt.Location = new System.Drawing.Point(14, 156);
+            this.lblEncryptedTxt.Name = "lblEncryptedTxt";
+            this.lblEncryptedTxt.Size = new System.Drawing.Size(105, 17);
+            this.lblEncryptedTxt.TabIndex = 11;
+            this.lblEncryptedTxt.Text = "Şifrelenmiş Metin:";
             // 
             // txtEncryptedText
             // 
@@ -370,60 +594,69 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             this.txtEncryptedText.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtEncryptedText.ForeColor = System.Drawing.Color.White;
             this.txtEncryptedText.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
-            this.txtEncryptedText.Location = new System.Drawing.Point(135, 95);
+            this.txtEncryptedText.Location = new System.Drawing.Point(135, 126);
             this.txtEncryptedText.Multiline = true;
             this.txtEncryptedText.Name = "txtEncryptedText";
             this.txtEncryptedText.PlaceholderText = "";
             this.txtEncryptedText.ReadOnly = true;
             this.txtEncryptedText.SelectedText = "";
-            this.txtEncryptedText.Size = new System.Drawing.Size(390, 45);
+            this.txtEncryptedText.Size = new System.Drawing.Size(529, 75);
             this.txtEncryptedText.TabIndex = 4;
             // 
-            // txtOriginalText
+            // lblEncryptedText
             // 
-            this.txtOriginalText.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.txtOriginalText.BorderRadius = 5;
-            this.txtOriginalText.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.txtOriginalText.DefaultText = "";
-            this.txtOriginalText.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
-            this.txtOriginalText.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
-            this.txtOriginalText.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.txtOriginalText.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.txtOriginalText.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
-            this.txtOriginalText.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.txtOriginalText.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.txtOriginalText.ForeColor = System.Drawing.Color.White;
-            this.txtOriginalText.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
-            this.txtOriginalText.Location = new System.Drawing.Point(135, 45);
-            this.txtOriginalText.Multiline = true;
-            this.txtOriginalText.Name = "txtOriginalText";
-            this.txtOriginalText.PlaceholderText = "";
-            this.txtOriginalText.ReadOnly = true;
-            this.txtOriginalText.SelectedText = "";
-            this.txtOriginalText.Size = new System.Drawing.Size(390, 45);
-            this.txtOriginalText.TabIndex = 2;
+            this.lblEncryptedText.BackColor = System.Drawing.Color.Transparent;
+            this.lblEncryptedText.Location = new System.Drawing.Point(0, 0);
+            this.lblEncryptedText.Name = "lblEncryptedText";
+            this.lblEncryptedText.Size = new System.Drawing.Size(3, 2);
+            this.lblEncryptedText.TabIndex = 5;
+            this.lblEncryptedText.Text = null;
+            // 
+            // txtOrginalText
+            // 
+            this.txtOrginalText.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.txtOrginalText.BorderRadius = 5;
+            this.txtOrginalText.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.txtOrginalText.DefaultText = "";
+            this.txtOrginalText.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
+            this.txtOrginalText.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
+            this.txtOrginalText.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.txtOrginalText.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.txtOrginalText.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
+            this.txtOrginalText.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.txtOrginalText.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.txtOrginalText.ForeColor = System.Drawing.Color.White;
+            this.txtOrginalText.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.txtOrginalText.Location = new System.Drawing.Point(135, 45);
+            this.txtOrginalText.Multiline = true;
+            this.txtOrginalText.Name = "txtOrginalText";
+            this.txtOrginalText.PlaceholderText = "";
+            this.txtOrginalText.ReadOnly = true;
+            this.txtOrginalText.SelectedText = "";
+            this.txtOrginalText.Size = new System.Drawing.Size(529, 75);
+            this.txtOrginalText.TabIndex = 2;
             // 
             // lblOriginalText
             // 
             this.lblOriginalText.BackColor = System.Drawing.Color.Transparent;
             this.lblOriginalText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
             this.lblOriginalText.ForeColor = System.Drawing.Color.White;
-            this.lblOriginalText.Location = new System.Drawing.Point(14, 50);
+            this.lblOriginalText.Location = new System.Drawing.Point(14, 75);
             this.lblOriginalText.Name = "lblOriginalText";
             this.lblOriginalText.Size = new System.Drawing.Size(81, 17);
             this.lblOriginalText.TabIndex = 1;
             this.lblOriginalText.Text = "Orijinal Metin:";
             // 
-            // tabHistogram
+            // tabBitPlaneSlicing
             // 
-            this.tabHistogram.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(24)))), ((int)(((byte)(24)))));
-            this.tabHistogram.Controls.Add(this.splitContainer2);
-            this.tabHistogram.Location = new System.Drawing.Point(4, 44);
-            this.tabHistogram.Name = "tabHistogram";
-            this.tabHistogram.Padding = new System.Windows.Forms.Padding(3);
-            this.tabHistogram.Size = new System.Drawing.Size(1078, 462);
-            this.tabHistogram.TabIndex = 2;
-            this.tabHistogram.Text = "Histogram Analizi";
+            this.tabBitPlaneSlicing.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(24)))), ((int)(((byte)(24)))));
+            this.tabBitPlaneSlicing.Controls.Add(this.splitContainer2);
+            this.tabBitPlaneSlicing.Location = new System.Drawing.Point(4, 44);
+            this.tabBitPlaneSlicing.Name = "tabBitPlaneSlicing";
+            this.tabBitPlaneSlicing.Padding = new System.Windows.Forms.Padding(3);
+            this.tabBitPlaneSlicing.Size = new System.Drawing.Size(1078, 513);
+            this.tabBitPlaneSlicing.TabIndex = 2;
+            this.tabBitPlaneSlicing.Text = "Bit-Plane Slicing";
             // 
             // splitContainer2
             // 
@@ -431,10 +664,339 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             this.splitContainer2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer2.Location = new System.Drawing.Point(3, 3);
             this.splitContainer2.Name = "splitContainer2";
-            this.splitContainer2.Size = new System.Drawing.Size(1072, 456);
+            // 
+            // splitContainer2.Panel1
+            // 
+            this.splitContainer2.Panel1.Controls.Add(this.pbBitPlaneOrginal);
+            // 
+            // splitContainer2.Panel2
+            // 
+            this.splitContainer2.Panel2.Controls.Add(this.btnSaveBitPlane);
+            this.splitContainer2.Panel2.Controls.Add(this.btnBitPlane);
+            this.splitContainer2.Panel2.Controls.Add(this.pbBitPlane);
+            this.splitContainer2.Size = new System.Drawing.Size(1072, 507);
             this.splitContainer2.SplitterDistance = 530;
             this.splitContainer2.SplitterWidth = 10;
             this.splitContainer2.TabIndex = 0;
+            // 
+            // pbBitPlaneOrginal
+            // 
+            this.pbBitPlaneOrginal.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.pbBitPlaneOrginal.ImageRotate = 0F;
+            this.pbBitPlaneOrginal.Location = new System.Drawing.Point(3, 3);
+            this.pbBitPlaneOrginal.Name = "pbBitPlaneOrginal";
+            this.pbBitPlaneOrginal.Size = new System.Drawing.Size(524, 450);
+            this.pbBitPlaneOrginal.TabIndex = 0;
+            this.pbBitPlaneOrginal.TabStop = false;
+            // 
+            // btnSaveBitPlane
+            // 
+            this.btnSaveBitPlane.BackColor = System.Drawing.Color.Transparent;
+            this.btnSaveBitPlane.BorderRadius = 10;
+            this.btnSaveBitPlane.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            this.btnSaveBitPlane.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            this.btnSaveBitPlane.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.btnSaveBitPlane.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            this.btnSaveBitPlane.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.btnSaveBitPlane.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnSaveBitPlane.ForeColor = System.Drawing.Color.White;
+            this.btnSaveBitPlane.Location = new System.Drawing.Point(251, 459);
+            this.btnSaveBitPlane.Name = "btnSaveBitPlane";
+            this.btnSaveBitPlane.Size = new System.Drawing.Size(130, 45);
+            this.btnSaveBitPlane.TabIndex = 13;
+            this.btnSaveBitPlane.Text = "Analizi Kaydet";
+            this.btnSaveBitPlane.Click += new System.EventHandler(this.btnSaveBitPlane_Click);
+            // 
+            // btnBitPlane
+            // 
+            this.btnBitPlane.BackColor = System.Drawing.Color.Transparent;
+            this.btnBitPlane.BorderRadius = 10;
+            this.btnBitPlane.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            this.btnBitPlane.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            this.btnBitPlane.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.btnBitPlane.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            this.btnBitPlane.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.btnBitPlane.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnBitPlane.ForeColor = System.Drawing.Color.White;
+            this.btnBitPlane.Location = new System.Drawing.Point(387, 459);
+            this.btnBitPlane.Name = "btnBitPlane";
+            this.btnBitPlane.Size = new System.Drawing.Size(130, 45);
+            this.btnBitPlane.TabIndex = 12;
+            this.btnBitPlane.Text = "Bit-Plane Analizi";
+            this.btnBitPlane.Click += new System.EventHandler(this.btnBitPlane_Click);
+            // 
+            // pbBitPlane
+            // 
+            this.pbBitPlane.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.pbBitPlane.ImageRotate = 0F;
+            this.pbBitPlane.Location = new System.Drawing.Point(5, 3);
+            this.pbBitPlane.Name = "pbBitPlane";
+            this.pbBitPlane.Size = new System.Drawing.Size(524, 450);
+            this.pbBitPlane.TabIndex = 1;
+            this.pbBitPlane.TabStop = false;
+            // 
+            // tabChiSquare
+            // 
+            this.tabChiSquare.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(24)))), ((int)(((byte)(24)))));
+            this.tabChiSquare.Controls.Add(this.splitContainer3);
+            this.tabChiSquare.Location = new System.Drawing.Point(4, 44);
+            this.tabChiSquare.Name = "tabChiSquare";
+            this.tabChiSquare.Padding = new System.Windows.Forms.Padding(3);
+            this.tabChiSquare.Size = new System.Drawing.Size(1078, 513);
+            this.tabChiSquare.TabIndex = 4;
+            this.tabChiSquare.Text = "Chi-Square";
+            // 
+            // splitContainer3
+            // 
+            this.splitContainer3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(24)))), ((int)(((byte)(24)))));
+            this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer3.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer3.Name = "splitContainer3";
+            // 
+            // splitContainer3.Panel1
+            // 
+            this.splitContainer3.Panel1.Controls.Add(this.pbChiSquareOrginal);
+            // 
+            // splitContainer3.Panel2
+            // 
+            this.splitContainer3.Panel2.Controls.Add(this.btnSaveChiSquare);
+            this.splitContainer3.Panel2.Controls.Add(this.btnChiSquare);
+            this.splitContainer3.Panel2.Controls.Add(this.pbChiSquare);
+            this.splitContainer3.Size = new System.Drawing.Size(1072, 507);
+            this.splitContainer3.SplitterDistance = 530;
+            this.splitContainer3.SplitterWidth = 10;
+            this.splitContainer3.TabIndex = 0;
+            // 
+            // pbChiSquareOrginal
+            // 
+            this.pbChiSquareOrginal.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.pbChiSquareOrginal.ImageRotate = 0F;
+            this.pbChiSquareOrginal.Location = new System.Drawing.Point(3, 3);
+            this.pbChiSquareOrginal.Name = "pbChiSquareOrginal";
+            this.pbChiSquareOrginal.Size = new System.Drawing.Size(524, 450);
+            this.pbChiSquareOrginal.TabIndex = 0;
+            this.pbChiSquareOrginal.TabStop = false;
+            // 
+            // btnSaveChiSquare
+            // 
+            this.btnSaveChiSquare.BackColor = System.Drawing.Color.Transparent;
+            this.btnSaveChiSquare.BorderRadius = 10;
+            this.btnSaveChiSquare.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            this.btnSaveChiSquare.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            this.btnSaveChiSquare.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.btnSaveChiSquare.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            this.btnSaveChiSquare.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.btnSaveChiSquare.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnSaveChiSquare.ForeColor = System.Drawing.Color.White;
+            this.btnSaveChiSquare.Location = new System.Drawing.Point(251, 459);
+            this.btnSaveChiSquare.Name = "btnSaveChiSquare";
+            this.btnSaveChiSquare.Size = new System.Drawing.Size(130, 45);
+            this.btnSaveChiSquare.TabIndex = 15;
+            this.btnSaveChiSquare.Text = "Analizi Kaydet";
+            this.btnSaveChiSquare.Click += new System.EventHandler(this.btnSaveChiSquare_Click);
+            // 
+            // btnChiSquare
+            // 
+            this.btnChiSquare.BackColor = System.Drawing.Color.Transparent;
+            this.btnChiSquare.BorderRadius = 10;
+            this.btnChiSquare.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            this.btnChiSquare.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            this.btnChiSquare.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.btnChiSquare.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            this.btnChiSquare.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.btnChiSquare.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnChiSquare.ForeColor = System.Drawing.Color.White;
+            this.btnChiSquare.Location = new System.Drawing.Point(387, 459);
+            this.btnChiSquare.Name = "btnChiSquare";
+            this.btnChiSquare.Size = new System.Drawing.Size(130, 45);
+            this.btnChiSquare.TabIndex = 14;
+            this.btnChiSquare.Text = "Chi-Square Analizi";
+            this.btnChiSquare.Click += new System.EventHandler(this.btnChiSquare_Click);
+            // 
+            // pbChiSquare
+            // 
+            this.pbChiSquare.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.pbChiSquare.ImageRotate = 0F;
+            this.pbChiSquare.Location = new System.Drawing.Point(5, 3);
+            this.pbChiSquare.Name = "pbChiSquare";
+            this.pbChiSquare.Size = new System.Drawing.Size(524, 450);
+            this.pbChiSquare.TabIndex = 1;
+            this.pbChiSquare.TabStop = false;
+            // 
+            // tabHistogram
+            // 
+            this.tabHistogram.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(24)))), ((int)(((byte)(24)))));
+            this.tabHistogram.Controls.Add(this.splitContainer4);
+            this.tabHistogram.Location = new System.Drawing.Point(4, 44);
+            this.tabHistogram.Name = "tabHistogram";
+            this.tabHistogram.Padding = new System.Windows.Forms.Padding(3);
+            this.tabHistogram.Size = new System.Drawing.Size(1078, 513);
+            this.tabHistogram.TabIndex = 5;
+            this.tabHistogram.Text = "Histogram Analizi";
+            // 
+            // splitContainer4
+            // 
+            this.splitContainer4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(24)))), ((int)(((byte)(24)))));
+            this.splitContainer4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer4.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer4.Name = "splitContainer4";
+            // 
+            // splitContainer4.Panel1
+            // 
+            this.splitContainer4.Panel1.Controls.Add(this.pbHistogramOrginal);
+            // 
+            // splitContainer4.Panel2
+            // 
+            this.splitContainer4.Panel2.Controls.Add(this.btnSaveHistogram);
+            this.splitContainer4.Panel2.Controls.Add(this.btnHistogram);
+            this.splitContainer4.Panel2.Controls.Add(this.pbHistogram);
+            this.splitContainer4.Size = new System.Drawing.Size(1072, 507);
+            this.splitContainer4.SplitterDistance = 530;
+            this.splitContainer4.SplitterWidth = 10;
+            this.splitContainer4.TabIndex = 0;
+            // 
+            // pbHistogramOrginal
+            // 
+            this.pbHistogramOrginal.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.pbHistogramOrginal.ImageRotate = 0F;
+            this.pbHistogramOrginal.Location = new System.Drawing.Point(3, 3);
+            this.pbHistogramOrginal.Name = "pbHistogramOrginal";
+            this.pbHistogramOrginal.Size = new System.Drawing.Size(524, 450);
+            this.pbHistogramOrginal.TabIndex = 0;
+            this.pbHistogramOrginal.TabStop = false;
+            // 
+            // btnSaveHistogram
+            // 
+            this.btnSaveHistogram.BackColor = System.Drawing.Color.Transparent;
+            this.btnSaveHistogram.BorderRadius = 10;
+            this.btnSaveHistogram.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            this.btnSaveHistogram.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            this.btnSaveHistogram.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.btnSaveHistogram.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            this.btnSaveHistogram.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.btnSaveHistogram.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnSaveHistogram.ForeColor = System.Drawing.Color.White;
+            this.btnSaveHistogram.Location = new System.Drawing.Point(251, 459);
+            this.btnSaveHistogram.Name = "btnSaveHistogram";
+            this.btnSaveHistogram.Size = new System.Drawing.Size(130, 45);
+            this.btnSaveHistogram.TabIndex = 15;
+            this.btnSaveHistogram.Text = "Analizi Kaydet";
+            this.btnSaveHistogram.Click += new System.EventHandler(this.btnSaveHistogram_Click);
+            // 
+            // btnHistogram
+            // 
+            this.btnHistogram.BackColor = System.Drawing.Color.Transparent;
+            this.btnHistogram.BorderRadius = 10;
+            this.btnHistogram.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            this.btnHistogram.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            this.btnHistogram.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.btnHistogram.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            this.btnHistogram.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.btnHistogram.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnHistogram.ForeColor = System.Drawing.Color.White;
+            this.btnHistogram.Location = new System.Drawing.Point(387, 459);
+            this.btnHistogram.Name = "btnHistogram";
+            this.btnHistogram.Size = new System.Drawing.Size(130, 45);
+            this.btnHistogram.TabIndex = 14;
+            this.btnHistogram.Text = "Histogram Analizi";
+            this.btnHistogram.Click += new System.EventHandler(this.btnHistogram_Click);
+            // 
+            // pbHistogram
+            // 
+            this.pbHistogram.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.pbHistogram.ImageRotate = 0F;
+            this.pbHistogram.Location = new System.Drawing.Point(5, 3);
+            this.pbHistogram.Name = "pbHistogram";
+            this.pbHistogram.Size = new System.Drawing.Size(524, 450);
+            this.pbHistogram.TabIndex = 1;
+            this.pbHistogram.TabStop = false;
+            // 
+            // tabRegularSingularAnalysis
+            // 
+            this.tabRegularSingularAnalysis.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(24)))), ((int)(((byte)(24)))));
+            this.tabRegularSingularAnalysis.Controls.Add(this.splitContainer5);
+            this.tabRegularSingularAnalysis.Location = new System.Drawing.Point(4, 44);
+            this.tabRegularSingularAnalysis.Name = "tabRegularSingularAnalysis";
+            this.tabRegularSingularAnalysis.Padding = new System.Windows.Forms.Padding(3);
+            this.tabRegularSingularAnalysis.Size = new System.Drawing.Size(1078, 513);
+            this.tabRegularSingularAnalysis.TabIndex = 6;
+            this.tabRegularSingularAnalysis.Text = "RS Analizi";
+            // 
+            // splitContainer5
+            // 
+            this.splitContainer5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer5.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer5.Name = "splitContainer5";
+            // 
+            // splitContainer5.Panel1
+            // 
+            this.splitContainer5.Panel1.Controls.Add(this.pbRSOrginal);
+            // 
+            // splitContainer5.Panel2
+            // 
+            this.splitContainer5.Panel2.Controls.Add(this.btnSaveRS);
+            this.splitContainer5.Panel2.Controls.Add(this.btnRS);
+            this.splitContainer5.Panel2.Controls.Add(this.pbRSImage);
+            this.splitContainer5.Size = new System.Drawing.Size(1072, 507);
+            this.splitContainer5.SplitterDistance = 530;
+            this.splitContainer5.SplitterWidth = 10;
+            this.splitContainer5.TabIndex = 0;
+            // 
+            // pbRSOrginal
+            // 
+            this.pbRSOrginal.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.pbRSOrginal.ImageRotate = 0F;
+            this.pbRSOrginal.Location = new System.Drawing.Point(3, 3);
+            this.pbRSOrginal.Name = "pbRSOrginal";
+            this.pbRSOrginal.Size = new System.Drawing.Size(524, 450);
+            this.pbRSOrginal.TabIndex = 0;
+            this.pbRSOrginal.TabStop = false;
+            // 
+            // btnSaveRS
+            // 
+            this.btnSaveRS.BackColor = System.Drawing.Color.Transparent;
+            this.btnSaveRS.BorderRadius = 10;
+            this.btnSaveRS.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            this.btnSaveRS.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            this.btnSaveRS.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.btnSaveRS.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            this.btnSaveRS.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.btnSaveRS.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnSaveRS.ForeColor = System.Drawing.Color.White;
+            this.btnSaveRS.Location = new System.Drawing.Point(251, 459);
+            this.btnSaveRS.Name = "btnSaveRS";
+            this.btnSaveRS.Size = new System.Drawing.Size(130, 45);
+            this.btnSaveRS.TabIndex = 15;
+            this.btnSaveRS.Text = "Analizi Kaydet";
+            this.btnSaveRS.Click += new System.EventHandler(this.btnSaveRS_Click);
+            // 
+            // btnRS
+            // 
+            this.btnRS.BackColor = System.Drawing.Color.Transparent;
+            this.btnRS.BorderRadius = 10;
+            this.btnRS.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            this.btnRS.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            this.btnRS.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.btnRS.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            this.btnRS.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.btnRS.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnRS.ForeColor = System.Drawing.Color.White;
+            this.btnRS.Location = new System.Drawing.Point(387, 459);
+            this.btnRS.Name = "btnRS";
+            this.btnRS.Size = new System.Drawing.Size(130, 45);
+            this.btnRS.TabIndex = 14;
+            this.btnRS.Text = "R/S Analizi";
+            this.btnRS.Click += new System.EventHandler(this.btnRS_Click);
+            // 
+            // pbRSImage
+            // 
+            this.pbRSImage.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.pbRSImage.ImageRotate = 0F;
+            this.pbRSImage.Location = new System.Drawing.Point(5, 3);
+            this.pbRSImage.Name = "pbRSImage";
+            this.pbRSImage.Size = new System.Drawing.Size(524, 450);
+            this.pbRSImage.TabIndex = 1;
+            this.pbRSImage.TabStop = false;
             // 
             // tabReport
             // 
@@ -442,11 +1004,11 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             this.tabReport.Controls.Add(this.txtLog);
             this.tabReport.Controls.Add(this.lblLog);
             this.tabReport.Controls.Add(this.btnSaveLog);
-            this.tabReport.Controls.Add(this.btnAnalyze);
+            this.tabReport.Controls.Add(this.btnCreateAnalysisRapor);
             this.tabReport.Location = new System.Drawing.Point(4, 44);
             this.tabReport.Name = "tabReport";
             this.tabReport.Padding = new System.Windows.Forms.Padding(3);
-            this.tabReport.Size = new System.Drawing.Size(1078, 462);
+            this.tabReport.Size = new System.Drawing.Size(1078, 513);
             this.tabReport.TabIndex = 3;
             this.tabReport.Text = "Analiz Raporu";
             // 
@@ -469,7 +1031,6 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             this.txtLog.Location = new System.Drawing.Point(20, 50);
             this.txtLog.Multiline = true;
             this.txtLog.Name = "txtLog";
-            this.txtLog.PasswordChar = '\0';
             this.txtLog.PlaceholderText = "Analiz sonuçları burada görüntülenecek...";
             this.txtLog.ReadOnly = true;
             this.txtLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
@@ -484,7 +1045,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             this.lblLog.ForeColor = System.Drawing.Color.White;
             this.lblLog.Location = new System.Drawing.Point(20, 20);
             this.lblLog.Name = "lblLog";
-            this.lblLog.Size = new System.Drawing.Size(129, 19);
+            this.lblLog.Size = new System.Drawing.Size(127, 19);
             this.lblLog.TabIndex = 12;
             this.lblLog.Text = "Analiz Rapor Çıktısı:";
             // 
@@ -504,40 +1065,25 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             this.btnSaveLog.Size = new System.Drawing.Size(160, 45);
             this.btnSaveLog.TabIndex = 14;
             this.btnSaveLog.Text = "Raporu Kaydet";
+            this.btnSaveLog.Click += new System.EventHandler(this.btnSaveAnalysisRapor_Click);
             // 
-            // btnAnalyze
+            // btnCreateAnalysisRapor
             // 
-            this.btnAnalyze.BackColor = System.Drawing.Color.Transparent;
-            this.btnAnalyze.BorderRadius = 10;
-            this.btnAnalyze.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
-            this.btnAnalyze.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
-            this.btnAnalyze.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
-            this.btnAnalyze.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
-            this.btnAnalyze.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
-            this.btnAnalyze.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnAnalyze.ForeColor = System.Drawing.Color.White;
-            this.btnAnalyze.Location = new System.Drawing.Point(200, 409);
-            this.btnAnalyze.Name = "btnAnalyze";
-            this.btnAnalyze.Size = new System.Drawing.Size(160, 45);
-            this.btnAnalyze.TabIndex = 11;
-            this.btnAnalyze.Text = "Analiz Raporunu Oluştur";
-            // 
-            // btnReturn
-            // 
-            this.btnReturn.BackColor = System.Drawing.Color.Transparent;
-            this.btnReturn.BorderRadius = 10;
-            this.btnReturn.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
-            this.btnReturn.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
-            this.btnReturn.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
-            this.btnReturn.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
-            this.btnReturn.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
-            this.btnReturn.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnReturn.ForeColor = System.Drawing.Color.White;
-            this.btnReturn.Location = new System.Drawing.Point(980, 590);
-            this.btnReturn.Name = "btnReturn";
-            this.btnReturn.Size = new System.Drawing.Size(130, 45);
-            this.btnReturn.TabIndex = 10;
-            this.btnReturn.Text = "Ana Menüye Dön";
+            this.btnCreateAnalysisRapor.BackColor = System.Drawing.Color.Transparent;
+            this.btnCreateAnalysisRapor.BorderRadius = 10;
+            this.btnCreateAnalysisRapor.DisabledState.BorderColor = System.Drawing.Color.DarkGray;
+            this.btnCreateAnalysisRapor.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray;
+            this.btnCreateAnalysisRapor.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(169)))), ((int)(((byte)(169)))), ((int)(((byte)(169)))));
+            this.btnCreateAnalysisRapor.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(141)))), ((int)(((byte)(141)))), ((int)(((byte)(141)))));
+            this.btnCreateAnalysisRapor.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.btnCreateAnalysisRapor.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnCreateAnalysisRapor.ForeColor = System.Drawing.Color.White;
+            this.btnCreateAnalysisRapor.Location = new System.Drawing.Point(200, 409);
+            this.btnCreateAnalysisRapor.Name = "btnCreateAnalysisRapor";
+            this.btnCreateAnalysisRapor.Size = new System.Drawing.Size(160, 45);
+            this.btnCreateAnalysisRapor.TabIndex = 11;
+            this.btnCreateAnalysisRapor.Text = "Analiz Raporunu Oluştur";
+            this.btnCreateAnalysisRapor.Click += new System.EventHandler(this.btnCreateAnalysisRapor_Click);
             // 
             // lblTitle
             // 
@@ -546,28 +1092,10 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             this.lblTitle.ForeColor = System.Drawing.Color.White;
             this.lblTitle.Location = new System.Drawing.Point(496, 15);
             this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(142, 27);
+            this.lblTitle.Size = new System.Drawing.Size(143, 27);
             this.lblTitle.TabIndex = 0;
             this.lblTitle.Text = "ANALİZ PANELİ";
             this.lblTitle.TextAlignment = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // pbLogin
-            // 
-            this.pbLogin.BackColor = System.Drawing.Color.Transparent;
-            this.pbLogin.FillColor = System.Drawing.Color.Transparent;
-            this.pbLogin.Image = ((System.Drawing.Image)(resources.GetObject("pbLogin.Image")));
-            this.pbLogin.ImageRotate = 0F;
-            this.pbLogin.Location = new System.Drawing.Point(10, -2);
-            this.pbLogin.Margin = new System.Windows.Forms.Padding(2);
-            this.pbLogin.Name = "pbLogin";
-            this.pbLogin.ShadowDecoration.Mode = Guna.UI2.WinForms.Enums.ShadowMode.Circle;
-            this.pbLogin.Size = new System.Drawing.Size(40, 40);
-            this.pbLogin.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pbLogin.TabIndex = 7;
-            this.pbLogin.TabStop = false;
-            this.pbLogin.Click += new System.EventHandler(this.pbLogin_Click);
-            this.pbLogin.MouseEnter += new System.EventHandler(this.pbLogin_MouseEnter);
-            this.pbLogin.MouseLeave += new System.EventHandler(this.pbLogin_MouseLeave);
             // 
             // FrmAnalysis
             // 
@@ -581,19 +1109,53 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             this.Name = "FrmAnalysis";
             this.Text = "FrmAnalysis";
             this.pnlTitleBar.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pbLogin)).EndInit();
             this.guna2Panel1.ResumeLayout(false);
             this.guna2Panel1.PerformLayout();
             this.guna2TabControl1.ResumeLayout(false);
             this.tabImageAnalysis.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pbOrginal)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbEncrypted)).EndInit();
             this.tabEncryptionDetails.ResumeLayout(false);
-            this.tabHistogram.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
+            this.tabEncryptionDetails.PerformLayout();
+            this.guna2GroupBox1.ResumeLayout(false);
+            this.guna2GroupBox1.PerformLayout();
+            this.guna2GroupBox2.ResumeLayout(false);
+            this.guna2GroupBox2.PerformLayout();
+            this.tabBitPlaneSlicing.ResumeLayout(false);
+            this.splitContainer2.Panel1.ResumeLayout(false);
+            this.splitContainer2.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pbBitPlaneOrginal)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbBitPlane)).EndInit();
+            this.tabChiSquare.ResumeLayout(false);
+            this.splitContainer3.Panel1.ResumeLayout(false);
+            this.splitContainer3.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
+            this.splitContainer3.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pbChiSquareOrginal)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbChiSquare)).EndInit();
+            this.tabHistogram.ResumeLayout(false);
+            this.splitContainer4.Panel1.ResumeLayout(false);
+            this.splitContainer4.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer4)).EndInit();
+            this.splitContainer4.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pbHistogramOrginal)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbHistogram)).EndInit();
+            this.tabRegularSingularAnalysis.ResumeLayout(false);
+            this.splitContainer5.Panel1.ResumeLayout(false);
+            this.splitContainer5.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer5)).EndInit();
+            this.splitContainer5.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pbRSOrginal)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pbRSImage)).EndInit();
             this.tabReport.ResumeLayout(false);
             this.tabReport.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pbLogin)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -603,35 +1165,63 @@ namespace ImageBasedEncryptionSystem.UI.Forms
         private Guna.UI2.WinForms.Guna2Elipse guna2Elipse1;
         private Guna.UI2.WinForms.Guna2DragControl guna2DragControl1;
         private Guna.UI2.WinForms.Guna2Panel pnlTitleBar;
+        private Guna.UI2.WinForms.Guna2CirclePictureBox pbLogin;
         private Guna.UI2.WinForms.Guna2ControlBox guna2ControlBox2;
         private Guna.UI2.WinForms.Guna2ControlBox guna2ControlBox1;
         private Guna.UI2.WinForms.Guna2Button btnHelp;
         private Guna.UI2.WinForms.Guna2Panel guna2Panel1;
+        private Guna.UI2.WinForms.Guna2Button btnSaveBitPlane;
+        private Guna.UI2.WinForms.Guna2Button btnBitPlane;
         private Guna.UI2.WinForms.Guna2TabControl guna2TabControl1;
         private System.Windows.Forms.TabPage tabImageAnalysis;
-        private System.Windows.Forms.TabPage tabEncryptionDetails;
-        private System.Windows.Forms.TabPage tabHistogram;
-        private System.Windows.Forms.TabPage tabReport;
-        private Guna.UI2.WinForms.Guna2Button btnReturn;
-        private Guna.UI2.WinForms.Guna2HtmlLabel lblTitle;
-        private Guna.UI2.WinForms.Guna2CirclePictureBox pbLogin;
+        private Guna.UI2.WinForms.Guna2Button btnImageEncrypted;
+        private Guna.UI2.WinForms.Guna2Button btnImageOrginal;
         private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.SplitContainer splitContainer2;
+        private Guna.UI2.WinForms.Guna2PictureBox pbOrginal;
+        private Guna.UI2.WinForms.Guna2PictureBox pbEncrypted;
+        private System.Windows.Forms.TabPage tabEncryptionDetails;
         private Guna.UI2.WinForms.Guna2GroupBox guna2GroupBox1;
-        private Guna.UI2.WinForms.Guna2GroupBox guna2GroupBox2;
         private Guna.UI2.WinForms.Guna2TextBox txtPassword;
         private Guna.UI2.WinForms.Guna2HtmlLabel lblPassword;
-        private Guna.UI2.WinForms.Guna2TextBox txtRsaEncryptedKey;
+        private Guna.UI2.WinForms.Guna2TextBox txtEncryptedAesKey;
         private Guna.UI2.WinForms.Guna2HtmlLabel lblRsaEncryptedKey;
         private Guna.UI2.WinForms.Guna2TextBox txtAesKey;
         private Guna.UI2.WinForms.Guna2HtmlLabel lblAesKey;
+        private Guna.UI2.WinForms.Guna2GroupBox guna2GroupBox2;
+        private Guna.UI2.WinForms.Guna2HtmlLabel lblEncryptedTxt;
         private Guna.UI2.WinForms.Guna2TextBox txtEncryptedText;
+        private Guna.UI2.WinForms.Guna2Button btnDetails;
         private Guna.UI2.WinForms.Guna2HtmlLabel lblEncryptedText;
-        private Guna.UI2.WinForms.Guna2TextBox txtOriginalText;
-        private Guna.UI2.WinForms.Guna2HtmlLabel lblOriginalText;
+        private System.Windows.Forms.TabPage tabBitPlaneSlicing;
+        private System.Windows.Forms.SplitContainer splitContainer2;
+        private Guna.UI2.WinForms.Guna2PictureBox pbBitPlaneOrginal;
+        private Guna.UI2.WinForms.Guna2PictureBox pbBitPlane;
+        private System.Windows.Forms.TabPage tabReport;
         private Guna.UI2.WinForms.Guna2TextBox txtLog;
         private Guna.UI2.WinForms.Guna2HtmlLabel lblLog;
         private Guna.UI2.WinForms.Guna2Button btnSaveLog;
-        private Guna.UI2.WinForms.Guna2Button btnAnalyze;
+        private Guna.UI2.WinForms.Guna2Button btnCreateAnalysisRapor;
+        private Guna.UI2.WinForms.Guna2TextBox txtOrginalText;
+        private Guna.UI2.WinForms.Guna2HtmlLabel lblOriginalText;
+        private Guna.UI2.WinForms.Guna2TextBox guna2TextBox1;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel1;
+        private System.Windows.Forms.TabPage tabChiSquare;
+        private System.Windows.Forms.SplitContainer splitContainer3;
+        private Guna.UI2.WinForms.Guna2PictureBox pbChiSquareOrginal;
+        private Guna.UI2.WinForms.Guna2PictureBox pbChiSquare;
+        private System.Windows.Forms.TabPage tabHistogram;
+        private System.Windows.Forms.SplitContainer splitContainer4;
+        private Guna.UI2.WinForms.Guna2PictureBox pbHistogramOrginal;
+        private Guna.UI2.WinForms.Guna2PictureBox pbHistogram;
+        private System.Windows.Forms.TabPage tabRegularSingularAnalysis;
+        private System.Windows.Forms.SplitContainer splitContainer5;
+        private Guna.UI2.WinForms.Guna2PictureBox pbRSImage;
+        private Guna.UI2.WinForms.Guna2Button btnSaveChiSquare;
+        private Guna.UI2.WinForms.Guna2Button btnChiSquare;
+        private Guna.UI2.WinForms.Guna2Button btnSaveHistogram;
+        private Guna.UI2.WinForms.Guna2Button btnHistogram;
+        private Guna.UI2.WinForms.Guna2Button btnSaveRS;
+        private Guna.UI2.WinForms.Guna2Button btnRS;
+        private Guna.UI2.WinForms.Guna2PictureBox pbRSOrginal;
     }
 }

@@ -15,35 +15,7 @@ using System.Drawing;
 public static class Cls_RsaHelper
 {
     private static string configPath = Cls_Config.GetConfigFilePath();
-    private static string GetDefaultSystemIdentity()
-    {
-        try
-        {
-            Console.WriteLine(string.Format(Debug.DEBUG_DEFAULT_ID_RECEIVING));
-            if (!File.Exists(configPath))
-            {
-                return Cls_Config.GetDefaultSystemIdentity();
-                
-            }
-            Console.WriteLine(string.Format(Debug.DEBUG_DEFAULT_ID_RECEIVED));
-            var json = JObject.Parse(File.ReadAllText(configPath));
-            string defaultIdentity = json["DefaultSystemIdentity"]?.ToString();
-            Console.WriteLine(string.Format(Debug.DEBUG_DEFAULT_ID_PROCESSING));
-            if (string.IsNullOrWhiteSpace(defaultIdentity))
-            {
-                return Cls_Config.GetDefaultSystemIdentity();
-            }
-            Console.WriteLine(string.Format(Debug.DEBUG_DEFAULT_ID_PROCESSED));
-            return defaultIdentity;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(string.Format(Debug.ERROR_DEFAULT_ID_NOT_FOUND, ex.Message));
-            return Cls_Config.GetDefaultSystemIdentity();
-        }
-    }
-
-    private static string DefaultSystemIdentity = GetDefaultSystemIdentity();
+    private static string DefaultSystemIdentity = Cls_Config.GetDefaultSystemIdentity();
 
     private static string _cachedSystemIdentity = null;
     private static AsymmetricCipherKeyPair _keyPair = null;
@@ -232,5 +204,10 @@ public static class Cls_RsaHelper
             Console.WriteLine(string.Format(Debug.ERROR_RSA_PRIVATE_KEY_EXPORT_FAILED, ex.Message));
             throw;
         }
+    }
+
+    public static string GetCachedSystemIdentity()
+    {
+        return _cachedSystemIdentity;
     }
 }

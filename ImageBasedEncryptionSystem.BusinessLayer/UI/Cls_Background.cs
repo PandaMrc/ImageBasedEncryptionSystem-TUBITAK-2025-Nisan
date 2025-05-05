@@ -113,7 +113,15 @@ namespace ImageBasedEncryptionSystem.BusinessLayer.UI
                                     "DECRYPT",
                                     "SECURE",
                                     "ZORLU",
-                                    "IBES"
+                                    "IBES",
+                                    "KSSAL",
+                                    "12/A",
+                                    "TÜBİTAK",
+                                    "TUBITAK",
+                                    "ENCRYPTION",
+                                    "DECRYPTION",
+                                    "SECURITY",
+                                    "PROTECTION"
                                 };
                                 
                                 using (Font codeFont = new Font("Courier New", 10, FontStyle.Bold))

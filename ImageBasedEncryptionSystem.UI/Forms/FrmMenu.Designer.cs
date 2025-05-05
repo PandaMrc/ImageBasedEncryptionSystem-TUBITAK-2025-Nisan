@@ -38,7 +38,7 @@
             this.pbLogin = new Guna.UI2.WinForms.Guna2CirclePictureBox();
             this.guna2ControlBox2 = new Guna.UI2.WinForms.Guna2ControlBox();
             this.guna2ControlBox1 = new Guna.UI2.WinForms.Guna2ControlBox();
-            this.btnInfo = new Guna.UI2.WinForms.Guna2Button();
+            this.btnHelp = new Guna.UI2.WinForms.Guna2Button();
             this.guna2Panel1 = new Guna.UI2.WinForms.Guna2Panel();
             this.btnAnalysis = new Guna.UI2.WinForms.Guna2Button();
             this.btnImage = new Guna.UI2.WinForms.Guna2Button();
@@ -53,9 +53,9 @@
             this.lblPaswordText = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.txtInput = new Guna.UI2.WinForms.Guna2TextBox();
             this.lblInputText = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.loginToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.progressBar1 = new Guna.UI2.WinForms.Guna2ProgressBar();
             this.lblProgress = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.loginToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.pnlTitleBar.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbLogin)).BeginInit();
             this.guna2Panel1.SuspendLayout();
@@ -82,7 +82,7 @@
             this.pnlTitleBar.Controls.Add(this.pbLogin);
             this.pnlTitleBar.Controls.Add(this.guna2ControlBox2);
             this.pnlTitleBar.Controls.Add(this.guna2ControlBox1);
-            this.pnlTitleBar.Controls.Add(this.btnInfo);
+            this.pnlTitleBar.Controls.Add(this.btnHelp);
             this.pnlTitleBar.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlTitleBar.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(20)))), ((int)(((byte)(20)))));
             this.pnlTitleBar.Location = new System.Drawing.Point(0, 0);
@@ -170,22 +170,22 @@
             this.guna2ControlBox1.Size = new System.Drawing.Size(34, 24);
             this.guna2ControlBox1.TabIndex = 0;
             // 
-            // btnInfo
+            // btnHelp
             // 
-            this.btnInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnInfo.BackColor = System.Drawing.Color.Transparent;
-            this.btnInfo.BorderRadius = 10;
-            this.btnInfo.Cursor = System.Windows.Forms.Cursors.Help;
-            this.btnInfo.FillColor = System.Drawing.Color.Transparent;
-            this.btnInfo.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
-            this.btnInfo.ForeColor = System.Drawing.Color.White;
-            this.btnInfo.Location = new System.Drawing.Point(650, 3);
-            this.btnInfo.Margin = new System.Windows.Forms.Padding(2);
-            this.btnInfo.Name = "btnInfo";
-            this.btnInfo.Size = new System.Drawing.Size(34, 24);
-            this.btnInfo.TabIndex = 2;
-            this.btnInfo.Text = "?";
-            this.btnInfo.Click += new System.EventHandler(this.btnHelp_Click);
+            this.btnHelp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnHelp.BackColor = System.Drawing.Color.Transparent;
+            this.btnHelp.BorderRadius = 10;
+            this.btnHelp.Cursor = System.Windows.Forms.Cursors.Help;
+            this.btnHelp.FillColor = System.Drawing.Color.Transparent;
+            this.btnHelp.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
+            this.btnHelp.ForeColor = System.Drawing.Color.White;
+            this.btnHelp.Location = new System.Drawing.Point(650, 3);
+            this.btnHelp.Margin = new System.Windows.Forms.Padding(2);
+            this.btnHelp.Name = "btnHelp";
+            this.btnHelp.Size = new System.Drawing.Size(34, 24);
+            this.btnHelp.TabIndex = 2;
+            this.btnHelp.Text = "?";
+            this.btnHelp.Click += new System.EventHandler(this.btnHelp_Click);
             // 
             // guna2Panel1
             // 
@@ -443,7 +443,7 @@
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(390, 23);
             this.progressBar1.TabIndex = 6;
-            this.progressBar1.Value = 0;
+            this.progressBar1.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
             // 
             // lblProgress
             // 
@@ -453,7 +453,7 @@
             this.lblProgress.Location = new System.Drawing.Point(16, 206);
             this.lblProgress.Margin = new System.Windows.Forms.Padding(2);
             this.lblProgress.Name = "lblProgress";
-            this.lblProgress.Size = new System.Drawing.Size(86, 17);
+            this.lblProgress.Size = new System.Drawing.Size(73, 17);
             this.lblProgress.TabIndex = 5;
             this.lblProgress.Text = "İlerleme: 0%";
             // 
@@ -495,7 +495,7 @@
         private Guna.UI2.WinForms.Guna2CirclePictureBox pbLogin;
         private Guna.UI2.WinForms.Guna2ControlBox guna2ControlBox2;
         private Guna.UI2.WinForms.Guna2ControlBox guna2ControlBox1;
-        private Guna.UI2.WinForms.Guna2Button btnInfo;
+        private Guna.UI2.WinForms.Guna2Button btnHelp;
         private Guna.UI2.WinForms.Guna2Panel guna2Panel1;
         private Guna.UI2.WinForms.Guna2Button btnAnalysis;
         private Guna.UI2.WinForms.Guna2Button btnImage;

@@ -325,5 +325,12 @@ namespace ImageBasedEncryptionSystem.TypeLayer
         public const string DEBUG_DIGEST_RANDOM_GENERATOR_SEED_ADDED = "[DEBUG] Seed DigestRandomGenerator'a eklendi.";
         public const string DEBUG_SECURE_RANDOM_CREATED = "[DEBUG] SecureRandom oluşturuldu.";
         #endregion
+
+        #region Geliştirici Bilgileri İşlemleri
+        public const string DEBUG_GET_DEVELOPER_INFO_STARTED = "[DEBUG] Geliştirici bilgileri alma işlemi başlatıldı.";
+        public const string DEBUG_GET_DEVELOPER_INFO_COMPLETED = "[DEBUG] Geliştirici bilgileri alma işlemi tamamlandı.";
+        public const string ERROR_NO_DEVELOPERS_FOUND = "[ERROR] Geliştirici bilgileri bulunamadı.";
+        public const string ERROR_GET_DEVELOPER_INFO_FAILED = "[ERROR] Geliştirici bilgileri alma işlemi başarısız oldu. Hata: {0}";
+        #endregion
     }
 }

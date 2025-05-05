@@ -1,339 +1,469 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging; // PixelFormat, BitmapData için
 using System.Linq;
+using System.Runtime.InteropServices; // Marshal için
 using System.Text;
-using ImageBasedEncryptionSystem.TypeLayer;
-using System.Drawing.Imaging;
+using ImageBasedEncryptionSystem.TypeLayer; // Debug sabitleri için
 
 namespace ImageBasedEncryptionSystem.BusinessLayer.Helpers
 {
     public static class Cls_LsbHelper
     {
+        private const int SIGNATURE_PIXEL_COUNT = 20; // İmza için kullanılacak piksel sayısı
+
+        // --- Bit İşleme Yardımcı Metotları ---
+
+        /// <summary>
+        /// Verilen byte'ın belirtilen bit indeksindeki değeri (0 veya 1) alır.
+        /// (Index 0 en anlamlı bit - MSB, Index 7 en anlamsız bit - LSB)
+        /// </summary>
+        private static int GetBit(byte b, int bitIndex)
+        {
+            // bitIndex 0'dan 7'ye kadar olmalı
+            if (bitIndex < 0 || bitIndex > 7) throw new ArgumentOutOfRangeException(nameof(bitIndex));
+            // Biti en sağa kaydır ve diğer bitleri maskele
+            return (b >> (7 - bitIndex)) & 1;
+        }
+
+        /// <summary>
+        /// Bir renk bileşeninin en anlamsız bitine (LSB) verilen biti (0 veya 1) gömer.
+        /// </summary>
+        private static byte EmbedBit(byte colorComponent, int bit)
+        {
+            if (bit != 0 && bit != 1) throw new ArgumentException("Gömülecek bit 0 veya 1 olmalıdır.", nameof(bit));
+            // Son biti temizle (AND ...11111110)
+            colorComponent = (byte)(colorComponent & 0xFE);
+            // Yeni biti ekle (OR 0000000(0 veya 1))
+            return (byte)(colorComponent | bit);
+        }
+
+        // --- Ana LSB Metotları (Optimize Edilmiş) ---
+
+        /// <summary>
+        /// Verilen byte dizisini görüntünün LSB'lerine gömer (LockBits ile hızlandırılmış).
+        /// İlk SIGNATURE_PIXEL_COUNT pikseli atlar.
+        /// Verinin sonuna 8 adet 0 byte'ı ekler.
+        /// </summary>
         public static Bitmap EmbedData(Bitmap image, byte[] data)
         {
-            Console.WriteLine(Debug.DEBUG_LSB_EMBED_DATA_STARTED);
-            Console.WriteLine(string.Format(Debug.DEBUG_LSB_EMBED_DATA_INPUT, image.Width, image.Height, data.Length));
+            if (image == null) throw new ArgumentNullException(nameof(image));
+            if (data == null) throw new ArgumentNullException(nameof(data));
 
-            // Bitiş işareti: Verinin sonunda olduğunu anlamak için
+            Console.WriteLine(Debug.DEBUG_LSB_EMBED_DATA_STARTED);
+            Console.WriteLine($"Input: Image({image.Width}x{image.Height}), Data Length({data.Length})");
+
+            // Bitiş işareti ve asıl veri birleştirilir
             byte[] endMarker = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 }; // 8 adet 0
-            
-            // Asıl veriye son işareti eklenmiş hali
             byte[] fullData = new byte[data.Length + endMarker.Length];
             Buffer.BlockCopy(data, 0, fullData, 0, data.Length);
             Buffer.BlockCopy(endMarker, 0, fullData, data.Length, endMarker.Length);
-            Console.WriteLine(string.Format(Debug.DEBUG_LSB_FULL_DATA_PREPARED, data.Length, fullData.Length));
+            int totalBitsToEmbed = fullData.Length * 8;
+            Console.WriteLine($"Data prepared: Original({data.Length}), With Marker({fullData.Length}), Total Bits({totalBitsToEmbed})");
 
-            int dataIndex = 0;
-            int dataBitIndex = 0;
-            int processedPixelCount = 0;
-
-            Bitmap newImage = new Bitmap(image);
-
-            for (int y = 0; y < newImage.Height; y++)
+            // Görüntünün kapasitesini kontrol et (RGB kanalları kullanıldığı için piksel * 3 bit)
+            long capacity = ((long)image.Width * image.Height - SIGNATURE_PIXEL_COUNT) * 3;
+            if (totalBitsToEmbed > capacity)
             {
-                for (int x = 0; x < newImage.Width; x++)
+                throw new ArgumentException($"Veri boyutu ({totalBitsToEmbed} bit) resim kapasitesini ({capacity} bit) aşıyor.");
+            }
+
+            // Orijinal görüntünün kopyası üzerinde çalış
+            Bitmap newImage = new Bitmap(image);
+            Rectangle rect = new Rectangle(0, 0, newImage.Width, newImage.Height);
+            BitmapData bmpData = null;
+
+            try
+            {
+                // Bitmap'i kilitle (ReadWrite çünkü değiştireceğiz)
+                bmpData = newImage.LockBits(rect, ImageLockMode.ReadWrite, newImage.PixelFormat);
+                IntPtr ptr = bmpData.Scan0;
+                int stride = bmpData.Stride;
+                int bytesPerPixel = Image.GetPixelFormatSize(bmpData.PixelFormat) / 8;
+                // Sadece 24bpp ve 32bpp desteklenir varsayımı (en az RGB gerekli)
+                if (bytesPerPixel < 3) throw new NotSupportedException("LSB gömme için en az 24bpp görüntü gereklidir.");
+
+                int totalBytes = Math.Abs(stride) * newImage.Height;
+                byte[] pixels = new byte[totalBytes];
+                Marshal.Copy(ptr, pixels, 0, totalBytes); // Piksel verisini diziye kopyala
+
+                int currentBitIndex = 0; // Gömülecek toplam bit indeksi
+                int pixelIndex = 0;      // İşlenen piksel sayısı
+
+                // Pikseller üzerinde dolaş
+                for (int y = 0; y < newImage.Height; y++)
                 {
-                    if (x + y * newImage.Width < 20) // İlk 20 pikseli atla
-                        continue;
-
-                    if (dataIndex >= fullData.Length)
+                    for (int x = 0; x < newImage.Width; x++)
                     {
-                        Console.WriteLine(string.Format(Debug.DEBUG_LSB_PROCESSED_PIXEL_COUNT, processedPixelCount));
-                        Console.WriteLine(Debug.DEBUG_LSB_EMBED_DATA_COMPLETED);
-                        return newImage; // veri tamamen gömüldü
+                        pixelIndex = y * newImage.Width + x;
+
+                        // İlk SIGNATURE_PIXEL_COUNT pikseli atla
+                        if (pixelIndex < SIGNATURE_PIXEL_COUNT) continue;
+
+                        // Gömülecek bit kalmadıysa döngüden çık
+                        if (currentBitIndex >= totalBitsToEmbed) break;
+
+                        // Geçerli pikselin bellek adresini hesapla
+                        int lineStartIndex = y * Math.Abs(stride);
+                        int pixelStartIndex = lineStartIndex + x * bytesPerPixel;
+
+                        // RGB bileşenlerine bitleri göm
+                        // R kanalı
+                        if (currentBitIndex < totalBitsToEmbed)
+                        {
+                            int dataByteIndex = currentBitIndex / 8;
+                            int dataBitIndexInByte = currentBitIndex % 8;
+                            int bitToEmbed = GetBit(fullData[dataByteIndex], dataBitIndexInByte);
+                            pixels[pixelStartIndex + 2] = EmbedBit(pixels[pixelStartIndex + 2], bitToEmbed); // Offset 2: Red
+                            currentBitIndex++;
+                        }
+                        // G kanalı
+                        if (currentBitIndex < totalBitsToEmbed)
+                        {
+                            int dataByteIndex = currentBitIndex / 8;
+                            int dataBitIndexInByte = currentBitIndex % 8;
+                            int bitToEmbed = GetBit(fullData[dataByteIndex], dataBitIndexInByte);
+                            pixels[pixelStartIndex + 1] = EmbedBit(pixels[pixelStartIndex + 1], bitToEmbed); // Offset 1: Green
+                            currentBitIndex++;
+                        }
+                        // B kanalı
+                        if (currentBitIndex < totalBitsToEmbed)
+                        {
+                            int dataByteIndex = currentBitIndex / 8;
+                            int dataBitIndexInByte = currentBitIndex % 8;
+                            int bitToEmbed = GetBit(fullData[dataByteIndex], dataBitIndexInByte);
+                            pixels[pixelStartIndex + 0] = EmbedBit(pixels[pixelStartIndex + 0], bitToEmbed); // Offset 0: Blue
+                            currentBitIndex++;
+                        }
+
+                        // İlerleme raporu (isteğe bağlı, performansı biraz düşürebilir)
+                        if ((pixelIndex - SIGNATURE_PIXEL_COUNT + 1) % 100000 == 0)
+                        {
+                            Console.WriteLine($"Embed Progress: Processed Pixels({pixelIndex - SIGNATURE_PIXEL_COUNT + 1}), Bits Embedded({currentBitIndex}/{totalBitsToEmbed})");
+                        }
                     }
+                    if (currentBitIndex >= totalBitsToEmbed) break; // Dış döngüden de çık
+                }
 
-                    processedPixelCount++;
-                    Color pixel = newImage.GetPixel(x, y);
-                    byte r = pixel.R;
-                    byte g = pixel.G;
-                    byte b = pixel.B;
-
-                    // Her bir renk bileşenine veri biti yerleştir
-                    int bit = GetBit(fullData[dataIndex], dataBitIndex);
-                    r = EmbedBit(r, bit);
-                    dataBitIndex++;
-                    
-                    if (dataBitIndex == 8) { dataBitIndex = 0; dataIndex++; }
-
-                    if (dataIndex < fullData.Length)
-                    {
-                        bit = GetBit(fullData[dataIndex], dataBitIndex);
-                        g = EmbedBit(g, bit);
-                        dataBitIndex++;
-                    }
-                    if (dataBitIndex == 8) { dataBitIndex = 0; dataIndex++; }
-
-                    if (dataIndex < fullData.Length)
-                    {
-                        bit = GetBit(fullData[dataIndex], dataBitIndex);
-                        b = EmbedBit(b, bit);
-                        dataBitIndex++;
-                    }
-                    if (dataBitIndex == 8) { dataBitIndex = 0; dataIndex++; }
-
-                    Color newPixel = Color.FromArgb(r, g, b);
-                    newImage.SetPixel(x, y, newPixel);
-                    
-                    // Her 1000 pikselde bir ilerleme raporu ver
-                    if (processedPixelCount % 100000 == 0)
-                    {
-                        Console.WriteLine(string.Format(Debug.DEBUG_LSB_EMBED_PROGRESS, 
-                            processedPixelCount, dataIndex, fullData.Length));
-                    }
+                // Değiştirilmiş piksel verisini Bitmap'e geri kopyala
+                Marshal.Copy(pixels, 0, ptr, totalBytes);
+                Console.WriteLine($"Embed completed: Total Bits Embedded({currentBitIndex})");
+            }
+            finally
+            {
+                // Kilidi kaldır
+                if (bmpData != null)
+                {
+                    newImage.UnlockBits(bmpData);
                 }
             }
 
-            Console.WriteLine(string.Format(Debug.DEBUG_LSB_PROCESSED_PIXEL_COUNT, processedPixelCount));
             Console.WriteLine(Debug.DEBUG_LSB_EMBED_DATA_COMPLETED);
             return newImage;
         }
 
-        private static byte EmbedBit(byte colorComponent, int bit)
-        {
-            // Son biti temizle, sonra yeni biti ekle
-            colorComponent = (byte)(colorComponent & 0xFE); // ...11111110
-            return (byte)(colorComponent | bit);
-        }
-
-        private static int GetBit(byte b, int bitIndex)
-        {
-            return (b >> (7 - bitIndex)) & 1;
-        }
-
-        ///
-
+        /// <summary>
+        /// Görüntünün LSB'lerinden veri çıkarır (LockBits ile hızlandırılmış).
+        /// İlk SIGNATURE_PIXEL_COUNT pikseli atlar.
+        /// 8 adet sıfır byte'ı bulunca durur.
+        /// </summary>
         public static byte[] ExtractData(Bitmap image)
         {
+            if (image == null) throw new ArgumentNullException(nameof(image));
+
             Console.WriteLine(Debug.DEBUG_LSB_EXTRACT_DATA_STARTED);
-            Console.WriteLine(string.Format(Debug.DEBUG_LSB_EXTRACT_DATA_INPUT, image.Width, image.Height));
-            
-            var data = new List<byte>();
-            int dataBitIndex = 0;
+            Console.WriteLine($"Input: Image({image.Width}x{image.Height})");
+
+            List<byte> extractedBytes = new List<byte>();
             byte currentByte = 0;
+            int bitCount = 0;
+            bool endMarkerFound = false;
             int processedPixelCount = 0;
 
-            for (int y = 0; y < image.Height; y++)
+            Rectangle rect = new Rectangle(0, 0, image.Width, image.Height);
+            BitmapData bmpData = null;
+
+            try
             {
-                for (int x = 0; x < image.Width; x++)
+                // Bitmap'i kilitle (ReadOnly)
+                bmpData = image.LockBits(rect, ImageLockMode.ReadOnly, image.PixelFormat);
+                IntPtr ptr = bmpData.Scan0;
+                int stride = bmpData.Stride;
+                int bytesPerPixel = Image.GetPixelFormatSize(bmpData.PixelFormat) / 8;
+                if (bytesPerPixel < 3) throw new NotSupportedException("LSB çıkarma için en az 24bpp görüntü gereklidir.");
+
+                int totalBytes = Math.Abs(stride) * image.Height;
+                byte[] pixels = new byte[totalBytes];
+                Marshal.Copy(ptr, pixels, 0, totalBytes); // Piksel verisini diziye kopyala
+
+                int pixelIndex = 0;
+
+                // Pikseller üzerinde dolaş
+                for (int y = 0; y < image.Height && !endMarkerFound; y++)
                 {
-                    if (x + y * image.Width < 20) // İlk 20 pikseli atla
-                        continue;
+                    for (int x = 0; x < image.Width && !endMarkerFound; x++)
+                    {
+                        pixelIndex = y * image.Width + x;
 
-                    processedPixelCount++;
-                    Color pixel = image.GetPixel(x, y);
-                    
-                    // R bileşeninden bit çıkar
-                    int extractedBit = pixel.R & 1;
-                    currentByte = (byte)((currentByte << 1) | extractedBit);
-                    dataBitIndex++;
-                    
-                    if (dataBitIndex == 8)
-                    {
-                        data.Add(currentByte);
-                        currentByte = 0;
-                        dataBitIndex = 0;
-                    }
+                        // İlk SIGNATURE_PIXEL_COUNT pikseli atla
+                        if (pixelIndex < SIGNATURE_PIXEL_COUNT) continue;
 
-                    // G bileşeninden bit çıkar
-                    extractedBit = pixel.G & 1;
-                    currentByte = (byte)((currentByte << 1) | extractedBit);
-                    dataBitIndex++;
-                    
-                    if (dataBitIndex == 8)
-                    {
-                        data.Add(currentByte);
-                        currentByte = 0;
-                        dataBitIndex = 0;
-                    }
+                        processedPixelCount++;
 
-                    // B bileşeninden bit çıkar
-                    extractedBit = pixel.B & 1;
-                    currentByte = (byte)((currentByte << 1) | extractedBit);
-                    dataBitIndex++;
-                    
-                    if (dataBitIndex == 8)
-                    {
-                        data.Add(currentByte);
-                        currentByte = 0;
-                        dataBitIndex = 0;
+                        // Geçerli pikselin bellek adresini hesapla
+                        int lineStartIndex = y * Math.Abs(stride);
+                        int pixelStartIndex = lineStartIndex + x * bytesPerPixel;
+
+                        // RGB bileşenlerinden bitleri çıkar
+                        // R kanalı
+                        int bitR = pixels[pixelStartIndex + 2] & 1; // Offset 2: Red
+                        currentByte = (byte)((currentByte << 1) | bitR);
+                        bitCount++;
+                        if (bitCount == 8) { extractedBytes.Add(currentByte); currentByte = 0; bitCount = 0; if (CheckForEndMarker(extractedBytes)) { endMarkerFound = true; break; } }
+
+                        // G kanalı
+                        int bitG = pixels[pixelStartIndex + 1] & 1; // Offset 1: Green
+                        currentByte = (byte)((currentByte << 1) | bitG);
+                        bitCount++;
+                        if (bitCount == 8) { extractedBytes.Add(currentByte); currentByte = 0; bitCount = 0; if (CheckForEndMarker(extractedBytes)) { endMarkerFound = true; break; } }
+
+                        // B kanalı
+                        int bitB = pixels[pixelStartIndex + 0] & 1; // Offset 0: Blue
+                        currentByte = (byte)((currentByte << 1) | bitB);
+                        bitCount++;
+                        if (bitCount == 8) { extractedBytes.Add(currentByte); currentByte = 0; bitCount = 0; if (CheckForEndMarker(extractedBytes)) { endMarkerFound = true; break; } }
+
+                        // İlerleme raporu (isteğe bağlı)
+                        if (processedPixelCount % 100000 == 0)
+                        {
+                            Console.WriteLine($"Extract Progress: Processed Pixels({processedPixelCount}), Bytes Found({extractedBytes.Count})");
+                        }
                     }
-                    
-                    // Her 100000 pikselde bir ilerleme raporu ver
-                    if (processedPixelCount % 100000 == 0)
-                    {
-                        Console.WriteLine(string.Format(Debug.DEBUG_LSB_EXTRACT_PROGRESS, 
-                            processedPixelCount, data.Count));
-                    }
+                }
+                Console.WriteLine($"Extract completed: Total Pixels Processed({processedPixelCount}), Total Bytes Found({extractedBytes.Count})");
+
+            }
+            finally
+            {
+                // Kilidi kaldır
+                if (bmpData != null)
+                {
+                    image.UnlockBits(bmpData);
                 }
             }
 
-            // Verinin bittiği yeri bulmak için: 8 tane 0 byte'ı arıyoruz
-            int endIndex = FindEndMarker(data);
-            Console.WriteLine(string.Format(Debug.DEBUG_LSB_EXTRACT_TOTAL, 
-                processedPixelCount, data.Count));
-                
-            if (endIndex == -1)
+            // Sonuçları işle
+            if (endMarkerFound)
             {
-                Console.WriteLine(Debug.DEBUG_LSB_END_MARKER_NOT_FOUND);
-                Console.WriteLine(Debug.DEBUG_LSB_EXTRACT_DATA_COMPLETED);
-                return data.ToArray(); // Marker yoksa hepsini döndür
+                Console.WriteLine($"End marker found. Returning data before marker ({extractedBytes.Count - 8} bytes).");
+                // Son 8 byte (marker) hariç veriyi al
+                return extractedBytes.Take(extractedBytes.Count - 8).ToArray();
             }
-                
-            Console.WriteLine(string.Format(Debug.DEBUG_LSB_EXTRACT_DATA_END_MARKER, endIndex));
-            byte[] result = data.Take(endIndex).ToArray();
-            Console.WriteLine(string.Format(Debug.DEBUG_LSB_DATA_SIZE, result.Length));
-            Console.WriteLine(Debug.DEBUG_LSB_EXTRACT_DATA_COMPLETED);
-            
-            return result; // Sadece gerçek veriyi döndür
+            else
+            {
+                Console.WriteLine("End marker not found. Returning all extracted data.");
+                return extractedBytes.ToArray(); // Marker yoksa hepsini döndür
+            }
+            // Not: Önceki FindEndMarker metodu burada doğrudan CheckForEndMarker ile değiştirildi.
         }
 
-        private static int FindEndMarker(List<byte> data)
+        /// <summary>
+        /// Verilen byte listesinin son 8 byte'ının bitiş işaretçisi olup olmadığını kontrol eder.
+        /// </summary>
+        private static bool CheckForEndMarker(List<byte> data)
         {
-            for (int i = 0; i < data.Count - 7; i++)
+            if (data.Count < 8) return false;
+            // Son 8 byte'ın hepsi 0 mı?
+            for (int i = data.Count - 8; i < data.Count; i++)
             {
-                if (data.Skip(i).Take(8).All(b => b == 0))
-                {
-                    return i;
-                }
+                if (data[i] != 0) return false;
             }
-            return -1;
+            return true;
         }
 
+
+        /// <summary>
+        /// Görüntünün ilk SIGNATURE_PIXEL_COUNT pikseline sabit bir imza gömer (LockBits ile hızlandırılmış).
+        /// </summary>
         public static Bitmap EmbedSignature(Bitmap image)
         {
+            if (image == null) throw new ArgumentNullException(nameof(image));
+
             Console.WriteLine(Debug.DEBUG_LSB_EMBED_SIGNATURE_STARTED);
-            
-            // Sabit bir imza değeri
-            byte[] signature = new byte[] { 0x5A, 0x4F, 0x52, 0x4C, 0x55 }; // "ZORLU" kelimesinin ASCII değerleri
-            Console.WriteLine(string.Format(Debug.DEBUG_LSB_ADDED_SIGNATURE, BitConverter.ToString(signature)));
-            Console.WriteLine(string.Format(Debug.DEBUG_LSB_EMBED_SIGNATURE_INPUT, image.Width, image.Height, signature.Length));
+            byte[] signature = new byte[] { 0x5A, 0x4F, 0x52, 0x4C, 0x55 }; // "ZORLU"
+            int totalBitsToEmbed = signature.Length * 8;
+            Console.WriteLine($"Embedding signature: {BitConverter.ToString(signature)} ({totalBitsToEmbed} bits)");
 
-            Bitmap newImage = new Bitmap(image);
-            int dataIndex = 0;
-            int dataBitIndex = 0;
-            int processedPixelCount = 0;
 
-            for (int y = 0; y < newImage.Height && dataIndex < signature.Length; y++)
+            // Gerekli piksel sayısını kontrol et
+            if (SIGNATURE_PIXEL_COUNT * 3 < totalBitsToEmbed)
             {
-                for (int x = 0; x < newImage.Width && dataIndex < signature.Length; x++)
-                {
-                    if (x + y * newImage.Width >= 20) // İlk 20 pikseli kontrol et
-                        break;
-
-                    processedPixelCount++;
-                    Color pixel = newImage.GetPixel(x, y);
-                    byte r = pixel.R;
-                    byte g = pixel.G;
-                    byte b = pixel.B;
-
-                    // Her bir renk bileşenine veri biti yerleştir
-                    int bit = GetBit(signature[dataIndex], dataBitIndex);
-                    r = EmbedBit(r, bit);
-                    dataBitIndex++;
-                    
-                    if (dataBitIndex == 8) { dataBitIndex = 0; dataIndex++; }
-
-                    if (dataIndex < signature.Length)
-                    {
-                        bit = GetBit(signature[dataIndex], dataBitIndex);
-                        g = EmbedBit(g, bit);
-                        dataBitIndex++;
-                    }
-                    if (dataBitIndex == 8) { dataBitIndex = 0; dataIndex++; }
-
-                    if (dataIndex < signature.Length)
-                    {
-                        bit = GetBit(signature[dataIndex], dataBitIndex);
-                        b = EmbedBit(b, bit);
-                        dataBitIndex++;
-                    }
-                    if (dataBitIndex == 8) { dataBitIndex = 0; dataIndex++; }
-
-                    Color newPixel = Color.FromArgb(r, g, b);
-                    newImage.SetPixel(x, y, newPixel);
-                }
+                throw new InvalidOperationException($"İmza ({totalBitsToEmbed} bit) ayrılan piksel alanına ({SIGNATURE_PIXEL_COUNT * 3} bit) sığmıyor.");
             }
 
-            Console.WriteLine(string.Format(Debug.DEBUG_LSB_EMBED_SIGNATURE_COMPLETED_COUNT, processedPixelCount));
+            Bitmap newImage = new Bitmap(image);
+            Rectangle rect = new Rectangle(0, 0, newImage.Width, newImage.Height);
+            BitmapData bmpData = null;
+
+            try
+            {
+                bmpData = newImage.LockBits(rect, ImageLockMode.ReadWrite, newImage.PixelFormat);
+                IntPtr ptr = bmpData.Scan0;
+                int stride = bmpData.Stride;
+                int bytesPerPixel = Image.GetPixelFormatSize(bmpData.PixelFormat) / 8;
+                if (bytesPerPixel < 3) throw new NotSupportedException("İmza gömme için en az 24bpp görüntü gereklidir.");
+
+                int totalBytes = Math.Abs(stride) * newImage.Height;
+                byte[] pixels = new byte[totalBytes];
+                Marshal.Copy(ptr, pixels, 0, totalBytes);
+
+                int currentBitIndex = 0;
+                int pixelIndex = 0;
+
+                // İlk SIGNATURE_PIXEL_COUNT pikseli işle
+                for (int y = 0; y < newImage.Height && pixelIndex < SIGNATURE_PIXEL_COUNT; y++)
+                {
+                    for (int x = 0; x < newImage.Width && pixelIndex < SIGNATURE_PIXEL_COUNT; x++)
+                    {
+                        int lineStartIndex = y * Math.Abs(stride);
+                        int pixelStartIndex = lineStartIndex + x * bytesPerPixel;
+
+                        // R kanalı
+                        if (currentBitIndex < totalBitsToEmbed)
+                        {
+                            int bitToEmbed = GetBit(signature[currentBitIndex / 8], currentBitIndex % 8);
+                            pixels[pixelStartIndex + 2] = EmbedBit(pixels[pixelStartIndex + 2], bitToEmbed); // Red
+                            currentBitIndex++;
+                        }
+                        // G kanalı
+                        if (currentBitIndex < totalBitsToEmbed)
+                        {
+                            int bitToEmbed = GetBit(signature[currentBitIndex / 8], currentBitIndex % 8);
+                            pixels[pixelStartIndex + 1] = EmbedBit(pixels[pixelStartIndex + 1], bitToEmbed); // Green
+                            currentBitIndex++;
+                        }
+                        // B kanalı
+                        if (currentBitIndex < totalBitsToEmbed)
+                        {
+                            int bitToEmbed = GetBit(signature[currentBitIndex / 8], currentBitIndex % 8);
+                            pixels[pixelStartIndex + 0] = EmbedBit(pixels[pixelStartIndex + 0], bitToEmbed); // Blue
+                            currentBitIndex++;
+                        }
+
+                        pixelIndex++; // İşlenen piksel sayısını artır
+                        if (currentBitIndex >= totalBitsToEmbed) break; // İmza bittiyse çık
+                    }
+                    if (currentBitIndex >= totalBitsToEmbed) break; // İmza bittiyse çık
+                }
+
+                Marshal.Copy(pixels, 0, ptr, totalBytes); // Değişiklikleri geri yaz
+                Console.WriteLine($"Signature embed completed. Pixels used: {pixelIndex}, Bits embedded: {currentBitIndex}");
+            }
+            finally
+            {
+                if (bmpData != null) newImage.UnlockBits(bmpData);
+            }
             Console.WriteLine(Debug.DEBUG_LSB_EMBED_SIGNATURE_COMPLETED);
             return newImage;
         }
 
+        /// <summary>
+        /// Görüntünün başındaki imzayı kontrol eder (LockBits ile hızlandırılmış).
+        /// </summary>
         public static bool CheckSignature(Bitmap image)
         {
+            if (image == null) throw new ArgumentNullException(nameof(image));
+
             Console.WriteLine(Debug.DEBUG_LSB_CHECK_SIGNATURE_STARTED);
-            byte[] signature = new byte[] { 0x5A, 0x4F, 0x52, 0x4C, 0x55 };
-            Console.WriteLine(string.Format(Debug.DEBUG_LSB_CHECK_SIGNATURE_INPUT, image.Width, image.Height));
-            
-            byte[] extractedData = new byte[signature.Length];
-            int dataIndex = 0;
-            int dataBitIndex = 0;
+            byte[] expectedSignature = new byte[] { 0x5A, 0x4F, 0x52, 0x4C, 0x55 }; // "ZORLU"
+            int totalBitsToCheck = expectedSignature.Length * 8;
+            byte[] extractedBytes = new byte[expectedSignature.Length];
+            int currentBitIndex = 0;
+            byte currentByte = 0;
+            int pixelIndex = 0;
 
-            for (int y = 0; y < image.Height && dataIndex < signature.Length; y++)
+            Rectangle rect = new Rectangle(0, 0, image.Width, image.Height);
+            BitmapData bmpData = null;
+            bool signatureValid = false;
+
+            try
             {
-                for (int x = 0; x < image.Width && dataIndex < signature.Length; x++)
+                bmpData = image.LockBits(rect, ImageLockMode.ReadOnly, image.PixelFormat);
+                IntPtr ptr = bmpData.Scan0;
+                int stride = bmpData.Stride;
+                int bytesPerPixel = Image.GetPixelFormatSize(bmpData.PixelFormat) / 8;
+                if (bytesPerPixel < 3) throw new NotSupportedException("İmza kontrolü için en az 24bpp görüntü gereklidir.");
+
+                int totalBytes = Math.Abs(stride) * image.Height;
+                byte[] pixels = new byte[totalBytes];
+                Marshal.Copy(ptr, pixels, 0, totalBytes);
+
+                // İlk SIGNATURE_PIXEL_COUNT pikseli işle
+                for (int y = 0; y < image.Height && pixelIndex < SIGNATURE_PIXEL_COUNT && currentBitIndex < totalBitsToCheck; y++)
                 {
-                    if (x + y * image.Width >= 20) // İlk 20 pikseli kontrol et
-                        break;
-
-                    Color pixel = image.GetPixel(x, y);
-                    
-                    // R bileşeninden bit çıkar
-                    int extractedBit = pixel.R & 1;
-                    extractedData[dataIndex] = (byte)((extractedData[dataIndex] << 1) | extractedBit);
-                    dataBitIndex++;
-                    
-                    if (dataBitIndex == 8) { dataBitIndex = 0; dataIndex++; }
-
-                    if (dataIndex < signature.Length)
+                    for (int x = 0; x < image.Width && pixelIndex < SIGNATURE_PIXEL_COUNT && currentBitIndex < totalBitsToCheck; x++)
                     {
-                        // G bileşeninden bit çıkar
-                        extractedBit = pixel.G & 1;
-                        extractedData[dataIndex] = (byte)((extractedData[dataIndex] << 1) | extractedBit);
-                        dataBitIndex++;
-                        if (dataBitIndex == 8) { dataBitIndex = 0; dataIndex++; }
-                    }
+                        int lineStartIndex = y * Math.Abs(stride);
+                        int pixelStartIndex = lineStartIndex + x * bytesPerPixel;
 
-                    if (dataIndex < signature.Length)
-                    {
-                        // B bileşeninden bit çıkar
-                        extractedBit = pixel.B & 1;
-                        extractedData[dataIndex] = (byte)((extractedData[dataIndex] << 1) | extractedBit);
-                        dataBitIndex++;
-                        if (dataBitIndex == 8) { dataBitIndex = 0; dataIndex++; }
+                        // R kanalı
+                        if (currentBitIndex < totalBitsToCheck)
+                        {
+                            currentByte = (byte)((currentByte << 1) | (pixels[pixelStartIndex + 2] & 1));
+                            currentBitIndex++;
+                            if (currentBitIndex % 8 == 0) { extractedBytes[currentBitIndex / 8 - 1] = currentByte; currentByte = 0; }
+                        }
+                        // G kanalı
+                        if (currentBitIndex < totalBitsToCheck)
+                        {
+                            currentByte = (byte)((currentByte << 1) | (pixels[pixelStartIndex + 1] & 1));
+                            currentBitIndex++;
+                            if (currentBitIndex % 8 == 0) { extractedBytes[currentBitIndex / 8 - 1] = currentByte; currentByte = 0; }
+                        }
+                        // B kanalı
+                        if (currentBitIndex < totalBitsToCheck)
+                        {
+                            currentByte = (byte)((currentByte << 1) | (pixels[pixelStartIndex + 0] & 1));
+                            currentBitIndex++;
+                            if (currentBitIndex % 8 == 0) { extractedBytes[currentBitIndex / 8 - 1] = currentByte; currentByte = 0; }
+                        }
+                        pixelIndex++;
                     }
                 }
-            }
 
-            // İmzanın başlangıçta olup olmadığını kontrol et
-            bool signatureValid = true;
-            for (int i = 0; i < signature.Length; i++)
-            {
-                if (extractedData[i] != signature[i])
+                // Çıkarılan byte'ları beklenen imza ile karşılaştır
+                if (currentBitIndex >= totalBitsToCheck) // Yeterli bit çıkarıldı mı?
+                {
+                    signatureValid = true; // Başlangıçta geçerli kabul et
+                    for (int i = 0; i < expectedSignature.Length; i++)
+                    {
+                        if (extractedBytes[i] != expectedSignature[i])
+                        {
+                            signatureValid = false;
+                            break;
+                        }
+                    }
+                }
+                else // Yeterli bit çıkarılamadı (resim çok küçük?)
                 {
                     signatureValid = false;
-                    break;
                 }
+
+                Console.WriteLine($"Signature check: Expected({BitConverter.ToString(expectedSignature)}), Extracted({BitConverter.ToString(extractedBytes)}), Match({signatureValid})");
+
             }
-            
-            Console.WriteLine(string.Format(Debug.DEBUG_LSB_CHECK_SIGNATURE_COMPARISON, 
-                BitConverter.ToString(signature), 
-                BitConverter.ToString(extractedData), 
-                signatureValid ? "Eşleşti" : "Eşleşmedi"));
-            
-            if (!signatureValid)
+            finally
             {
-                Console.WriteLine(string.Format(Debug.DEBUG_LSB_SIGNATURE_NOT_FOUND, 
-                    BitConverter.ToString(signature), BitConverter.ToString(extractedData)));
-                Console.WriteLine(Debug.DEBUG_LSB_CHECK_SIGNATURE_COMPLETED);
-                return false;
+                if (bmpData != null) image.UnlockBits(bmpData);
             }
 
-            Console.WriteLine(Debug.DEBUG_LSB_SIGNATURE_VERIFIED);
+            if (signatureValid) Console.WriteLine(Debug.DEBUG_LSB_SIGNATURE_VERIFIED);
+            else Console.WriteLine(Debug.DEBUG_LSB_SIGNATURE_NOT_FOUND);
+
             Console.WriteLine(Debug.DEBUG_LSB_CHECK_SIGNATURE_COMPLETED);
-            return true;
+            return signatureValid;
         }
-    }
-}
+
+    } // End of Cls_LsbHelper
+} // End of namespace
