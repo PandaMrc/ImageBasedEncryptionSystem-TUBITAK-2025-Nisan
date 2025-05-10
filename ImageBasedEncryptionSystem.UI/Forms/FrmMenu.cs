@@ -296,8 +296,35 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 Console.WriteLine(string.Format(TypeLayer.Debug.DEBUG_AES_DECRYPTION_COMPLETED, decryptedText));
 
                 // Sonucu 'txtOutput'a ilet
-                txtOutput.Text = decryptedText;
-                MessageBox.Show(Success.DECRYPTION_SUCCESS, "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                if (extractedData.Length > 50000)
+                {
+                    txtOutput.Text = "Veri 50.000 karakterden uzun olduğu için metin belgesi oluşturuldu";
+
+                    using (SaveFileDialog saveFileDialog = new SaveFileDialog())
+                    {
+                        saveFileDialog.Filter = "Text Files|*.txt";
+                        saveFileDialog.Title = "Çıkarılan Veriyi Kaydet";
+                        saveFileDialog.FileName = "Decrypted_Data.txt";
+
+                        if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                        {
+                            StringBuilder sb = new StringBuilder();
+                            sb.AppendLine("Şifrelenmiş Metin:");
+                            sb.AppendLine();
+                            sb.AppendLine(decryptedText);
+
+                            File.WriteAllText(saveFileDialog.FileName, sb.ToString());
+                            MessageBox.Show("Veri başarıyla kaydedildi.", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+
+                    }
+                }
+                else
+                {
+                    txtOutput.Text = decryptedText;
+                }
+                    MessageBox.Show(Success.DECRYPTION_SUCCESS, "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {

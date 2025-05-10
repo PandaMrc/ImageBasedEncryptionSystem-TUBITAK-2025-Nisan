@@ -1,289 +1,308 @@
 ﻿using System;
-using System.Collections.Generic; // List için
+using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging; // BitmapData, PixelFormat için
-using System.Linq;            // Min(), Max(), Average() gibi Linq metotları için (bazı yardımcılarda kalmış olabilir)
-using System.Runtime.InteropServices; // Marshal için
-using System.Windows.Forms.DataVisualization.Charting; // Chart nesnesi için
+using System.Drawing.Imaging;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Windows.Forms.DataVisualization.Charting; // Grafik kütüphanesi
 
-/*
-// ChiSquareResult struct (Cls_ChiSquareHelper bunu doğrudan kullanmaz ama başka yerde lazım olabilir)
-public struct ChiSquareResult
+// Bu enum ve struct tanımlarının projenizde mevcut olduğunu varsayıyoruz
+// (Önceki cevaplardan veya kendi tanımlamalarınızdan)
+
+public struct RsAnalysisResult
 {
-    public double ChiSquareValue { get; set; }
-    public int DegreesOfFreedom { get; set; }
-    public double PValue { get; set; }
-    // ... ToString() metodu ...
+    /// <summary>
+    /// Tahmin edilen gömme oranı (LSB'leri değiştirilmiş piksellerin oranı, 0.0 ile 1.0 arasında).
+    /// </summary>
+    public double EstimatedEmbeddingRateP { get; set; }
+    public long RM_Count { get; set; }      // Maske M için Regular grup sayısı
+    public long SM_Count { get; set; }      // Maske M için Singular grup sayısı
+    public long RMinusM_Count { get; set; } // Ters Maske -M için Regular grup sayısı
+    public long SMinusM_Count { get; set; } // Ters Maske -M için Singular grup sayısı
+
+    public override string ToString()
+    {
+        return $"Tahmini Gömme Oranı (p): {EstimatedEmbeddingRateP:P2}, RM: {RM_Count}, SM: {SM_Count}, R-M: {RMinusM_Count}, S-M: {SMinusM_Count}";
+    }
 }
-*/
 
-
-/// <summary>
-/// R/S Analizi ve ilgili görselleştirmeler için yardımcı metotlar içerir.
-/// </summary>
-public static class Cls_RsHelper
+namespace ImageBasedEncryptionSystem.BusinessLayer
 {
-    // --- Özel Yardımcı Metotlar ---
-
-    /// <summary>
-    /// Verilen veri dizisinin belirtilen uzunluktaki bölümünün standart sapmasını hesaplar.
-    /// </summary>
-    private static double CalculateStandardDeviation(double[] data, int length)
+    public static class Cls_RsHelper
     {
-        if (length <= 1) return 0; // Tek eleman veya boşsa std sapma 0'dır
+        // --- Yardımcı Metotlar ---
 
-        // Ortalama hesaplama
-        double sum = 0;
-        for (int i = 0; i < length; i++) sum += data[i];
-        double mean = sum / length;
-
-        // Karelerin toplamı
-        double sumOfSquares = 0;
-        for (int i = 0; i < length; i++) sumOfSquares += Math.Pow(data[i] - mean, 2);
-
-        // Örneklem standart sapması (N-1 ile bölme)
-        return Math.Sqrt(sumOfSquares / (length - 1));
-    }
-
-    /// <summary>
-    /// Log(n) ve Log(R/S) değerleri arasındaki lineer regresyon ile Hurst üssünü (eğimi) hesaplar.
-    /// </summary>
-    private static double CalculateHurstExponent(List<double> logN, List<double> logRs)
-    {
-        int count = logN.Count;
-        // Lineer regresyon için en az 2 nokta gerekir
-        if (count < 2) return double.NaN;
-
-        // Ortalamaları hesapla (Linq kullanmadan)
-        double xMean = 0, yMean = 0;
-        for (int i = 0; i < count; i++) { xMean += logN[i]; yMean += logRs[i]; }
-        xMean /= count;
-        yMean /= count;
-
-        // Eğim (slope) formülü için pay ve paydayı hesapla
-        double numerator = 0;   // Sum of (x_i - x_mean) * (y_i - y_mean)
-        double denominator = 0; // Sum of (x_i - x_mean)^2
-
-        for (int i = 0; i < count; i++)
+        private static byte FlipLsb(byte value)
         {
-            numerator += (logN[i] - xMean) * (logRs[i] - yMean);
-            denominator += Math.Pow(logN[i] - xMean, 2);
+            return (byte)(value ^ 1); // XOR 1 ile LSB'yi ters çevirir
         }
 
-        // Sıfıra bölme hatasını kontrol et
-        if (Math.Abs(denominator) < 1e-10) return double.NaN;
-
-        // Eğim = Hurst Üssü
-        return numerator / denominator;
-    }
-
-
-    // --- Ana R/S Analiz Metodu ---
-
-    /// <summary>
-    /// Optimize edilmiş R/S Analizi metodu (Non-Overlapping Alt Seriler Kullanarak).
-    /// Girdi olarak piksel yoğunluklarını içeren bir double dizisi alır.
-    /// </summary>
-    /// <param name="data">Analiz edilecek piksel yoğunluk değerleri.</param>
-    /// <param name="minSubSeriesLength">Analize dahil edilecek minimum alt seri uzunluğu (2'nin kuvveti olması önerilir, örn. 8).</param>
-    /// <returns>Hurst üssü ve her alt seri uzunluğu (n) için ortalama R/S değerlerini içeren tuple.</returns>
-    public static (double hurstExponent, List<(int n, double rs)> rsValues) RSAnalysis(double[] data, int minSubSeriesLength = 8)
-    {
-        // Girdi verisinin yeterliliğini kontrol et
-        if (data == null || data.Length < minSubSeriesLength * 2)
+        /// <summary>
+        /// Diskriminasyon fonksiyonu: Bir gruptaki komşu pikseller arası mutlak farkların toplamı.
+        /// </summary>
+        private static int CalculateDiscrimination(byte[] group, int length)
         {
-            Console.WriteLine("RS Analizi için yetersiz veri sağlandı.");
-            return (double.NaN, new List<(int n, double rs)>()); // Boş liste ve NaN Hurst döndür
-        }
-
-        List<(int n, double rs)> rsValues = new List<(int n, double rs)>(); // Sonuçları (n, ortalama R/S) tutacak liste
-        List<double> logNs = new List<double>();           // log(n) değerlerini tutacak liste (Hurst için)
-        List<double> logRsList = new List<double>();       // log(ortalama R/S) değerlerini tutacak liste (Hurst için)
-        int dataLength = data.Length;
-
-        // Farklı alt-seri uzunlukları (k = n) üzerinde döngü (2'nin kuvvetleri)
-        for (int k = minSubSeriesLength; k <= dataLength / 2; k *= 2)
-        {
-            List<double> currentRsValues = new List<double>(); // Bu 'k' değeri için hesaplanan tüm R/S değerleri
-
-            // Non-overlapping (üst üste binmeyen) alt seriler üzerinde döngü
-            // i, her alt serinin başlangıç indeksidir ve k kadar artar
-            for (int i = 0; i <= dataLength - k; i += k)
+            int variation = 0;
+            for (int i = 0; i < length - 1; i++)
             {
-                // Alt seriyi al (Array.Copy daha performanslı olabilir)
-                double[] subSeries = new double[k];
-                Array.Copy(data, i, subSeries, 0, k);
-
-                // Ortalama hesapla
-                double mean = 0;
-                for (int j = 0; j < k; j++) mean += subSeries[j];
-                mean /= k;
-
-                // Standart sapma hesapla
-                double standardDeviation = CalculateStandardDeviation(subSeries, k);
-
-                // Standart sapma çok küçükse (veya sıfırsa) bu alt seriyi atla
-                if (Math.Abs(standardDeviation) < 1e-10) continue;
-
-                // Kümülatif sapmaları ve aralığı (Range) hesapla
-                double sumOfDeviations = 0;
-                double maxDeviation = double.MinValue;
-                double minDeviation = double.MaxValue;
-                for (int j = 0; j < k; j++)
-                {
-                    sumOfDeviations += (subSeries[j] - mean);
-                    if (sumOfDeviations > maxDeviation) maxDeviation = sumOfDeviations;
-                    if (sumOfDeviations < minDeviation) minDeviation = sumOfDeviations;
-                }
-                double range = maxDeviation - minDeviation;
-
-                // R/S değerini hesapla
-                double rs = range / standardDeviation;
-
-                // Geçerli bir R/S değeri ise listeye ekle
-                if (!double.IsNaN(rs) && !double.IsInfinity(rs))
-                {
-                    currentRsValues.Add(rs);
-                }
-            } // i döngüsü (alt seriler) sonu
-
-            // Bu 'k' uzunluğu için ortalama R/S değerini hesapla (eğer varsa)
-            if (currentRsValues.Count > 0)
-            {
-                double sumRs = 0;
-                foreach (var rsVal in currentRsValues) sumRs += rsVal;
-                double averageRs = sumRs / currentRsValues.Count;
-
-                // Ortalama R/S değeri logaritma alınabilirse listelere ekle
-                if (averageRs > 1e-10) // Log(0) veya Log(negatif) hatasını önle
-                {
-                    logNs.Add(Math.Log(k));
-                    logRsList.Add(Math.Log(averageRs));
-                    // Görselleştirme için n ve ortalama R/S değerini ana listeye ekle
-                    rsValues.Add((k, averageRs));
-                }
+                variation += Math.Abs(group[i] - group[i + 1]);
             }
-        } // k döngüsü (alt seri uzunlukları) sonu
-
-        // Lineer regresyon ile Hurst üssünü hesapla
-        double hurstExponent = CalculateHurstExponent(logNs, logRsList);
-
-        // Hesaplanan Hurst üssünü ve görselleştirme için ortalama R/S değerlerini döndür
-        return (hurstExponent, rsValues);
-    }
-
-
-    // --- Görselleştirme Metodu ---
-
-    /// <summary>
-    /// R/S analiz sonuçlarını (ortalama R/S değerleri ve Hurst trendi)
-    /// log-log ölçekli bir grafik olarak görselleştirir.
-    /// </summary>
-    /// <param name="avgRsValues">Her alt seri uzunluğu (n) için ortalama R/S değerlerini içeren liste.</param>
-    /// <param name="hurstExponent">Hesaplanan Hurst üssü değeri.</param>
-    /// <returns>Oluşturulan Chart nesnesi.</returns>
-    public static Chart VisualizeRSAnalysis(List<(int n, double rs)> avgRsValues, double hurstExponent)
-    {
-        // Yeni bir Chart nesnesi oluştur
-        Chart chart = new Chart();
-        chart.Legends.Add(new Legend("DefaultLegend")); // Lejant ekle
-
-        // Bir ChartArea ekle ve eksenleri ayarla
-        ChartArea chartArea = new ChartArea("RSAnalysisArea");
-        chartArea.AxisX.IsLogarithmic = true; // X ekseni logaritmik
-        chartArea.AxisY.IsLogarithmic = true; // Y ekseni logaritmik
-        chartArea.AxisX.Title = "Alt-Seri Uzunluğu (n) - Log Skala";
-        chartArea.AxisY.Title = "Ortalama R/S - Log Skala";
-        chartArea.AxisX.LabelStyle.Format = "N0"; // X ekseni etiketlerini tam sayı yap
-        chartArea.AxisY.LabelStyle.Format = "G3"; // Y ekseni etiket formatı
-        chartArea.AxisX.Minimum = Double.NaN; // Min/Max değerlerini otomatik ayarla
-        chartArea.AxisY.Minimum = Double.NaN;
-        // Izgara çizgilerini açabiliriz (opsiyonel)
-        // chartArea.AxisX.MajorGrid.Enabled = true;
-        // chartArea.AxisY.MajorGrid.Enabled = true;
-        chart.ChartAreas.Add(chartArea);
-
-        // Ortalama R/S değerleri için bir seri oluştur (nokta gösterimi)
-        Series seriesRS = new Series("Ortalama R/S")
-        {
-            ChartType = SeriesChartType.Point,
-            MarkerStyle = MarkerStyle.Circle,
-            MarkerSize = 7,
-            Color = Color.SteelBlue,
-            ToolTip = "n=#VALX, Ort. R/S=#VALY{G3}" // Üzerine gelince bilgi göster
-        };
-
-        // Hurst trend çizgisi için bir seri oluştur
-        Series seriesHurst = new Series("Hurst Trend (H=" + (double.IsNaN(hurstExponent) ? "N/A" : hurstExponent.ToString("F2")) + ")")
-        {
-            ChartType = SeriesChartType.Line,
-            Color = Color.FromArgb(220, Color.Red), // Biraz transparan Kırmızı
-            BorderWidth = 2
-        };
-
-        // Veri noktalarını R/S serisine ekle
-        bool hasValidData = false;
-        if (avgRsValues != null)
-        {
-            foreach (var rsValue in avgRsValues)
-            {
-                // Sadece logaritması alınabilen pozitif değerleri ekle
-                if (rsValue.n > 0 && rsValue.rs > 0)
-                {
-                    seriesRS.Points.AddXY(rsValue.n, rsValue.rs);
-                    hasValidData = true;
-                }
-            }
+            return variation;
         }
 
-        // Eğer geçerli veri varsa ve Hurst üssü hesaplanabildiyse trend çizgisini çiz
-        if (hasValidData && !double.IsNaN(hurstExponent))
+        /// <summary>
+        /// İkinci dereceden denklemin (ax^2 + bx + c = 0) kökünü [0, 0.5] aralığında arar.
+        /// RS Analizinde alpha (~p/2) değerini bulmak için kullanılır.
+        /// </summary>
+        private static double SolveQuadraticForAlpha(double a, double b, double c)
         {
+            if (Math.Abs(a) < 1e-10) // Lineer denklem durumu (a ~ 0)
+            {
+                if (Math.Abs(b) < 1e-10) return double.NaN; // Çözüm yok veya sonsuz çözüm
+                double alpha = -c / b;
+                return (alpha >= 0 && alpha <= 0.5) ? alpha : double.NaN;
+            }
+
+            double discriminant = b * b - 4 * a * c;
+            if (discriminant < 0) return double.NaN; // Gerçel kök yok
+
+            double sqrtDiscriminant = Math.Sqrt(discriminant);
+            double alpha1 = (-b + sqrtDiscriminant) / (2 * a);
+            double alpha2 = (-b - sqrtDiscriminant) / (2 * a);
+
+            // [0, 0.5] aralığındaki kökü seç
+            bool alpha1Valid = (alpha1 >= 0 && alpha1 <= 0.5);
+            bool alpha2Valid = (alpha2 >= 0 && alpha2 <= 0.5);
+
+            if (alpha1Valid && alpha2Valid)
+            {
+                return Math.Abs(alpha1) < Math.Abs(alpha2) ? alpha1 : alpha2; // Mutlak değeri küçük olanı seç (genellikle)
+            }
+            if (alpha1Valid) return alpha1;
+            if (alpha2Valid) return alpha2;
+
+            return double.NaN; // Uygun kök bulunamadı
+        }
+
+        // --- Ana Regular/Singular Gruplar Analiz Metodu ---
+
+        /// <summary>
+        /// Bir görüntünün belirtilen renk kanalında LSB steganografisi varlığını
+        /// Regular/Singular (RS) Gruplar Analizi kullanarak analiz eder ve gömme oranını tahmin eder.
+        /// </summary>
+        /// <param name="sourceImage">Analiz edilecek Bitmap nesnesi.</param>
+        /// <param name="channel">Analiz edilecek renk kanalı (R, G, B).</param>
+        /// <param name="groupSize">Piksel grup boyutu (genellikle 2, 3 veya 4). Örnek 4 kullanır.</param>
+        /// <returns>RS Analiz sonucunu içeren RsAnalysisResult yapısı.</returns>
+        public static RsAnalysisResult PerformRegularSingularAnalysis(Bitmap sourceImage, ColorChannel channel, int groupSize = 4)
+        {
+            if (sourceImage == null) throw new ArgumentNullException(nameof(sourceImage));
+            if (groupSize < 2) throw new ArgumentException("Grup boyutu en az 2 olmalıdır.", nameof(groupSize));
+
+            // JPEG uyarısı
+            if (sourceImage.RawFormat.Equals(ImageFormat.Jpeg))
+            {
+                Console.WriteLine("Uyarı: RS Gruplar Analizi JPEG gibi kayıplı formatlarda güvenilir sonuçlar vermeyebilir.");
+            }
+
+            long rm_count = 0, sm_count = 0;         // Maske M için Regular/Singular sayaçları
+            long r_minus_m_count = 0, s_minus_m_count = 0; // Ters Maske -M için Regular/Singular sayaçları
+
+            // Maskeleri tanımla (groupSize=4 için örnek)
+            // Maske M (0,1,0,1) -> 1. ve 3. indisteki piksellerin LSB'sini çevir (0-tabanlı)
+            // Ters Maske -M (1,0,1,0) -> 0. ve 2. indisteki piksellerin LSB'sini çevir
+            // Bu, literatürdeki yaygın M = [..0101..] ve -M = [..1010..] maskelerine benzer.
+            // Veya daha basit M=[0,1,1,0] ve -M=[1,0,0,1] de kullanılabilir.
+            // Bu örnekte, bir grup içindeki bitişiklik farklarına dayalı standart bir yaklaşım kullanalım.
+            // F(G) ve F_inv(G) tanımlamaları önemli.
+            // Basitlik adına, Maske M: pikselleri olduğu gibi bırakır (F0).
+            // Maske M1: tüm LSB'leri çevirir. (Bu RS-diyagramları için kullanılır)
+            // Daha yaygın RS Analizi için "çevirme fonksiyonları" kullanılır.
+            // F1: Tek indisli piksellerin LSB'sini çevir. F-1: Çift indisli piksellerin LSB'sini çevir.
+
+            int width = sourceImage.Width;
+            int height = sourceImage.Height;
+            Rectangle rect = new Rectangle(0, 0, width, height);
+            BitmapData sourceData = null;
+
+            // Grup verilerini tutmak için diziler (döngü dışında oluşturularak optimize edildi)
+            byte[] groupOriginal = new byte[groupSize];
+            byte[] groupMaskM = new byte[groupSize];    // Maske M uygulanmış grup
+            byte[] groupMaskMinusM = new byte[groupSize];// Ters Maske -M uygulanmış grup
+
             try
             {
-                // Grafikteki min/max n değerlerini bul
-                double minN = avgRsValues.Where(v => v.n > 0).Min(v => v.n);
-                double maxN = avgRsValues.Max(v => v.n);
+                sourceData = sourceImage.LockBits(rect, ImageLockMode.ReadOnly, sourceImage.PixelFormat);
+                IntPtr sourceScan0 = sourceData.Scan0;
+                int sourceStride = sourceData.Stride;
+                int sourceBytesPerPixel = Image.GetPixelFormatSize(sourceData.PixelFormat) / 8;
 
-                if (minN > 0 && maxN > minN)
+                if (sourceBytesPerPixel < 3)
+                    throw new ArgumentException("RS Analizi için en az 24bpp formatında bir resim gereklidir.", nameof(sourceImage));
+
+                int channelOffset = 0;
+                switch (channel)
                 {
-                    // İlk veri noktasından geçen H eğimli çizgiyi hesapla
-                    // log(y) = log(c) + H * log(n) => log(c) = log(y) - H * log(n)
-                    var firstValidPoint = avgRsValues.First(v => v.n > 0 && v.rs > 0);
-                    double logC = Math.Log(firstValidPoint.rs) - hurstExponent * Math.Log(firstValidPoint.n);
+                    case ColorChannel.Blue: channelOffset = 0; break;
+                    case ColorChannel.Green: channelOffset = 1; break;
+                    case ColorChannel.Red: channelOffset = 2; break;
+                }
+                if (channelOffset >= sourceBytesPerPixel)
+                    throw new ArgumentException($"Seçilen kanal '{channel}' bu resim formatında bulunmuyor.");
 
-                    // Çizginin başlangıç ve bitiş Y değerlerini hesapla
-                    double startY = Math.Exp(logC + hurstExponent * Math.Log(minN));
-                    double endY = Math.Exp(logC + hurstExponent * Math.Log(maxN));
+                unsafe
+                {
+                    // Non-overlapping gruplar üzerinde çalış
+                    for (int y = 0; y < height; y++) // Satırları dolaş
+                    {
+                        byte* sourceRow = (byte*)sourceScan0 + (y * sourceStride);
+                        for (int x = 0; x <= width - groupSize; x += groupSize) // Sütunları gruplar halinde dolaş
+                        {
+                            // Grubu ve çevrilmiş grupları doldur
+                            for (int i = 0; i < groupSize; i++)
+                            {
+                                byte pixelValue = sourceRow[(x + i) * sourceBytesPerPixel + channelOffset];
+                                groupOriginal[i] = pixelValue;
+                                // Maske M: Örneğin, tek indisli pikselleri çevir (indis 1, 3, ...)
+                                groupMaskM[i] = (i % 2 != 0) ? FlipLsb(pixelValue) : pixelValue;
+                                // Ters Maske -M: Örneğin, çift indisli pikselleri çevir (indis 0, 2, ...)
+                                groupMaskMinusM[i] = (i % 2 == 0) ? FlipLsb(pixelValue) : pixelValue;
+                            }
 
-                    // Çizgiyi seriye ekle
-                    seriesHurst.Points.AddXY(minN, startY);
-                    seriesHurst.Points.AddXY(maxN, endY);
+                            int fG = CalculateDiscrimination(groupOriginal, groupSize);
+                            int fGM = CalculateDiscrimination(groupMaskM, groupSize);
+                            int fGMinusM = CalculateDiscrimination(groupMaskMinusM, groupSize);
+
+                            // Maske M için sınıflandırma
+                            if (fGM > fG) rm_count++;
+                            else if (fGM < fG) sm_count++;
+
+                            // Ters Maske -M için sınıflandırma
+                            if (fGMinusM > fG) r_minus_m_count++;
+                            else if (fGMinusM < fG) s_minus_m_count++;
+                        }
+                    }
+                } // unsafe
+            }
+            finally
+            {
+                if (sourceData != null) sourceImage.UnlockBits(sourceData);
+            }
+
+            // Gömme oranını tahmin et
+            // Bu, Aletheia gibi araçlarda kullanılan yaygın bir ikinci dereceden denklem çözümüne dayanır.
+            // alpha (~p/2) için denklemi çözer, burada p gizli mesajın göreceli uzunluğudur (değiştirilen LSB oranı).
+            // Denklem: A * alpha^2 + B * alpha + C = 0
+            double R_M = rm_count;
+            double S_M = sm_count;
+            double R_minus_M = r_minus_m_count;
+            double S_minus_M = s_minus_m_count;
+
+            // Eğer sayaçlar çok düşükse, anlamlı bir sonuç çıkmayabilir.
+            if (R_M + S_M + R_minus_M + S_minus_M < 100) // Eşik değeri
+            {
+                Console.WriteLine("Uyarı: RS Analizi için yeterli sayıda Regular/Singular grup bulunamadı.");
+                return new RsAnalysisResult { EstimatedEmbeddingRateP = 0, RM_Count = rm_count, SM_Count = sm_count, RMinusM_Count = r_minus_m_count, SMinusM_Count = s_minus_m_count };
+            }
+
+            // Friedman ve Fridrich'in formülasyonuna göre katsayılar
+            // d0 = R_M - S_M
+            // d1 = R_minus_M - S_minus_M
+            // Denklem: 2(d1 - d0)x^2 - (d1 + d0)x + d0 = 0
+            double d0 = R_M - S_M;
+            double d1 = R_minus_M - S_minus_M;
+
+            double coeffA = 2 * (d1 - d0);
+            double coeffB = -(d1 + d0);
+            double coeffC = d0;
+
+            double alpha = SolveQuadraticForAlpha(coeffA, coeffB, coeffC);
+            double estimatedP = 0.0;
+
+            if (!double.IsNaN(alpha))
+            {
+                estimatedP = 2 * alpha; // p = 2 * alpha (alpha, p/2'yi temsil eder)
+                
+                // Negatif değerleri sıfıra, 1'den büyük değerleri 1'e çek
+                estimatedP = Math.Max(0.0, Math.Min(1.0, estimatedP));
+                
+                // Çok küçük değerleri sıfıra yuvarla (gürültüyü azalt)
+                if (estimatedP < 0.01)
+                {
+                    estimatedP = 0.0;
                 }
             }
-            catch (Exception ex)
+            else
             {
-                // Min/Max veya logaritma hatası olabilir, trend çizilemez.
-                Console.WriteLine($"Hurst trend çizgisi çizilirken hata: {ex.Message}");
+                // Alternatif basit hesaplama yöntemi
+                // Eğer d0 ve d1 arasındaki fark çok azsa, gömme oranı düşüktür
+                double simpleDiff = Math.Abs(d0 - d1) / Math.Max(1.0, R_M + S_M + R_minus_M + S_minus_M);
+                estimatedP = Math.Min(simpleDiff * 2, 0.5); // Basit bir ölçekleme
+                
+                Console.WriteLine("Uyarı: Kuadratik denklemden uygun alpha kökü bulunamadı, basit tahmin kullanılıyor.");
+            }
+
+            return new RsAnalysisResult
+            {
+                EstimatedEmbeddingRateP = estimatedP,
+                RM_Count = rm_count,
+                SM_Count = sm_count,
+                RMinusM_Count = r_minus_m_count,
+                SMinusM_Count = s_minus_m_count
+            };
+        }
+
+
+        // --- RS Grupları Görselleştirme Metodu ---
+
+        /// <summary>
+        /// RS Analizi sonucu elde edilen R ve S grup sayılarını bir bar grafiği olarak görselleştirir.
+        /// </summary>
+        public static Bitmap VisualizeRsGroupCounts(RsAnalysisResult result, Size chartSize, string title = "RS Grup Sayıları")
+        {
+            using (var chart = new Chart { Size = chartSize })
+            {
+                chart.Palette = ChartColorPalette.Pastel; // Renk paleti
+                chart.Titles.Add(title);
+
+                ChartArea chartArea = new ChartArea("MainArea");
+                chartArea.AxisX.Title = "Grup Türleri";
+                chartArea.AxisY.Title = "Sayı (Adet)";
+                chartArea.AxisX.MajorGrid.Enabled = false; // X ekseni gridini kapat
+                chart.ChartAreas.Add(chartArea);
+
+                Series seriesCounts = new Series("Counts")
+                {
+                    ChartType = SeriesChartType.Column, // Sütun grafik
+                    IsValueShownAsLabel = true // Sütunların üzerinde değerleri göster
+                };
+
+                seriesCounts.Points.AddXY("R (Maske M)", result.RM_Count);
+                seriesCounts.Points.AddXY("S (Maske M)", result.SM_Count);
+                seriesCounts.Points.AddXY("R (Maske -M)", result.RMinusM_Count);
+                seriesCounts.Points.AddXY("S (Maske -M)", result.SMinusM_Count);
+
+                // Farkları da ekleyebiliriz (opsiyonel)
+                Series seriesDifferences = new Series("Farklar (R-S)")
+                {
+                    ChartType = SeriesChartType.Column,
+                    IsValueShownAsLabel = true,
+                    Color = Color.LightSalmon
+                };
+                seriesDifferences.Points.AddXY("R_M - S_M", result.RM_Count - result.SM_Count);
+                seriesDifferences.Points.AddXY("R_-M - S_-M", result.RMinusM_Count - result.SMinusM_Count);
+
+
+                chart.Series.Add(seriesCounts);
+                // chart.Series.Add(seriesDifferences); // Farkları göstermek isterseniz bu satırı açın
+
+                // Bitmap'e render et
+                Bitmap bmp = new Bitmap(chartSize.Width, chartSize.Height);
+                chart.DrawToBitmap(bmp, new Rectangle(0, 0, chartSize.Width, chartSize.Height));
+                return bmp;
             }
         }
 
-        // Serileri grafiğe ekle
-        chart.Series.Add(seriesRS);
-        // Sadece içinde nokta varsa Hurst serisini ve Lejantı ekle
-        if (seriesHurst.Points.Count > 1)
-        {
-            chart.Series.Add(seriesHurst);
-        }
-        else
-        {
-            // Hurst hesaplanamadıysa veya çizilemediyse, seri başlığını kaldırabiliriz
-            chart.Legends["DefaultLegend"].Enabled = false;
-        }
-
-
-        // Chart nesnesini döndür (Bunu Bitmap'e çizdirmek çağıran kodun sorumluluğu)
-        return chart;
     }
-
-} // End of Cls_RsHelper
+}
+// End of Cls_RsHelper

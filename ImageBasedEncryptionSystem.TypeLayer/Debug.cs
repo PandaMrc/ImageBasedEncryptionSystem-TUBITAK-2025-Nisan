@@ -132,6 +132,17 @@ namespace ImageBasedEncryptionSystem.TypeLayer
         public const string DEBUG_LSB_SIGNATURE_VERIFIED = "[DEBUG] İmza doğrulandı.";
         public const string DEBUG_LSB_DATA_SIZE = "[DEBUG] LSB veri boyutu: {0}";
         public const string DEBUG_LSB_ADDED_SIGNATURE = "[DEBUG] LSB imza eklendi.";
+        public const string DEBUG_LSB_CONVERTING_PARGB_TO_ARGB = "PixelFormat.Format32bppPArgb tespit edildi. Format32bppArgb formatına dönüştürülüyor...";
+
+        // Optimizasyon için yeni debug mesajları
+        public const string DEBUG_LSB_OPTIMIZATION_CONVERTING_FORMAT = "LSB Optimization: Converting image from {0} to {1} for processing.";
+        public const string DEBUG_LSB_OPTIMIZATION_ERROR_UNSUPPORTED_FORMAT = "LSB Optimization Error (EmbedData): Unsupported pixel format {0}. Converted to Format32bppArgb.";
+        public const string DEBUG_LSB_OPTIMIZATION_ERROR_UNSUPPORTED_FORMAT_EXTRACT = "LSB Optimization Error (ExtractData): Unsupported pixel format {0}. Could not process.";
+        public const string DEBUG_LSB_OPTIMIZATION_ERROR = "LSB Optimization Error (EmbedData): {0}";
+        public const string DEBUG_LSB_OPTIMIZATION_ERROR_EXTRACT = "LSB Optimization Error (ExtractData): {0}";
+        public const string DEBUG_LSB_OPTIMIZATION_ERROR_EMBED_SIGNATURE = "LSB Optimization Error (EmbedSignature): {0}";
+        public const string DEBUG_LSB_OPTIMIZATION_ERROR_CHECK_SIGNATURE = "LSB Optimization Error (CheckSignature): {0}";
+
         #endregion
 
         #region Kimlik Oluşturma İşlemleri
