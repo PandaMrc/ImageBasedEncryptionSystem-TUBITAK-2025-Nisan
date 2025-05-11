@@ -48,10 +48,9 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             Console.WriteLine(TypeLayer.Debug.DEBUG_DEV_MODE_OBJECT_INITIALIZED);
             
             // Metin girişi için maksimum karakter sınırı ayarla
-            txtInput.MaxLength = 100000000; // Maksimum 100.000.000 karakter
+            txtInput.MaxLength = 10000; // Maksimum 10.000 karakter
             Console.WriteLine(TypeLayer.Debug.DEBUG_MAX_LENGTH_SET);
         }
-
 
         // Form yükleme işlemi
         private void FrmMenu_Load(object sender, EventArgs e)
@@ -62,6 +61,16 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 
                 // Form ayarları
                 txtOutput.ReadOnly = true;
+                rtbInput.Visible = false; // Başlangıçta RichTextBox gizli
+                btnDev.Text = "+"; // Zengin metin düzenlemeye geçmek için "+" gösterilir
+                btnDev.Enabled = false; // Başlangıçta devre dışı
+                btnDev.FillColor = Color.DarkGray; // Gri renk
+                loginToolTip.SetToolTip(btnDev, "Zengin metin moduna geç");
+                
+                // İlerleme çubuğu ve durum etiketi ayarları
+                progressOperation.Value = 0;
+                lblOperation.Text = "İşlem Durumu: Hazır";
+                
                 Console.WriteLine(TypeLayer.Debug.DEBUG_FORM_SETTINGS_APPLIED);
 
                 // Arka plan oluştur - Business Layer'daki Cls_Background sınıfını kullan
@@ -160,33 +169,76 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                     return;
                 }
 
-                // 'txtInput' boş olamaz
-                if (string.IsNullOrWhiteSpace(txtInput.Text))
+                // Giriş metni kontrolü - normal veya zengin metin alanlarından birisi aktif
+                string inputText = "";
+                if (txtInput.Visible)
                 {
-                    Console.WriteLine(TypeLayer.Debug.DEBUG_DATA_EXTRACTED);
-                    MessageBox.Show(Errors.ERROR_TEXT_EMPTY, "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    // Normal metin alanı kullanılıyor
+                    if (string.IsNullOrWhiteSpace(txtInput.Text))
+                    {
+                        Console.WriteLine(TypeLayer.Debug.DEBUG_DATA_EXTRACTED);
+                        MessageBox.Show(Errors.ERROR_TEXT_EMPTY, "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                    inputText = txtInput.Text;
+                }
+                else
+                {
+                    // Zengin metin alanı kullanılıyor
+                    if (string.IsNullOrWhiteSpace(rtbInput.Text))
+                    {
+                        Console.WriteLine(TypeLayer.Debug.DEBUG_DATA_EXTRACTED);
+                        MessageBox.Show(Errors.ERROR_TEXT_EMPTY, "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+                    inputText = rtbInput.Text;
                 }
                 #endregion
+
+                // İşlem durumunu göster
+                lblOperation.Text = "İşlem Durumu: Başlatılıyor...";
+                progressOperation.Value = 0;
+                btnEncrypt.Enabled = false;
+                btnDecrypt.Enabled = false;
+                Application.DoEvents();
 
                 // AES anahtarını oluştur
                 string password = txtPassword.Text;
                 byte[] aesKey = Cls_AesHelper.GenerateAESKey(password);
                 Console.WriteLine(TypeLayer.Debug.DEBUG_AES_GENERATE_KEY_STARTED);
                 Console.WriteLine(string.Format(TypeLayer.Debug.DEBUG_AES_KEY_GENERATION_COMPLETED, Convert.ToBase64String(aesKey)));
+                
+                // İlerleme durumunu güncelle
+                lblOperation.Text = "İşlem Durumu: AES Anahtarı Oluşturuldu";
+                progressOperation.Value = 20;
+                Application.DoEvents();
 
                 // Metni şifrele
-                string inputText = txtInput.Text;
                 string aesEncryptedText = Cls_AesHelper.Encrypt(inputText, aesKey);
                 Console.WriteLine(TypeLayer.Debug.DEBUG_AES_ENCRYPT_STARTED);
                 Console.WriteLine(string.Format(TypeLayer.Debug.DEBUG_AES_ENCRYPTION_COMPLETED, aesEncryptedText));
+                
+                // İlerleme durumunu güncelle
+                lblOperation.Text = "İşlem Durumu: Metin Şifrelendi";
+                progressOperation.Value = 40;
+                Application.DoEvents();
 
                 // AES anahtarını RSA ile şifrele
                 string rsaEncryptedAesKey = Cls_RsaHelper.Encrypt(Convert.ToBase64String(aesKey));
                 Console.WriteLine(TypeLayer.Debug.DEBUG_RSA_ENCRYPT_STARTED);
+                
+                // İlerleme durumunu güncelle
+                lblOperation.Text = "İşlem Durumu: RSA Şifreleme Tamamlandı";
+                progressOperation.Value = 60;
+                Application.DoEvents();
 
                 // Resmin kopyasını oluştur
                 Bitmap imageCopy = new Bitmap(selectedImagePath);
+                
+                // İlerleme durumunu güncelle
+                lblOperation.Text = "İşlem Durumu: Resim Hazırlanıyor";
+                progressOperation.Value = 70;
+                Application.DoEvents();
                 
                 // Kullanıcıdan kaydedilecek yeri seçmesini iste
                 using (SaveFileDialog saveFileDialog = new SaveFileDialog())
@@ -197,6 +249,11 @@ namespace ImageBasedEncryptionSystem.UI.Forms
 
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
+                        // İlerleme durumunu güncelle
+                        lblOperation.Text = "İşlem Durumu: İmza Ekleniyor";
+                        progressOperation.Value = 80;
+                        Application.DoEvents();
+                        
                         using (imageCopy)
                         {
                             // İmza ekleme işlemi
@@ -204,20 +261,53 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                             Bitmap signedImage = Cls_LsbHelper.EmbedSignature(imageCopy);
                             Console.WriteLine(TypeLayer.Debug.DEBUG_HASH_ADD_COMPLETED);
 
+                            // İlerleme durumunu güncelle
+                            lblOperation.Text = "İşlem Durumu: Veri Gömülüyor";
+                            progressOperation.Value = 90;
+                            Application.DoEvents();
+
                             // Şifrelenmiş veriyi resme gömme işlemi
                             using (Bitmap resultImage = Cls_LsbHelper.EmbedData(signedImage, Encoding.UTF8.GetBytes(aesEncryptedText + ";" + rsaEncryptedAesKey)))
                             {
+                                // İlerleme durumunu güncelle
+                                lblOperation.Text = "İşlem Durumu: Resim Kaydediliyor";
+                                progressOperation.Value = 95;
+                                Application.DoEvents();
+                                
                                 // Sonuç resmini kaydet
                                 resultImage.Save(saveFileDialog.FileName, ImageFormat.Png);
                             }
                         }
 
+                        // İlerleme durumunu güncelle
+                        lblOperation.Text = "İşlem Durumu: Tamamlandı";
+                        progressOperation.Value = 100;
+                        Application.DoEvents();
+                        
                         MessageBox.Show(Success.ENCRYPTION_SUCCESS, "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
+                    else
+                    {
+                        // İptal edildi
+                        lblOperation.Text = "İşlem Durumu: İptal Edildi";
+                        progressOperation.Value = 0;
+                    }
                 }
+
+                // Butonları etkinleştir
+                btnEncrypt.Enabled = true;
+                btnDecrypt.Enabled = true;
             }
             catch (Exception ex)
             {
+                // Hata durumunda ilerleme çubuğunu güncelle
+                lblOperation.Text = "İşlem Durumu: Hata!";
+                progressOperation.Value = 0;
+                
+                // Butonları etkinleştir
+                btnEncrypt.Enabled = true;
+                btnDecrypt.Enabled = true;
+                
                 Console.WriteLine(string.Format(TypeLayer.Debug.DEBUG_SYSTEM_IDENTITY_RECEIVED, ex.Message));
                 MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -245,58 +335,128 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                     return;
                 }
 
+                // İşlem durumunu göster
+                lblOperation.Text = "İşlem Durumu: Başlatılıyor...";
+                progressOperation.Value = 0;
+                btnEncrypt.Enabled = false;
+                btnDecrypt.Enabled = false;
+                Application.DoEvents();
+
                 // Resmi yükle
                 Bitmap image = new Bitmap(selectedImagePath);
+                
+                // İlerleme durumunu güncelle
+                lblOperation.Text = "İşlem Durumu: Resim Yüklendi";
+                progressOperation.Value = 20;
+                Application.DoEvents();
 
                 // Resimden veri çıkarma
                 byte[] extractedDataBytes = Cls_LsbHelper.ExtractData(image);
                 if (extractedDataBytes.Length == 0)
                 {
+                    // İşlemi sonlandır
+                    lblOperation.Text = "İşlem Durumu: Hata - Gizli Veri Bulunamadı";
+                    progressOperation.Value = 0;
+                    btnEncrypt.Enabled = true;
+                    btnDecrypt.Enabled = true;
+                    
                     MessageBox.Show(Errors.ERROR_NO_HIDDEN_DATA, "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                 // İmza kontrolü
+                // İlerleme durumunu güncelle
+                lblOperation.Text = "İşlem Durumu: Gizli Veri Çıkarıldı";
+                progressOperation.Value = 40;
+                Application.DoEvents();
+
+                // İmza kontrolü
                 Console.WriteLine(TypeLayer.Debug.DEBUG_SIGNATURE_CHECK_STARTED);
                 if (!Cls_LsbHelper.CheckSignature(image))
                 {
+                    // İşlemi sonlandır
+                    lblOperation.Text = "İşlem Durumu: Hata - Geçersiz İmza";
+                    progressOperation.Value = 0;
+                    btnEncrypt.Enabled = true;
+                    btnDecrypt.Enabled = true;
+                    
                     MessageBox.Show(Errors.ERROR_NOT_ENCRYPTED_WITH_APP, "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
                 Console.WriteLine(TypeLayer.Debug.DEBUG_SIGNATURE_CHECK_COMPLETED);
+                
+                // İlerleme durumunu güncelle
+                lblOperation.Text = "İşlem Durumu: İmza Doğrulandı";
+                progressOperation.Value = 50;
+                Application.DoEvents();
 
                 // 'txtPassword' verisiyle AES anahtarı oluştur
                 string password = txtPassword.Text;
                 byte[] newAesKey = Cls_AesHelper.GenerateAESKey(password);
+                
+                // İlerleme durumunu güncelle
+                lblOperation.Text = "İşlem Durumu: AES Anahtarı Oluşturuldu";
+                progressOperation.Value = 60;
+                Application.DoEvents();
 
                 // Veriyi resimden çıkar
                 string extractedData = Encoding.UTF8.GetString(extractedDataBytes);
                 string[] parts = extractedData.Split(';');
                 if (parts.Length != 2)
                 {
+                    // İşlemi sonlandır
+                    lblOperation.Text = "İşlem Durumu: Hata - Geçersiz Veri Formatı";
+                    progressOperation.Value = 0;
+                    btnEncrypt.Enabled = true;
+                    btnDecrypt.Enabled = true;
+                    
                     MessageBox.Show(Errors.ERROR_INVALID_DATA_FORMAT, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
+
+                // İlerleme durumunu güncelle
+                lblOperation.Text = "İşlem Durumu: Şifreli Veri Ayrıştırıldı";
+                progressOperation.Value = 70;
+                Application.DoEvents();
 
                 string aesEncryptedText = parts[0];
                 string rsaEncryptedAesKey = parts[1];
 
                 // RSA ile şifrelenmiş AES anahtarını çöz
                 byte[] decryptedAesKey = Convert.FromBase64String(Cls_RsaHelper.Decrypt(rsaEncryptedAesKey));
+                
+                // İlerleme durumunu güncelle
+                lblOperation.Text = "İşlem Durumu: RSA Şifresi Çözüldü";
+                progressOperation.Value = 80;
+                Application.DoEvents();
 
                 // Çözülen AES anahtarıyla yeni oluşturulan AES anahtarını karşılaştır
                 if (!decryptedAesKey.SequenceEqual(newAesKey))
                 {
+                    // İşlemi sonlandır
+                    lblOperation.Text = "İşlem Durumu: Hata - Parola Yanlış";
+                    progressOperation.Value = 0;
+                    btnEncrypt.Enabled = true;
+                    btnDecrypt.Enabled = true;
+                    
                     MessageBox.Show(Errors.ERROR_KEYS_MISMATCH, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
+                // İlerleme durumunu güncelle
+                lblOperation.Text = "İşlem Durumu: Parola Doğrulandı";
+                progressOperation.Value = 90;
+                Application.DoEvents();
+
                 // Yeni oluşturulan AES anahtarıyla resimden çıkartılan AES ile şifrelenmiş veriyi çöz
                 string decryptedText = Cls_AesHelper.Decrypt(aesEncryptedText, newAesKey);
                 Console.WriteLine(string.Format(TypeLayer.Debug.DEBUG_AES_DECRYPTION_COMPLETED, decryptedText));
+                
+                // İlerleme durumunu güncelle
+                lblOperation.Text = "İşlem Durumu: Metin Çözüldü";
+                progressOperation.Value = 95;
+                Application.DoEvents();
 
                 // Sonucu 'txtOutput'a ilet
-
                 if (extractedData.Length > 50000)
                 {
                     txtOutput.Text = "Veri 50.000 karakterden uzun olduğu için metin belgesi oluşturuldu";
@@ -317,17 +477,34 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                             File.WriteAllText(saveFileDialog.FileName, sb.ToString());
                             MessageBox.Show("Veri başarıyla kaydedildi.", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
-
                     }
                 }
                 else
                 {
                     txtOutput.Text = decryptedText;
                 }
-                    MessageBox.Show(Success.DECRYPTION_SUCCESS, "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                
+                // İlerleme durumunu güncelle
+                lblOperation.Text = "İşlem Durumu: Tamamlandı";
+                progressOperation.Value = 100;
+                Application.DoEvents();
+                
+                MessageBox.Show(Success.DECRYPTION_SUCCESS, "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                
+                // Butonları etkinleştir
+                btnEncrypt.Enabled = true;
+                btnDecrypt.Enabled = true;
             }
             catch (Exception ex)
             {
+                // Hata durumunda ilerleme çubuğunu güncelle
+                lblOperation.Text = "İşlem Durumu: Hata!";
+                progressOperation.Value = 0;
+                
+                // Butonları etkinleştir
+                btnEncrypt.Enabled = true;
+                btnDecrypt.Enabled = true;
+                
                 MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -425,6 +602,36 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 
                 if (isDevModeActive)
                 {
+                    // Geliştirici modu kapatılmadan önce rtbInput aktifse kontrol et
+                    if (!txtInput.Visible)
+                    {
+                        DialogResult switchResult = MessageBox.Show(
+                            "Geliştirici modu devre dışı bırakmadan önce zengin metin modundan çıkmanız gerekmektedir. Şimdi normal metin moduna geçiş yapmak ister misiniz?",
+                            "Zengin Metin Uyarısı",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Question
+                        );
+                        
+                        if (switchResult == DialogResult.Yes)
+                        {
+                            // btnDev_Click ile manuel geçiş yap
+                            btnDev_Click(btnDev, EventArgs.Empty);
+                            
+                            // Geçiş iptal edildiyse (örneğin karakter sınırı nedeniyle) geliştirici modunu devre dışı bırakma işlemini de iptal et
+                            if (!txtInput.Visible)
+                            {
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            // Kullanıcı normal metin moduna geçmek istemiyor, geliştirici modunu kapatma işlemini iptal et
+                            MessageBox.Show("Geliştirici modu kapatmak için önce normal metin moduna geçmelisiniz.", 
+                                "İşlem İptal Edildi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            return;
+                        }
+                    }
+                    
                     // Modu devre dışı bırak
                     string result = devMode.DeactivateDevMode();
                     MessageBox.Show(result, "Geliştirici Modu", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -461,6 +668,29 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                     
                     if (isLoggedIn)
                     {
+                        // Çıkış yapmadan önce, eğer rtbInput aktifse metin kaybını önlemek için uyarı göster
+                        if (!txtInput.Visible)
+                        {
+                            DialogResult switchResult = MessageBox.Show(
+                                "Zengin metin modundan çıkılacak. Devam etmeden önce normal metin moduna geçmek ister misiniz?",
+                                "Zengin Metin Uyarısı",
+                                MessageBoxButtons.YesNo,
+                                MessageBoxIcon.Question
+                            );
+                            
+                            if (switchResult == DialogResult.Yes)
+                            {
+                                // btnDev_Click ile manuel geçiş yap
+                                btnDev_Click(btnDev, EventArgs.Empty);
+                                
+                                // Geçiş iptal edildiyse (örneğin karakter sınırı nedeniyle) çıkış işlemini de iptal et
+                                if (!txtInput.Visible)
+                                {
+                                    return;
+                                }
+                            }
+                        }
+                        
                         // Çıkış onay mesajı göster
                         DialogResult result = MessageBox.Show(
                             Errors.ERROR_LOGOUT_CONFIRMATION, 
@@ -473,6 +703,18 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                             MessageBox.Show(Success.DEVELOPER_LOGOUT_SUCCESS, 
                                 "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                                 
+                            // Çıkış yapmadan önce, rtbInput gösteriliyorsa gizle, txtInput'u göster
+                            if (!txtInput.Visible)
+                            {
+                                // Karakter sınırı kontrolünü burada yapmıyoruz, çünkü zaten çıkış yapıyoruz
+                                // ve herhangi bir veriyi koruma amacımız kalmadı
+                                txtInput.Text = rtbInput.Text.Length > txtInput.MaxLength 
+                                    ? rtbInput.Text.Substring(0, txtInput.MaxLength) 
+                                    : rtbInput.Text;
+                                rtbInput.Visible = false;
+                                txtInput.Visible = true;
+                            }
+                            
                             // UI'ı güncelle
                             CheckDeveloperModeStatus();
                         }
@@ -650,6 +892,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                     btnDevMode.Visible = false;
                     btnAdmin.Visible = false;
                     btnAnalysis.Visible = false;
+                    btnDev.Visible = false;
                     this.Text = "Resim Tabanlı Şifreleme Sistemi";
                     return;
                 }
@@ -663,6 +906,7 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                     btnDevMode.Visible = false;
                     btnAdmin.Visible = false;
                     btnAnalysis.Visible = false;
+                    btnDev.Visible = false;
                     this.Text = "Resim Tabanlı Şifreleme Sistemi";
                     return;
                 }
@@ -685,11 +929,16 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                     btnAdmin.ForeColor = Color.White;
                     btnAdmin.FillColor = Color.FromArgb(0, 122, 204); // Mavi renk
 
-
                     // Analiz Butonu Ayarları  - Geliştirici modu aktif
                     btnAnalysis.Visible = true;
-                    btnAdmin.ForeColor = Color.White;
-                    btnAdmin.FillColor = Color.FromArgb(0, 122, 204);
+                    btnAnalysis.ForeColor = Color.White;
+                    btnAnalysis.FillColor = Color.FromArgb(0, 122, 204); // Mavi renk
+
+                    // Geliştirici metin modu butonu ayarları - Aktif
+                    btnDev.Visible = true;
+                    btnDev.Enabled = true; // Tıklanabilir
+                    btnDev.FillColor = Color.FromArgb(0, 122, 204); // Mavi renk
+                    
                     this.Text = "Resim Tabanlı Şifreleme Sistemi - Geliştirici Modu";
                 }
                 else
@@ -706,11 +955,27 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                     btnAdmin.ForeColor = Color.White;
                     btnAdmin.FillColor = Color.DarkGray; // Gri renk
 
-
                     // Analiz Butonu Ayarları - Geliştirici modu aktif değil
                     btnAnalysis.Visible = true;
                     btnAnalysis.ForeColor = Color.White;
                     btnAnalysis.FillColor = Color.DarkGray; // Gri renk
+
+                    // Geliştirici metin modu butonu ayarları - Pasif
+                    btnDev.Visible = true;
+                    btnDev.Enabled = true; // Tıklanabilir
+                    btnDev.FillColor = Color.DarkGray; // Gri renk
+                    
+                    // Geliştirici modu pasifken, normal metin girişine geçildiğinden emin ol
+                    if (!txtInput.Visible)
+                    {
+                        txtInput.Text = rtbInput.Text.Length > txtInput.MaxLength 
+                            ? rtbInput.Text.Substring(0, txtInput.MaxLength) 
+                            : rtbInput.Text;
+                        rtbInput.Visible = false;
+                        txtInput.Visible = true;
+                        btnDev.Text = "+";
+                    }
+                    
                     this.Text = "Resim Tabanlı Şifreleme Sistemi";
                 }
                 
@@ -728,6 +993,11 @@ namespace ImageBasedEncryptionSystem.UI.Forms
                 loginToolTip.SetToolTip(btnAdmin, isDevModeActive ? 
                     "Yönetim panelini açmak için tıklayın" : 
                     "Bu butonu kullanabilmek için önce geliştirici modunu etkinleştirin");
+                    
+                // Geliştirici metin modu butonu için tooltip
+                loginToolTip.SetToolTip(btnDev, isDevModeActive ? 
+                    (txtInput.Visible ? "Zengin metin moduna geç" : "Normal metin moduna geç") : 
+                    "Bu butonu kullanabilmek için önce geliştirici modunu etkinleştirin");
 
             }
             catch (Exception ex)
@@ -737,6 +1007,98 @@ namespace ImageBasedEncryptionSystem.UI.Forms
             }
         }
 
+        /// <summary>
+        /// Geliştirici butonu işlevi - gelişmiş metin girişi için rtbInput ile txtInput arasında geçiş yapar
+        /// </summary>
+        private void btnDev_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Geliştirici girişi var mı kontrol et
+                if (devMode == null)
+                {
+                    MessageBox.Show(Errors.ERROR_DEV_MODE_ACCESS_DENIED, 
+                        "Erişim Hatası", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                
+                // Giriş yapılıp yapılmadığını kontrol et
+                var (loginMessage, isLoggedIn) = devMode.CheckLoginStatus();
+                
+                if (!isLoggedIn)
+                {
+                    MessageBox.Show(Errors.ERROR_DEV_MODE_ACCESS_DENIED, 
+                        "Erişim Hatası", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                
+                // Geliştirici modu aktif mi kontrol et
+                var (devModeMessage, isDevModeActive) = devMode.CheckDevModeStatus();
+                
+                if (!isDevModeActive)
+                {
+                    MessageBox.Show(Errors.ERROR_DEV_MODE_REQUIRED, 
+                        "Geliştirici Modu Gerekli", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // RichTextBox ile TextBox arasında geçiş yap
+                if (txtInput.Visible)
+                {
+                    // Normal metin kutusundan zengin metin kutusuna geç
+                    rtbInput.Text = txtInput.Text;
+                    txtInput.Visible = false;
+                    rtbInput.Visible = true;
+                    btnDev.Text = "-";
+                    loginToolTip.SetToolTip(btnDev, "Normal metin moduna geç");
+                }
+                else
+                {
+                    // Zengin metin kutusundan normal metin kutusuna geç
+                    
+                    // Karakter sayısı kontrolü
+                    if (rtbInput.Text.Length > txtInput.MaxLength)
+                    {
+                        DialogResult result = MessageBox.Show(
+                            $"Zengin metin içeriği {rtbInput.Text.Length} karakter içeriyor ve normal metin kutusunun maksimum karakter sınırı {txtInput.MaxLength}'dir.\n\n" +
+                            "Devam ederseniz, metin ilk 10.000 karaktere kısaltılacaktır.\n\n" +
+                            "Devam etmek istiyor musunuz?",
+                            "Karakter Sınırı Aşıldı",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Warning
+                        );
+                        
+                        if (result == DialogResult.No)
+                        {
+                            return; // İşlemi iptal et
+                        }
+                        
+                        // Devam etmek istiyor, metni kısalt
+                        txtInput.Text = rtbInput.Text.Substring(0, txtInput.MaxLength);
+                    }
+                    else
+                    {
+                        // Normal karakter sınırları içinde, doğrudan aktar
+                        txtInput.Text = rtbInput.Text;
+                    }
+                    
+                    rtbInput.Visible = false;
+                    txtInput.Visible = true;
+                    btnDev.Text = "+";
+                    loginToolTip.SetToolTip(btnDev, "Zengin metin moduna geç");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format(Errors.ERROR_GENERAL_UNEXPECTED, ex.Message), 
+                    "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void txtOutput_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
 

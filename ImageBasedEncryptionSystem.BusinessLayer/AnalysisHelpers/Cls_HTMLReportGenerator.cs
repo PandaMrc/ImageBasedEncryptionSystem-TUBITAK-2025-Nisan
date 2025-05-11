@@ -458,7 +458,7 @@ public static class Cls_HtmlReportGenerator
 
         // Footer
         sb.AppendLine("  <div class=\"footer\">");
-        sb.AppendLine("    <p>Steganografi Analiz Sistemi - © 2023 Zorlu</p>");
+        sb.AppendLine("    <p>TÜBİTAK | Görsel Tabanl Şifreleme Sistemi Projesi - © 2025 IBES</p>");
         sb.AppendLine("  </div>");
 
         // JavaScript kodları

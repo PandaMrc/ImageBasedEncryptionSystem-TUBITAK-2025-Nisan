@@ -39,8 +39,32 @@
 │        │
 │        └── FrmInfo → Sistem hakkında genel bilgiler ve kullanım kılavuzu sunar.
 │        │    └── btnMenu → Ana Menüye ('FrmMenu') döner.
-│        │    └── label1 → Proje Hakkında Bilgiler (TÜBİTAK Projesi, Amaç vb.).
-│        │    └── label2 → Emeği Geçenler (Proje Ekibi - İzmir Kanuni Sultan Süleyman AL.).
+│        │    └── tabControl → Bilgilendirme, Nasıl Kullanılır, Nasıl Çalışır, Güvenlik, Analiz, TÜBİTAK, DevMode, Admin, Hakkında tablerini içerir.
+│        │    └── rtbInformation → Ana bilgilendirme ve genel kullanım amaçları.
+│        │    └── rtbUseing → Adım adım kullanım kılavuzu.
+│        │    └── rtbWorking → Sistemin çalışma prensibi ve teknik altyapı.
+│        │    └── rtbSecure → Güvenlik önlemleri ve tavsiyeler.
+│        │    └── rtbAnalysis → Güvenlik analizi ve performans bilgileri.
+│        │          └── Steganaliz İşlemleri → İçinde veri gizli resimler ile orijinal resimlerin karşılaştırması ve göz ile görülemeyen farkları kullanıcıya sunar.
+│        │          └── Kullanılan Analiz Yöntemleri → RS (Regular-Singular) Analizi, SPA (Sample Pair Analysis), Değişim Haritası, Bit Düzlemi Analizi
+│        │          └── Analiz Sonuçlarını Yorumlama → Tahmini gömme oranı, RS analiz grafiği, SPA analiz sonuçları, PSNR değeri açıklamaları
+│        │          └── Performans Analizi → Şifreleme hızı, resim kapasitesi, çıktı kalitesi bilgileri
+│        │          └── Analiz İşlemlerini Başlatma → Adım adım analiz işlemlerinin nasıl yapılacağı
+│        │          └── Güvenlik/Performans Dengesi → Güvenlik ve performans arasındaki ilişki, tavsiyeler
+│        │    └── rtbTubitak → TÜBİTAK projesi hakkında bilgiler ve matematiksel/teknik açıklamalar.
+│        │          └── Proje Konusu → İzmir Kanuni Sultan Süleyman Anadolu Lisesi 12/A öğrencileri tarafından "Kriptoloji ve Matematiğin İlişkisi" başlığıyla hazırlanan proje
+│        │          └── Kriptoloji Nedir? → Kriptoloji biliminin tanımı, kriptografi ve kriptoanaliz alt dalları
+│        │          └── Steganografi Nedir? → Veri gizleme sanatı, bilgilerin başka bir veri içerisine gizlenmesi tekniği
+│        │          └── RSA Şifreleme Nedir? → Asimetrik şifreleme algoritması ve çalışma prensipleri
+│        │          └── AES Şifreleme Nedir? → Simetrik şifreleme algoritması ve çalışma prensipleri
+│        │          └── LSB (Least Significant Bit) Nedir? → En önemsiz bit tekniği ve steganografideki kullanımı
+│        │          └── Kriptoloji ve Matematik İlişkisi → Sayı teorisi, cebir, olasılık teorisi, istatistik, karmaşıklık teorisi
+│        │          └── Kullanılan Matematiksel Kavramlar → AES, RSA ve LSB şifreleme/gizleme yöntemlerinde kullanılan matematiksel kavramlar
+│        │          └── Projemizin Kriptoloji Alanına Katkıları → Çok katmanlı şifreleme, optimizasyonlar, steganaliz araçları
+│        │          └── Kriptolojinin Geleceği → Kuantum bilgisayarlar, blockchain, yapay zeka, homomorfik şifreleme
+│        │    └── rtbDevMode → Geliştirici modu nedir, nasıl aktif edilir, varsayılan giriş bilgileri.
+│        │    └── rtbAdmin → Admin paneli nedir, ne işe yarar, özellikleri, kullanımı, sistem kimliği yönetimi.
+│        │    └── rtbAbout → Proje hakkında genel bilgiler, versiyon, lisans, iletişim ve proje ekibi.
 │        │
 │        └── FrmLogin → Geliştirici kimliği ve parola ile güvenli giriş sağlar.
 │        │    └── btnLogin → 'txtDeveloperId' ve 'txtPassword' değerleri 'Config.json'daki Geliştirici hesabı bilgileriyle eşleşirse, 'Cls_DeveloperMode' içindeki giriş metodu çalışır ve geliştirici oturumu açılır. Geliştirici Modu ayrıca aktive edilmelidir.
@@ -53,15 +77,29 @@
 │        │    └── txtRsaKey → Mevcut 'SystemIdentity' değeri ile 'Cls_RsaHelper' tarafından oluşturulan güncel RSA anahtar çiftini (Private ve Public Key, 3072-bit, PEM formatında olabilir) gösterir (sürekli güncel).
 │        │
 │        └── FrmAnalysis → Veri gizlenmiş görsellerin analizi veya şifreleme/çözme süreçlerinin detaylı incelenmesi için kullanılır (Geliştirici Modu gerektirir).
-│            └── (İçerik detayları analize göre eklenebilir -örn: LSB analizi, başlık bilgileri vb.)
+│            └── btnImgEncrypted → Analiz edilecek veri gizlenmiş resmi seçer.
+│            └── btnImgOriginal → Karşılaştırma için orijinal resmi seçer (opsiyonel).
+│            └── btnAnalysis → Seçilen görsellerin analiz işlemini başlatır.
+│            └── cmbAnalysisType → Analiz tipini seçmek için (RS Analiz, SPA Analiz, Bit Düzlem Analizi vb.).
+│            └── pboxOriginal → Orijinal görseli gösterir.
+│            └── pboxEncrypted → Veri gizlenmiş görseli gösterir.
+│            └── pboxAnalysis → Analiz sonuçları görselini gösterir (fark haritası, bit düzlemi vb.).
+│            └── dgvAnalysisResults → Analiz sonuçlarını tablo halinde gösterir.
+│            └── lblPSNR → PSNR (Peak Signal-to-Noise Ratio) değerini gösterir.
+│            └── lblChangedPixels → Değiştirilen piksel sayısını gösterir.
+│            └── lblEmbedRatio → Tahmini veri gömme oranını gösterir.
+│            └── chkShowDiff → Fark haritasını renklendirilmiş olarak gösterme seçeneği.
+│            └── trbColorChannel → Hangi renk kanalının analiz edileceğini seçmek için (R, G, B, All).
+│            └── btnCreateAnalysisRapor → Kapsamlı analiz raporu oluşturur ve kaydeder.
 │
 ├── ImageBasedEncryptionSystem.BusinessLayer → Şifreleme, veri gizleme ve iş mantığı metotlarının bulunacağı katman.
-│   └── Cls_AesHelper.cs → AES şifreleme ve şifre çözme işlemleri.
+│   └── Helpers/ → Temel şifreleme ve veri gizleme işlevlerini sağlayan yardımcı sınıfların bulunduğu klasör.
+│        └── Cls_AesHelper.cs → AES şifreleme ve şifre çözme işlemleri.
 │                         - AES-256 algoritmasını kullanır.
 │                         - Şifreleme/Çözme metotları içerir.
 │                         - Sabit bir IV (Initialization Vector) değeri kullanır.
 │                         - Parola tabanlı anahtar türetme fonksiyonu (PBKDF2 gibi) ile kullanıcı parolasından 256-bit AES anahtarı üreten bir metot içerir. Aynı parola her zaman aynı anahtarı üretmelidir.
-│   └── Cls_RsaHelper.cs → RSA asimetrik şifreleme/şifre çözme ve anahtar yönetimi.
+│        └── Cls_RsaHelper.cs → RSA asimetrik şifreleme/şifre çözme ve anahtar yönetimi.
 │                         - BouncyCastle kütüphanesini kullanarak RSA işlemlerini gerçekleştirir.
 │                         - AES anahtarını şifreleme ve şifresini çözme metotları içerir.
 │                         - 'SystemIdentity' değerine bağlı olarak deterministik bir şekilde 3072-bit RSA anahtar çifti (Public ve Private Key) üreten bir metot içerir.
@@ -70,7 +108,7 @@
 │                         - 'SystemIdentity' 10 ila 100 karakter arasında olmalıdır.
 │                         - Eğer 'SystemIdentity' null ise veya okunamıyorsa, 'Config.json'daki 'DefaultSystemIdentity' değerini kullanır.
 │                         - Anahtarları PEM formatında dışa aktarma/içe aktarma yeteneği olabilir.
-│   └── Cls_LsbHelper.cs → LSB (Least Significant Bit) Steganografi işlemleri.
+│        └── Cls_LsbHelper.cs → LSB (Least Significant Bit) Steganografi işlemleri.
 │                         - Verilen byte dizisini (şifreli veri) bir görsele LSB tekniği ile gizleme metodu içerir.
 │                         - Görseldeki LSB ile gizlenmiş veriyi çıkartma metodu içerir.
 │                         - Görselin veri gizlemeye uygun olup olmadığını (boyut, format vb.) kontrol edebilir.
@@ -78,9 +116,46 @@
 │                         - PNG formatında transparanlığı korumaya çalışır.
 │                         - Veri gizleme/çıkartma işlemlerinde veri kaybı olmamasını hedefler (%0 kayıp).
 │                         - Görsel kalitesindeki bozulmayı minimumda tutmayı hedefler.
-│   └── Cls_Analysis.cs → Görsel analiz işlemleri ve şifreleme süreçlerinin takibi.
-│                         - LSB ile veri gizlenmiş bir görselin kapasitesini, kullanılan bit sayısını vb. analiz eden metotlar içerebilir.
-│                         - Şifreleme/şifre çözme adımlarının loglanması veya raporlanması için metotlar barındırabilir.
+│   └── AnalysisHelpers/ → Görsel analiz işlemleri için özelleştirilmiş yardımcı sınıfların bulunduğu klasör.
+│        └── Cls_ComprehensiveAnalyser.cs → Kapsamlı steganografi analizi yapan merkezi sınıf.
+│                         - Şifreli ve orijinal görüntüleri analiz etmek için farklı analiz yöntemlerini koordine eder.
+│                         - AnalyzeImageAsync metodu ile tüm analiz süreçlerini yönetir.
+│                         - Analizleri paralel görevler (Task) olarak çalıştırarak performans optimizasyonu sağlar.
+│                         - Şifreli görüntüden veri çıkarma ve doğrulama işlemlerini gerçekleştirir.
+│                         - Farklı steganaliz yöntemlerinden gelen sonuçları birleştirir.
+│        └── Cls_ComprehensiveSteganalysisResult.cs → Tüm analiz sonuçlarını topluca tutan sınıf.
+│                         - Görüntü bilgileri (boyut, dosya adı, zaman damgası vb.).
+│                         - RS Analizi ve SPA Analizi sonuçları.
+│                         - Değişim haritası verileri (değiştirilen piksel sayısı, değişim oranı).
+│                         - Özet hesaplamalar (tahmini gömme oranı, gizlenmiş veri boyutu).
+│                         - Şifreli görsellerden çıkarılan verilere ait bilgiler.
+│        └── Cls_RsHelper.cs → Regular-Singular (RS) Steganalizi gerçekleştiren sınıf.
+│                         - PerformRegularSingularAnalysis metodu ile görüntü üzerinde RS analizi yapar.
+│                         - Görüntü piksellerini düzenli (regular) ve tekil (singular) gruplara ayırır.
+│                         - LSB gömülü verileri tespit etmek için grup istatistiklerini analiz eder.
+│                         - Verilerin gömülme oranını tahmin eder.
+│                         - Analiz sonuçlarını görselleştiren grafikler oluşturur.
+│        └── Cls_SpaHelper.cs → Sample Pair Analysis (SPA) gerçekleştiren sınıf.
+│                         - PerformSpaAnalysis metodu ile görüntü üzerinde SPA analizi yapar.
+│                         - Piksel çiftleri arasındaki ilişkileri inceleyerek veri gizleme izlerini tespit eder.
+│                         - Gizli veri varlığını ve tahmini gömme oranını hesaplar.
+│                         - Dumitrescu ve arkadaşları tarafından geliştirilen SPA yöntemini uygular.
+│                         - İkinci dereceden denklemleri çözerek (SolveQuadraticForD) tahmini gömme oranını belirler.
+│        └── Cls_ChangeMapHelper.cs → Değişim haritası oluşturan sınıf.
+│                         - CreateLsbChangeMap metodu ile orijinal ve şifreli görüntü arasındaki LSB değişimlerini tespit eder.
+│                         - Değiştirilen pikselleri vurgulayan görsel bir harita oluşturur.
+│                         - Değişim istatistiklerini (PSNR, değiştirilen piksel sayısı ve oranı vb.) hesaplar.
+│                         - Değişen piksellerin renk kanallarına göre dağılımını analiz eder.
+│        └── Cls_BitPlaneHelper.cs → Bit düzlemi analizi yapan sınıf.
+│                         - ExtractBitPlane metodu ile görüntünün belirli bir bit düzlemini çıkarır.
+│                         - Farklı renk kanallarındaki (R, G, B) bit düzlemlerini ayrı ayrı analiz eder.
+│                         - LSB (en önemsiz bit) düzlemindeki düzensizlikleri tespit eder.
+│                         - Bit düzlemlerindeki entropiyi hesaplar.
+│        └── Cls_HTMLReportGenerator.cs → HTML formatında kapsamlı analiz raporları oluşturan sınıf.
+│                         - GenerateReport metodu ile analiz sonuçlarını düzenli HTML raporu haline getirir.
+│                         - Grafikler, tablolar ve görsellerle zenginleştirilmiş interaktif raporlar oluşturur.
+│                         - Analiz sonuçlarının karşılaştırmalı değerlendirmelerini içerir.
+│                         - Raporlara görseller ve analiz sonuçlarını ekler.
 │   └── Cls_DeveloperMode.cs → Geliştirici modu yönetimi ve kimlik doğrulama.
 │                         - Geliştirici kimliği ve parola ile giriş yapma (login) metodu içerir. Kimlik bilgileri 'Config.json'dan okunur.
 │                         - Geliştirici oturumunu sonlandırma (logout) metodu içerir.

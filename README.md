@@ -1,174 +1,361 @@
-# Görsel Tabanlı Şifreleme Sistemi (Image Based Encryption System)
+# ImageBasedEncryptionSystem
+
+Görüntü tabanlı çok katmanlı güvenli veri gizleme sistemi.
 
 ## Proje Özeti
 
-Bu proje, görsel tabanlı bir şifreleme sistemi geliştirerek verilerin güvenli bir şekilde saklanması ve iletilmesi amacıyla tasarlanmıştır. Sistem, çeşitli kriptografik algoritmalar kullanarak metin verilerini şifrelemekte ve bu şifrelenmiş verileri görseller içerisine LSB (Least Significant Bit) steganografi tekniği ile gizlemektedir. Bu yöntem ile hem veri güvenliği sağlanmakta hem de steganografi tekniklerinden faydalanılarak şifrelenmiş verilerin fark edilebilirliği azaltılmaktadır.
+ImageBasedEncryptionSystem, dijital görüntülerde steganografi teknikleri kullanarak şifrelenmiş verileri güvenli bir şekilde saklamak için geliştirilmiş çok katmanlı bir güvenlik çözümüdür. Sistem, simetrik ve asimetrik şifreleme algoritmalarını birleştirerek yüksek güvenlik sağlarken aynı zamanda LSB (Least Significant Bit) steganografi tekniğini kullanarak verilerin görsel içerikler içerisine görünmez bir şekilde gizlenmesini sağlar.
 
-## Proje Mimarisi
+## Mimari Yapı
 
-Proje, katmanlı mimari kullanılarak geliştirilmiştir:
+Proje, modüler ve katmanlı bir yapıya sahiptir:
 
-1. **BusinessLayer**: Şifreleme ve veri gizleme mantığını içerir
-2. **DataLayer**: Yapılandırma ve veri yönetimini sağlar
-3. **TypeLayer**: Hata ve başarı mesajları için tip tanımlamaları
-4. **UI Katmanı**: Kullanıcı arayüzü bileşenlerini içerir
+### 1. TypeLayer
 
-## Kullanılan Teknolojiler
+Sistem genelinde kullanılan veri tipleri, hata ve başarı mesajlarını içerir:
 
-### Programlama Dili ve Framework
-- **C#**: Ana programlama dili
-- **.NET Framework**: Uygulama çerçevesi
-- **Windows Forms**: Kullanıcı arayüzü için
-- **Guna.UI2.WinForms**: Modern ve etkileşimli UI bileşenleri için
+- **Success.cs**: Başarı durum mesajlarını içeren sabitler
+- **Errors.cs**: Hata mesajlarını içeren sabitler
+- **Debug.cs**: Debug işlemleri için kullanılan sabitler
 
-### Kriptografik Algoritmalar ve Kütüphaneler
-- **AES (Advanced Encryption Standard)**: 256-bit şifreleme anahtarı ile simetrik şifreleme
-- **RSA (Rivest-Shamir-Adleman)**: 3072-bit anahtar uzunluğu ile asimetrik şifreleme (BouncyCastle kütüphanesi ile)
-- **LSB (Least Significant Bit)**: Görsellerin içerisine veri gizleme için kullanılan steganografi tekniği
-- **BouncyCastle**: Güçlü kriptografik işlemler için kullanılan açık kaynaklı kütüphane
+### 2. DataLayer
 
-## Temel Bileşenler ve İşlevleri
+Yapılandırma ayarlarını yöneten ve sistem yapılandırması ile ilgili veri erişimini sağlayan katman:
 
-### Şifreleme Modülleri
+- **Cls_Config.cs**: Config.json dosyasından ayarları okuma ve yönetme işlevleri
+- **Config.json**: Sistem yapılandırma değerleri
 
-#### AES Şifreleme (Cls_AesHelper.cs)
-- Kullanıcı tarafından girilen parola ile 256-bit AES anahtarı oluşturulur
-- Parolaya dayalı anahtar türetme işlemi ile aynı parola her zaman aynı anahtarı üretir
-- Metin verisi bu anahtar ile şifrelenir
+### 3. BusinessLayer
 
-#### RSA Şifreleme (Cls_RsaHelper.cs)
-- Config.json dosyasındaki SystemIdentity değerine bağlı olarak BouncyCastle kütüphanesi kullanılarak 3072-bit RSA anahtar çifti oluşturulur
-- AES anahtarları RSA ile şifrelenerek ek bir güvenlik katmanı sağlanır
-- Aynı SystemIdentity değeri her zaman aynı RSA anahtar çiftini üretir, böylece farklı oturumlarda tutarlılık sağlanır
+Projenin ana işlevselliğini sağlayan ve iş mantığını içeren katman:
 
-#### LSB Tabanlı Veri Gizleme (Cls_LsbHelper.cs)
-- Least Significant Bit (En Önemsiz Bit) tekniği kullanılarak şifrelenmiş veriler görsellerin içine gizlenir
-- Görsellerin her pikselindeki renk bileşenlerinin (R, G, B) en düşük değerli bitlerini değiştirerek veri gizlenir
-- Veri gizlenmiş görsele özel bir imza (ZORLU) eklenerek daha sonra tanınabilirliği sağlanır
-- Görsel üzerinde yapılan değişiklikler insan gözüyle fark edilemeyecek düzeydedir
+#### 3.1. Helpers (Şifreleme Yardımcıları)
 
-### Yapılandırma ve Yönetim
+- **Cls_LsbHelper.cs**: LSB steganografi tekniği ile veri gizleme ve çıkarma işlevleri
+  - `EmbedData()`: Veriyi resmin LSB'lerine gizler
+  - `ExtractData()`: Resimden gizlenmiş veriyi çıkarır
+  - `EmbedSignature()`: Resme bir imza gizler
+  - `CheckSignature()`: Resimdeki imzayı kontrol eder
 
-#### Yapılandırma Yönetimi (Cls_Config.cs)
-- Config.json.secure dosyası üzerinden sistem ayarları yönetilir
-- Varsayılan değerler ile ilk çalıştırmada otomatik yapılandırma oluşturulur
-- Yapılandırma verileri AES ile şifrelenerek saklanır
+- **Cls_AesHelper.cs**: AES şifreleme işlemleri
+  - `GenerateAESKey()`: Girilen metinden SHA-256 ile AES anahtarı oluşturur
+  - `Encrypt()`: Metni AES ile şifreler
+  - `Decrypt()`: Şifreli metni AES ile çözer
 
-#### Geliştirici Modu (Cls_DeveloperMode.cs)
-- Sistem üzerinde gelişmiş işlemler yapabilmek için geliştirici modu bulunur
-- Sadece yetkili kimlik bilgileri ile erişilebilir
-- Kimlik yönetimi ve analiz işlemleri için ek özellikler sunar
+- **Cls_RsaHelper.cs**: RSA şifreleme işlemleri
+  - `EnsureKeyPair()`: Deterministik RSA anahtar çifti oluşturur
+  - `Encrypt()`: RSA public key ile veri şifreler
+  - `Decrypt()`: RSA private key ile veri çözer
+  - `GetPublicKeyPem()`, `GetPrivateKeyPem()`: Anahtarları PEM formatında dışa aktarır
 
-#### Kimlik Yönetimi (Cls_IdentityCreate.cs)
-- Sistem için benzersiz kimlikler oluşturulabilir
-- Bu kimlikler RSA anahtar çiftlerinin oluşturulmasında kullanılır
-- Min. 10, Max. 50 karakter uzunluğunda, büyük-küçük harfler, rakamlar ve özel karakterlerden oluşabilir
+#### 3.2. AnalysisHelpers (Analiz Yardımcıları)
 
-## Kullanıcı Arayüzü
+- **Cls_ComprehensiveAnalyser.cs**: Steganaliz işlemlerini yöneten ana sınıf
+  - `AnalyzeImageAsync()`: Steganaliz işlemlerini asenkron olarak gerçekleştirir
+  - `ExtractDataFromEncryptedImage()`: Şifreli görsellerden veri çıkarır
 
-### FrmMenu (Ana Sayfa)
-- Resim seçme, metin girme ve şifreleme/şifre çözme işlemlerini gerçekleştirme
-- Şifre verisi için parola belirleme
-- Geliştirici modu ve diğer sayfalara erişim
+- **Cls_RsHelper.cs**: RS (Regular-Singular) steganografi analizi
+  - `PerformRegularSingularAnalysis()`: Görüntüdeki düzenli ve tekil piksellerin dağılımını analiz eder
 
-### FrmAdmin (Yönetim Paneli)
-- Sistem kimliği yönetimi (Değiştirme, rastgele oluşturma)
-- RSA anahtar çiftlerinin yeniden yapılandırılması
-- Gelişmiş sistem ayarları
+- **Cls_SpaHelper.cs**: SPA (Sample Pair Analysis) steganografi analizi
+  - `PerformSpaAnalysis()`: Piksel çiftlerini analiz ederek gizli veri varlığını tespit eder
 
-### FrmAnalysis (Analiz Paneli)
-- Veri gizlenmiş görsellerin analizi
-- Orijinal görselle farkların tespit edilmesi
-- Görsel üzerindeki değişikliklerin çeşitli yöntemlerle görselleştirilmesi
+- **Cls_ChangeMapHelper.cs**: İki görsel arasındaki değişimleri analiz eder
+  - `GenerateChangeMap()`: Orijinal ve stego görüntü arasındaki farklılıkları görselleştirir
 
-### FrmLogin (Giriş Sayfası)
-- Geliştirici kimliği ve parola ile güvenli giriş
-- Yetkilendirme yönetimi
+- **Cls_BitPlaneHelper.cs**: Bit düzlemi analizi
+  - `GenerateBitPlanes()`: Her renk kanalının bit düzlemlerini ayrı ayrı oluşturur
 
-### FrmInfo (Bilgi Sayfası)
-- Sistem hakkında genel bilgiler
-- Kullanım kılavuzu ve yardım içeriği
+- **Cls_HTMLReportGenerator.cs**: Analiz sonuçlarını HTML raporuna dönüştürür
+  - `GenerateAnalysisReport()`: Kapsamlı analiz raporunu HTML olarak oluşturur
 
-## Güvenlik Özellikleri
+#### 3.3. Diğer İş Katmanı Sınıfları
 
-1. **Çoklu Şifreleme Katmanları**: 
-   - Metin verisi AES ile şifrelenir
-   - AES anahtarı RSA ile şifrelenir
-   - Tüm şifrelenmiş veri görsele LSB tekniği ile gizlenir
+- **Cls_DeveloperMode.cs**: Geliştirici modunu yöneten sınıf
+- **Cls_IdentityCreate.cs**: Sistem kimliğini oluşturan sınıf
+- **ExtractedData.cs**: Çıkarılan veri nesnesi
 
-2. **Güvenli Anahtar Yönetimi**:
-   - Parolalar doğrudan kullanılmaz, anahtar türetme fonksiyonları kullanılır
-   - RSA anahtar çiftleri BouncyCastle kütüphanesi ile sistem kimliğine bağlı olarak oluşturulur
-   - Yapılandırma dosyaları şifreli saklanır
+### 4. UI Layer
 
-3. **Veri Bütünlüğü Kontrolü**:
-   - Şifrelenmiş görseller özel imza (ZORLU) ile işaretlenir
-   - Şifre çözme işlemi öncesi imza kontrolü yapılır
+Kullanıcı arayüzünü oluşturan formlar ve bileşenler:
 
-4. **Yetkisiz Erişim Koruması**:
-   - Geliştirici özellikleri yalnızca yetkili kullanıcılar tarafından erişilebilir
-   - Oturum yönetimi ve güvenli giriş mekanizmaları
+- **FrmMenu.cs**: Ana uygulama penceresi
+- **FrmAnalysis.cs**: Steganaliz ekranı
+- **FrmInfo.cs**: Bilgi ekranı
+- **FrmAdmin.cs**: Yönetici paneli
+- **FrmLogin.cs**: Giriş ekranı
 
-## Hata Yönetimi
+## Teknik Detaylar
 
-- TypeLayer katmanında tanımlanan hata ve başarı mesajları
-- Kategorize edilmiş ve detaylı hata açıklamaları
-- Try-Catch blokları ile güvenli hata yakalama ve kullanıcı bilgilendirme
+### 1. LSB Steganografi Tekniği
 
-## Teknik Gereksinimler
+LSB (Least Significant Bit) tekniği, dijital resimdeki her pikselin en az anlamlı bitlerinin (8 bit içindeki en sağdaki bitler) değiştirilmesiyle veri gizlenmesini sağlar. Bu teknik, insan gözünün algılayamayacağı şekilde görüntüde minimal değişiklikler yapar.
 
-### Minimum Sistem Gereksinimleri
-- İşletim Sistemi: Windows 10 veya üzeri
-- .NET Framework 4.7.2 veya üzeri
-- 4 GB RAM
-- 100 MB boş disk alanı
-- 1366x768 ekran çözünürlüğü
+**Teknik Optimizasyonlar:**
 
-### Bağımlılıklar
-- BouncyCastle.NetFramework 1.8.5 (kriptografik işlemler için)
-- Guna.UI2.WinForms (kullanıcı arayüzü için)
-- Newtonsoft.Json (yapılandırma yönetimi için)
+- **Doğrudan Bellek Erişimi**: `System.Drawing.Imaging.BitmapData.LockBits()` ve `Marshal.Copy()` kullanılarak, piksellere doğrudan bellek erişimi sağlanır. Bu yaklaşım, `GetPixel()` ve `SetPixel()` metodlarına göre çok daha hızlı çalışır.
+
+- **Çok Kanallı Veri Gizleme**: Her pikselin R, G ve B renk kanallarının LSB'leri kullanılır, böylece piksel başına 3 bit veri gizlenebilir.
+
+- **İmza ve Bitiş İşaretçileri**: Verinin başına özel bir imza, sonuna ise bitiş işaretçisi eklenir. Bu sayede veri bütünlüğü kontrolü ve doğru çıkarım sağlanır.
+
+```csharp
+// LSB veri gizleme örneği (yalnızca konsept gösterimi)
+private static byte EmbedBit(byte colorComponent, int bit)
+{
+    // Son biti temizle (AND ...11111110)
+    colorComponent = (byte)(colorComponent & 0xFE);
+    // Yeni biti ekle (OR 0000000(0 veya 1))
+    return (byte)(colorComponent | bit);
+}
+```
+
+**Veri Kapasitesi:**
+1024x768 boyutunda bir resim şu kapasiteye sahiptir:
+- Piksel sayısı: 1024 × 768 = 786,432
+- Kullanılabilir bit sayısı: 786,432 × 3 (RGB) = 2,359,296 bit
+- Kullanılabilir bayt sayısı: 2,359,296 ÷ 8 = 294,912 bayt ≈ 288 KB
+
+### 2. Çok Katmanlı Şifreleme
+
+Sistem, verinin güvenliği için birden fazla şifreleme katmanı kullanır:
+
+#### 2.1. SHA-256 ile AES Anahtar Türetimi
+
+Kullanıcı şifresinden güçlü bir AES-256 anahtarı türetilir:
+
+```csharp
+public static byte[] GenerateAESKey(string keySource)
+{
+    using (var sha256 = System.Security.Cryptography.SHA256.Create())
+    {
+        byte[] keyBytes = Encoding.UTF8.GetBytes(keySource);
+        byte[] hash = sha256.ComputeHash(keyBytes);
+        return hash;  // AES-256 için 32 byte anahtar
+    }
+}
+```
+
+#### 2.2. AES-256 ile Metin Şifreleme
+
+Orijinal metin AES-256 algoritması ile şifrelenir:
+
+```csharp
+public static string Encrypt(string plainText, byte[] aesKey)
+{
+    using (var aesAlg = System.Security.Cryptography.Aes.Create())
+    {
+        aesAlg.Key = aesKey;
+        aesAlg.IV = IV; // Sabit IV değeri
+
+        var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+
+        using (var msEncrypt = new MemoryStream())
+        using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+        using (var swEncrypt = new StreamWriter(csEncrypt))
+        {
+            swEncrypt.Write(plainText);
+            return Convert.ToBase64String(msEncrypt.ToArray());
+        }
+    }
+}
+```
+
+#### 2.3. RSA-3072 ile AES Anahtarı Şifreleme
+
+AES anahtarı, RSA-3072 public key ile şifrelenir. RSA anahtar çifti, sistem kimliğine (SystemIdentity) bağlı olarak deterministik bir şekilde üretilir:
+
+```csharp
+public static string Encrypt(string plainText)
+{
+    EnsureKeyPair();
+
+    var encryptEngine = new Org.BouncyCastle.Crypto.Engines.RsaEngine();
+    encryptEngine.Init(true, _keyPair.Public);
+
+    var bytesToEncrypt = Encoding.UTF8.GetBytes(plainText);
+    var encrypted = encryptEngine.ProcessBlock(bytesToEncrypt, 0, bytesToEncrypt.Length);
+
+    return Convert.ToBase64String(encrypted);
+}
+```
+
+### 3. Steganaliz Özellikleri
+
+Sistem, steganografi ile gizlenmiş verileri tespit etmek için çeşitli steganaliz metotları içerir:
+
+#### 3.1. RS (Regular-Singular) Analizi
+
+RS Analizi, görüntüdeki pikselleri düzenli (regular) ve tekil (singular) gruplara ayırarak, LSB düzleminde yapılan değişiklikleri tespit eder. Gizli veri içeren görüntülerde, bu grupların dağılımı belli bir şekilde bozulur.
+
+```csharp
+public static RsAnalysisResult PerformRegularSingularAnalysis(Bitmap image, ColorChannel channel, int groupSize)
+{
+    // Görüntüyü gruplara ayır
+    // Düzenli ve tekil grupları tespit et
+    // Orjinal ve fliplenen LSB değerleri için dağılımları hesapla
+    // Tahmini gömme oranını hesapla
+    // ...
+}
+```
+
+#### 3.2. SPA (Sample Pair Analysis)
+
+SPA, piksel çiftleri arasındaki istatistiksel ilişkileri kullanarak LSB steganografiyi tespit eder. Doğal görüntülerde piksel çiftleri arasında belli istatistiksel özellikler vardır ve LSB steganografi bu özellikleri bozar.
+
+```csharp
+public static SpaAnalysisResult PerformSpaAnalysis(Bitmap image, ColorChannel channel)
+{
+    // Piksel çiftlerini belirle
+    // İstatistiksel özellikleri hesapla
+    // Gömme oranını tahmin et
+    // ...
+}
+```
+
+#### 3.3. Değişim Haritası (Change Map)
+
+Orijinal görüntü ve stego görüntü karşılaştırılarak, değişen piksellerin görsel bir haritası oluşturulur. Bu harita, değişikliklerin yoğunluğunu ve desenini gösterir.
+
+```csharp
+public static Bitmap GenerateChangeMap(Bitmap originalImage, Bitmap stegoImage, ColorChannel channel)
+{
+    // İki görüntü arasındaki farklılıkları tespit et
+    // Farklılıkları görselleştiren bir bitmap oluştur
+    // ...
+}
+```
+
+#### 3.4. Bit Düzlemi Analizi
+
+Her renk kanalının (R, G, B) bit düzlemleri ayrı ayrı görselleştirilir. Bu sayede insan gözüne görünmeyen anomaliler tespit edilebilir.
+
+```csharp
+public static Bitmap[] GenerateBitPlanes(Bitmap image, ColorChannel channel)
+{
+    // Her bit düzlemi için ayrı görüntü oluştur
+    // Bit düzlemini görselleştir
+    // ...
+}
+```
+
+### 4. Şifreleme ve Deşifreleme İş Akışı
+
+#### 4.1. Şifreleme İş Akışı
+
+1. Kullanıcı, şifrelenecek metni ve şifreyi girer
+2. Sistemin RSA anahtar çifti, makine kimliğine göre oluşturulur
+3. SHA-256 ile şifreden AES-256 anahtarı türetilir
+4. Metin, AES-256 ile şifrelenir
+5. AES anahtarı, RSA public key ile şifrelenir
+6. AES şifreli metin ve RSA şifreli anahtar birleştirilerek hazırlanır
+7. Birleştirilmiş veri, LSB tekniği ile görüntüye gizlenir
+8. Şifreli görüntü kaydedilir
+
+#### 4.2. Deşifreleme İş Akışı
+
+1. Kullanıcı, şifreli görüntüyü ve şifreyi girer
+2. LSB tekniği ile görüntüden gizli veri çıkarılır
+3. Çıkarılan veri, AES şifreli metin ve RSA şifreli anahtar olarak ayrıştırılır
+4. SHA-256 ile şifreden AES-256 anahtarı türetilir
+5. RSA private key kullanılarak RSA şifreli anahtar çözülür
+6. Çözülen AES anahtarı ile AES şifreli metin çözülür
+7. Orijinal metin kullanıcıya gösterilir
+
+### 5. Güvenlik Mekanizmaları
+
+#### 5.1. Güvenli Anahtar Yönetimi
+
+- **Deterministik RSA Anahtar Üretimi**: RSA anahtar çifti, sistem kimliğinden türetilir, böylece aynı makinede her zaman aynı anahtar çifti üretilir.
+- **Anahtar Saklama**: Anahtarlar hafızada tutulur, disk üzerinde saklanmaz.
+- **Perfect Forward Secrecy**: Her mesaj için farklı bir AES anahtarı kullanılabilir.
+
+#### 5.2. Saldırı Senaryolarına Karşı Dayanıklılık
+
+- **Kaba Kuvvet Saldırıları**: AES-256 ve RSA-3072 kullanımı ile 2^256 ve 2^3072 olası anahtar kombinasyonu.
+- **İstatistiksel Steganaliz**: Optimizasyon teknikleri ile tespit edilme olasılığını minimize etme.
+- **Görüntü Manipülasyon Saldırıları**: İmza mekanizması ile manipüle edilmiş görüntüleri tespit etme.
+
+#### 5.3. Sınırlamalar ve Zayıf Noktalar
+
+- **Sıkıştırma Saldırıları**: LSB steganografi sıkıştırma (örn. JPEG) işlemleri sırasında kaybolabilir.
+- **Maksimum Veri Boyutu**: Görüntü boyutuna bağlı olarak sınırlı veri gizleme kapasitesi.
+- **Meta-veri Analizi**: Görüntü meta verileri manipülasyonu gösterebilir.
+
+### 6. Performans Optimizasyonları
+
+- **Doğrudan Bellek Erişimi**: LockBits() kullanımı ile hızlı piksel erişimi.
+- **Paralel İşleme**: Analiz işlemleri için Task-based paralel işleme.
+- **Bellek Yönetimi**: Büyük veri işleme için optimize edilmiş bellek kullanımı.
+
+### 7. Kullanılan Teknolojiler ve Kütüphaneler
+
+- **.NET Framework**: Ana geliştirme platformu
+- **BouncyCastle**: RSA şifreleme için kriptografi kütüphanesi
+- **Guna.UI2**: Modern kullanıcı arayüzü bileşenleri
+- **System.Drawing**: Görüntü işleme
+- **Newtonsoft.Json**: JSON işleme
 
 ## Kurulum ve Kullanım
 
-1. Uygulamayı çalıştırdıktan sonra ana menü (FrmMenu) üzerinden resim seçme işlemi yapılır
-2. Şifrelenecek metin ve parola girişi yapılır
-3. "Şifrele" butonuna basılarak metin şifrelenir ve seçilen görsele gizlenir
-4. Şifre çözmek için, veri gizlenmiş görsel seçilir ve doğru parola girilerek "Şifre Çöz" butonuna basılır
-5. Çözülen metin ekranda görüntülenir
+### Sistem Gereksinimleri
 
-## LSB Steganografi Tekniği
+- Windows 7 veya üzeri
+- .NET Framework 4.7.2 veya üzeri
+- 2 GB RAM (minimum)
+- 100 MB disk alanı
 
-LSB (Least Significant Bit - En Önemsiz Bit) steganografi tekniği, dijital görsellerdeki her pikselin renk bileşenlerinin (Kırmızı, Yeşil, Mavi) en düşük değerli bitlerini değiştirerek verileri gizlemeye dayanır. Bu teknik, görselde insan gözüyle fark edilemeyecek minimal değişiklikler yaparak büyük miktarda veri gizlenmesine olanak tanır.
+### Kurulum Adımları
 
-Projemizde kullanılan LSB steganografi algoritması şu özelliklere sahiptir:
-- Her pikselin R, G, B değerlerinin her birinin en düşük değerli biti değiştirilerek veri gizlenir
-- Veri sonu için özel bir işaretçi (endMarker) kullanılır
-- Görsel tanımlama için ilk 20 piksele "ZORLU" imzası yerleştirilir
-- Veri çıkarma işlemi, önce imza kontrolü yaparak devam eder
+1. Projeyi derleyin veya yayınlanmış setup dosyasını çalıştırın
+2. Uygulamayı başlatın
+3. (İlk çalıştırmada) Sistem otomatik olarak gerekli yapılandırma dosyalarını oluşturacaktır
 
-## BouncyCastle ile RSA Şifreleme
+### Temel Kullanım
 
-Projede kullanılan RSA şifreleme, açık kaynaklı BouncyCastle kriptografi kütüphanesi ile gerçekleştirilmektedir. Bu kütüphane ile:
-- Deterministik RSA anahtar çiftleri oluşturulur (aynı giriş her zaman aynı anahtarı üretir)
-- 3072-bit uzunluğunda güçlü RSA anahtarları kullanılır
-- PEM formatında anahtar dışa aktarımı desteklenir
-- Yüksek güvenlikli şifreleme işlemleri gerçekleştirilir
+#### Veri Şifreleme ve Görüntüye Gizleme
 
-## Geliştirici Notları
+1. Ana menüden "Resim Seç" butonuna tıklayın ve bir görüntü dosyası seçin
+2. Şifrelenecek metni metin kutusuna yazın
+3. Şifre belirleyin
+4. "Şifrele" butonuna tıklayın
+5. Şifreli görüntüyü kaydedin
 
-- Sistemde geliştirici modu, gelişmiş analizler ve kimlik yönetimi için kullanılabilir
-- Kimlik değişiklikleri RSA anahtar çiftlerini değiştirir, bu nedenle dikkatli kullanılmalıdır
-- Yeni özellikler eklenirken mevcut kod yapısı ve mimari prensiplerine uyulması önerilir
+#### Şifreli Görüntüden Veri Çıkarma
 
-## Proje Ekibi
+1. Ana menüden "Resim Seç" butonuna tıklayın ve şifreli görüntüyü seçin
+2. Şifreyi girin
+3. "Şifre Çöz" butonuna tıklayın
+4. Çözülen metin görüntülenecektir
 
-Bu proje, TÜBİTA'a sunmak üzere geliştirilmiştir. Proje ekibi, İzmir Kanuni Sultan Süleyman Anadolu Lisesi 12/A öğrencilerinden oluşmaktadır.
+#### Steganaliz İşlemleri
+
+1. "Analiz" butonuna tıklayın
+2. Analiz edilecek görüntüyü seçin
+3. İsterseniz karşılaştırma için orijinal görüntüyü de seçin
+4. Analiz parametrelerini belirleyin
+5. "Analiz Başlat" butonuna tıklayın
+6. Analiz sonuçları görüntülenecektir
+
+### Geliştirici Modu
+
+Gelişmiş ayarlara erişmek için geliştirici modunu etkinleştirin:
+
+1. Login butonuna tıklayın
+2. Geliştirici şifresini girin
+3. Geliştirici modu etkinleştikten sonra ek araçlara ve ayarlara erişim sağlanır
+
+## Gelecek Planları
+
+- Video dosyaları için steganografi desteği
+- Derin öğrenme tabanlı steganografi modülleri
+- Mobil platformlar için uygulama
+- Quantum bilgi işlem saldırılarına karşı dayanıklılık
 
 ## Lisans
 
-Bu proje, TÜBİTAK projesi kapsamında geliştirilmiştir. Tüm hakları saklıdır.
+Bu projenin lisans bilgileri için LICENSE dosyasına bakınız.
 
----
+## İletişim
 
-**Not**: Bu README dosyası, projenin genel yapısı ve temel özellikleri hakkında bilgi vermek amacıyla hazırlanmıştır. Daha detaylı teknik dokümantasyon için ilgili sınıf dosyalarına ve yorum satırlarına bakınız.
+Proje ile ilgili sorularınız için [iletişim-bilgileri] adresinden iletişime geçebilirsiniz. 

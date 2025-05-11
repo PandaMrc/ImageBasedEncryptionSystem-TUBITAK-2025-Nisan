@@ -45,16 +45,18 @@
             this.pboxImage = new Guna.UI2.WinForms.Guna2PictureBox();
             this.lblImageText = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.guna2Panel2 = new Guna.UI2.WinForms.Guna2Panel();
+            this.rtbInput = new System.Windows.Forms.RichTextBox();
+            this.btnDev = new Guna.UI2.WinForms.Guna2Button();
             this.btnDecrypt = new Guna.UI2.WinForms.Guna2Button();
             this.btnEncrypt = new Guna.UI2.WinForms.Guna2Button();
+            this.progressOperation = new Guna.UI2.WinForms.Guna2ProgressBar();
+            this.lblOperation = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.txtOutput = new Guna.UI2.WinForms.Guna2TextBox();
             this.lblOutputText = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.txtPassword = new Guna.UI2.WinForms.Guna2TextBox();
             this.lblPaswordText = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.txtInput = new Guna.UI2.WinForms.Guna2TextBox();
             this.lblInputText = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.progressBar1 = new Guna.UI2.WinForms.Guna2ProgressBar();
-            this.lblProgress = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.loginToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.pnlTitleBar.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbLogin)).BeginInit();
@@ -88,7 +90,7 @@
             this.pnlTitleBar.Location = new System.Drawing.Point(0, 0);
             this.pnlTitleBar.Margin = new System.Windows.Forms.Padding(2);
             this.pnlTitleBar.Name = "pnlTitleBar";
-            this.pnlTitleBar.Size = new System.Drawing.Size(750, 32);
+            this.pnlTitleBar.Size = new System.Drawing.Size(1024, 40);
             this.pnlTitleBar.TabIndex = 5;
             // 
             // btnDevMode
@@ -102,10 +104,10 @@
             this.btnDevMode.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
             this.btnDevMode.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnDevMode.ForeColor = System.Drawing.Color.White;
-            this.btnDevMode.Location = new System.Drawing.Point(238, 4);
+            this.btnDevMode.Location = new System.Drawing.Point(328, 6);
             this.btnDevMode.Margin = new System.Windows.Forms.Padding(2);
             this.btnDevMode.Name = "btnDevMode";
-            this.btnDevMode.Size = new System.Drawing.Size(275, 25);
+            this.btnDevMode.Size = new System.Drawing.Size(360, 28);
             this.btnDevMode.TabIndex = 7;
             this.btnDevMode.Text = "Geliştirici Modu";
             this.btnDevMode.Visible = false;
@@ -121,7 +123,7 @@
             this.btnAdmin.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
             this.btnAdmin.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnAdmin.ForeColor = System.Drawing.Color.White;
-            this.btnAdmin.Location = new System.Drawing.Point(581, 4);
+            this.btnAdmin.Location = new System.Drawing.Point(790, 6);
             this.btnAdmin.Margin = new System.Windows.Forms.Padding(2);
             this.btnAdmin.Name = "btnAdmin";
             this.btnAdmin.Size = new System.Drawing.Size(65, 25);
@@ -134,10 +136,10 @@
             this.pbLogin.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pbLogin.Image = ((System.Drawing.Image)(resources.GetObject("pbLogin.Image")));
             this.pbLogin.ImageRotate = 0F;
-            this.pbLogin.Location = new System.Drawing.Point(10, -2);
+            this.pbLogin.Location = new System.Drawing.Point(10, 0);
             this.pbLogin.Name = "pbLogin";
             this.pbLogin.ShadowDecoration.Mode = Guna.UI2.WinForms.Enums.ShadowMode.Circle;
-            this.pbLogin.Size = new System.Drawing.Size(40, 40);
+            this.pbLogin.Size = new System.Drawing.Size(45, 45);
             this.pbLogin.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbLogin.TabIndex = 2;
             this.pbLogin.TabStop = false;
@@ -153,7 +155,7 @@
             this.guna2ControlBox2.ControlBoxType = Guna.UI2.WinForms.Enums.ControlBoxType.MinimizeBox;
             this.guna2ControlBox2.FillColor = System.Drawing.Color.Transparent;
             this.guna2ControlBox2.IconColor = System.Drawing.Color.White;
-            this.guna2ControlBox2.Location = new System.Drawing.Point(675, 5);
+            this.guna2ControlBox2.Location = new System.Drawing.Point(945, 6);
             this.guna2ControlBox2.Margin = new System.Windows.Forms.Padding(2);
             this.guna2ControlBox2.Name = "guna2ControlBox2";
             this.guna2ControlBox2.Size = new System.Drawing.Size(34, 24);
@@ -164,7 +166,7 @@
             this.guna2ControlBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.guna2ControlBox1.FillColor = System.Drawing.Color.Transparent;
             this.guna2ControlBox1.IconColor = System.Drawing.Color.White;
-            this.guna2ControlBox1.Location = new System.Drawing.Point(714, 5);
+            this.guna2ControlBox1.Location = new System.Drawing.Point(984, 6);
             this.guna2ControlBox1.Margin = new System.Windows.Forms.Padding(2);
             this.guna2ControlBox1.Name = "guna2ControlBox1";
             this.guna2ControlBox1.Size = new System.Drawing.Size(34, 24);
@@ -179,7 +181,7 @@
             this.btnHelp.FillColor = System.Drawing.Color.Transparent;
             this.btnHelp.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
             this.btnHelp.ForeColor = System.Drawing.Color.White;
-            this.btnHelp.Location = new System.Drawing.Point(650, 3);
+            this.btnHelp.Location = new System.Drawing.Point(910, 4);
             this.btnHelp.Margin = new System.Windows.Forms.Padding(2);
             this.btnHelp.Name = "btnHelp";
             this.btnHelp.Size = new System.Drawing.Size(34, 24);
@@ -195,10 +197,10 @@
             this.guna2Panel1.Controls.Add(this.pboxImage);
             this.guna2Panel1.Controls.Add(this.lblImageText);
             this.guna2Panel1.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.guna2Panel1.Location = new System.Drawing.Point(25, 49);
+            this.guna2Panel1.Location = new System.Drawing.Point(30, 60);
             this.guna2Panel1.Margin = new System.Windows.Forms.Padding(2);
             this.guna2Panel1.Name = "guna2Panel1";
-            this.guna2Panel1.Size = new System.Drawing.Size(262, 390);
+            this.guna2Panel1.Size = new System.Drawing.Size(350, 540);
             this.guna2Panel1.TabIndex = 2;
             // 
             // btnAnalysis
@@ -212,10 +214,10 @@
             this.btnAnalysis.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
             this.btnAnalysis.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnAnalysis.ForeColor = System.Drawing.Color.White;
-            this.btnAnalysis.Location = new System.Drawing.Point(56, 342);
+            this.btnAnalysis.Location = new System.Drawing.Point(100, 480);
             this.btnAnalysis.Margin = new System.Windows.Forms.Padding(2);
             this.btnAnalysis.Name = "btnAnalysis";
-            this.btnAnalysis.Size = new System.Drawing.Size(135, 37);
+            this.btnAnalysis.Size = new System.Drawing.Size(150, 40);
             this.btnAnalysis.TabIndex = 3;
             this.btnAnalysis.Text = "Analiz Et";
             this.btnAnalysis.Visible = false;
@@ -232,10 +234,10 @@
             this.btnImage.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
             this.btnImage.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnImage.ForeColor = System.Drawing.Color.White;
-            this.btnImage.Location = new System.Drawing.Point(56, 301);
+            this.btnImage.Location = new System.Drawing.Point(100, 430);
             this.btnImage.Margin = new System.Windows.Forms.Padding(2);
             this.btnImage.Name = "btnImage";
-            this.btnImage.Size = new System.Drawing.Size(135, 37);
+            this.btnImage.Size = new System.Drawing.Size(150, 40);
             this.btnImage.TabIndex = 2;
             this.btnImage.Text = "Resim Seç";
             this.btnImage.Click += new System.EventHandler(this.btnImage_Click);
@@ -246,10 +248,10 @@
             this.pboxImage.BorderRadius = 10;
             this.pboxImage.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
             this.pboxImage.ImageRotate = 0F;
-            this.pboxImage.Location = new System.Drawing.Point(20, 38);
+            this.pboxImage.Location = new System.Drawing.Point(25, 50);
             this.pboxImage.Margin = new System.Windows.Forms.Padding(2);
             this.pboxImage.Name = "pboxImage";
-            this.pboxImage.Size = new System.Drawing.Size(225, 244);
+            this.pboxImage.Size = new System.Drawing.Size(300, 350);
             this.pboxImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pboxImage.TabIndex = 1;
             this.pboxImage.TabStop = false;
@@ -259,7 +261,7 @@
             this.lblImageText.BackColor = System.Drawing.Color.Transparent;
             this.lblImageText.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
             this.lblImageText.ForeColor = System.Drawing.Color.White;
-            this.lblImageText.Location = new System.Drawing.Point(81, 13);
+            this.lblImageText.Location = new System.Drawing.Point(120, 20);
             this.lblImageText.Margin = new System.Windows.Forms.Padding(2);
             this.lblImageText.Name = "lblImageText";
             this.lblImageText.Size = new System.Drawing.Size(98, 21);
@@ -269,22 +271,52 @@
             // guna2Panel2
             // 
             this.guna2Panel2.BorderRadius = 15;
+            this.guna2Panel2.Controls.Add(this.rtbInput);
+            this.guna2Panel2.Controls.Add(this.btnDev);
             this.guna2Panel2.Controls.Add(this.btnDecrypt);
             this.guna2Panel2.Controls.Add(this.btnEncrypt);
+            this.guna2Panel2.Controls.Add(this.progressOperation);
+            this.guna2Panel2.Controls.Add(this.lblOperation);
             this.guna2Panel2.Controls.Add(this.txtOutput);
             this.guna2Panel2.Controls.Add(this.lblOutputText);
             this.guna2Panel2.Controls.Add(this.txtPassword);
             this.guna2Panel2.Controls.Add(this.lblPaswordText);
             this.guna2Panel2.Controls.Add(this.txtInput);
             this.guna2Panel2.Controls.Add(this.lblInputText);
-            this.guna2Panel2.Controls.Add(this.progressBar1);
-            this.guna2Panel2.Controls.Add(this.lblProgress);
             this.guna2Panel2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(30)))));
-            this.guna2Panel2.Location = new System.Drawing.Point(300, 49);
+            this.guna2Panel2.Location = new System.Drawing.Point(400, 60);
             this.guna2Panel2.Margin = new System.Windows.Forms.Padding(2);
             this.guna2Panel2.Name = "guna2Panel2";
-            this.guna2Panel2.Size = new System.Drawing.Size(428, 390);
+            this.guna2Panel2.Size = new System.Drawing.Size(590, 540);
             this.guna2Panel2.TabIndex = 3;
+            // 
+            // rtbInput
+            // 
+            this.rtbInput.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(40)))));
+            this.rtbInput.ForeColor = System.Drawing.Color.White;
+            this.rtbInput.Location = new System.Drawing.Point(20, 41);
+            this.rtbInput.Name = "rtbInput";
+            this.rtbInput.Size = new System.Drawing.Size(550, 130);
+            this.rtbInput.TabIndex = 9;
+            this.rtbInput.Text = "";
+            // 
+            // btnDev
+            // 
+            this.btnDev.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDev.BackColor = System.Drawing.Color.Transparent;
+            this.btnDev.BorderRadius = 8;
+            this.btnDev.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnDev.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.btnDev.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnDev.ForeColor = System.Drawing.Color.White;
+            this.btnDev.Location = new System.Drawing.Point(550, 4);
+            this.btnDev.Margin = new System.Windows.Forms.Padding(2);
+            this.btnDev.Name = "btnDev";
+            this.btnDev.Size = new System.Drawing.Size(30, 30);
+            this.btnDev.TabIndex = 8;
+            this.btnDev.Text = "-";
+            this.btnDev.Visible = false;
+            this.btnDev.Click += new System.EventHandler(this.btnDev_Click);
             // 
             // btnDecrypt
             // 
@@ -297,10 +329,10 @@
             this.btnDecrypt.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
             this.btnDecrypt.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnDecrypt.ForeColor = System.Drawing.Color.White;
-            this.btnDecrypt.Location = new System.Drawing.Point(226, 339);
+            this.btnDecrypt.Location = new System.Drawing.Point(300, 480);
             this.btnDecrypt.Margin = new System.Windows.Forms.Padding(2);
             this.btnDecrypt.Name = "btnDecrypt";
-            this.btnDecrypt.Size = new System.Drawing.Size(180, 40);
+            this.btnDecrypt.Size = new System.Drawing.Size(270, 45);
             this.btnDecrypt.TabIndex = 7;
             this.btnDecrypt.Text = "Şifre Çöz";
             this.btnDecrypt.Click += new System.EventHandler(this.btnDecrypt_Click);
@@ -316,13 +348,38 @@
             this.btnEncrypt.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
             this.btnEncrypt.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnEncrypt.ForeColor = System.Drawing.Color.White;
-            this.btnEncrypt.Location = new System.Drawing.Point(16, 339);
+            this.btnEncrypt.Location = new System.Drawing.Point(20, 480);
             this.btnEncrypt.Margin = new System.Windows.Forms.Padding(2);
             this.btnEncrypt.Name = "btnEncrypt";
-            this.btnEncrypt.Size = new System.Drawing.Size(180, 40);
+            this.btnEncrypt.Size = new System.Drawing.Size(270, 45);
             this.btnEncrypt.TabIndex = 6;
             this.btnEncrypt.Text = "Şifrele";
             this.btnEncrypt.Click += new System.EventHandler(this.btnEncrypt_Click);
+            // 
+            // progressOperation
+            // 
+            this.progressOperation.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(213)))), ((int)(((byte)(218)))), ((int)(((byte)(223)))));
+            this.progressOperation.BorderRadius = 5;
+            this.progressOperation.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(70)))), ((int)(((byte)(70)))), ((int)(((byte)(70)))));
+            this.progressOperation.Location = new System.Drawing.Point(20, 460);
+            this.progressOperation.Name = "progressOperation";
+            this.progressOperation.ProgressColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.progressOperation.ProgressColor2 = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(122)))), ((int)(((byte)(204)))));
+            this.progressOperation.Size = new System.Drawing.Size(550, 10);
+            this.progressOperation.TabIndex = 10;
+            this.progressOperation.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
+            // 
+            // lblOperation
+            // 
+            this.lblOperation.BackColor = System.Drawing.Color.Transparent;
+            this.lblOperation.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.lblOperation.ForeColor = System.Drawing.Color.White;
+            this.lblOperation.Location = new System.Drawing.Point(20, 438);
+            this.lblOperation.Margin = new System.Windows.Forms.Padding(2);
+            this.lblOperation.Name = "lblOperation";
+            this.lblOperation.Size = new System.Drawing.Size(117, 17);
+            this.lblOperation.TabIndex = 11;
+            this.lblOperation.Text = "İşlem Durumu: Hazır";
             // 
             // txtOutput
             // 
@@ -339,22 +396,23 @@
             this.txtOutput.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.txtOutput.ForeColor = System.Drawing.Color.White;
             this.txtOutput.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.txtOutput.Location = new System.Drawing.Point(16, 229);
+            this.txtOutput.Location = new System.Drawing.Point(20, 303);
             this.txtOutput.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.txtOutput.Multiline = true;
             this.txtOutput.Name = "txtOutput";
             this.txtOutput.PlaceholderText = "";
             this.txtOutput.ReadOnly = true;
             this.txtOutput.SelectedText = "";
-            this.txtOutput.Size = new System.Drawing.Size(390, 98);
+            this.txtOutput.Size = new System.Drawing.Size(550, 130);
             this.txtOutput.TabIndex = 5;
+            this.txtOutput.TextChanged += new System.EventHandler(this.txtOutput_TextChanged);
             // 
             // lblOutputText
             // 
             this.lblOutputText.BackColor = System.Drawing.Color.Transparent;
             this.lblOutputText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
             this.lblOutputText.ForeColor = System.Drawing.Color.White;
-            this.lblOutputText.Location = new System.Drawing.Point(16, 206);
+            this.lblOutputText.Location = new System.Drawing.Point(20, 281);
             this.lblOutputText.Margin = new System.Windows.Forms.Padding(2);
             this.lblOutputText.Name = "lblOutputText";
             this.lblOutputText.Size = new System.Drawing.Size(86, 17);
@@ -376,14 +434,14 @@
             this.txtPassword.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.txtPassword.ForeColor = System.Drawing.Color.White;
             this.txtPassword.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.txtPassword.Location = new System.Drawing.Point(16, 165);
+            this.txtPassword.Location = new System.Drawing.Point(20, 221);
             this.txtPassword.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.PasswordChar = '●';
             this.txtPassword.PlaceholderForeColor = System.Drawing.Color.DarkGray;
             this.txtPassword.PlaceholderText = "Parola giriniz...";
             this.txtPassword.SelectedText = "";
-            this.txtPassword.Size = new System.Drawing.Size(390, 34);
+            this.txtPassword.Size = new System.Drawing.Size(550, 40);
             this.txtPassword.TabIndex = 3;
             this.txtPassword.UseSystemPasswordChar = true;
             // 
@@ -392,7 +450,7 @@
             this.lblPaswordText.BackColor = System.Drawing.Color.Transparent;
             this.lblPaswordText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
             this.lblPaswordText.ForeColor = System.Drawing.Color.White;
-            this.lblPaswordText.Location = new System.Drawing.Point(16, 141);
+            this.lblPaswordText.Location = new System.Drawing.Point(20, 191);
             this.lblPaswordText.Margin = new System.Windows.Forms.Padding(2);
             this.lblPaswordText.Name = "lblPaswordText";
             this.lblPaswordText.Size = new System.Drawing.Size(40, 17);
@@ -414,14 +472,14 @@
             this.txtInput.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.txtInput.ForeColor = System.Drawing.Color.White;
             this.txtInput.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.txtInput.Location = new System.Drawing.Point(16, 36);
+            this.txtInput.Location = new System.Drawing.Point(20, 41);
             this.txtInput.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.txtInput.Multiline = true;
             this.txtInput.Name = "txtInput";
             this.txtInput.PlaceholderForeColor = System.Drawing.Color.DarkGray;
             this.txtInput.PlaceholderText = "Şifrelenecek metni giriniz...";
             this.txtInput.SelectedText = "";
-            this.txtInput.Size = new System.Drawing.Size(390, 98);
+            this.txtInput.Size = new System.Drawing.Size(550, 130);
             this.txtInput.TabIndex = 1;
             // 
             // lblInputText
@@ -429,33 +487,12 @@
             this.lblInputText.BackColor = System.Drawing.Color.Transparent;
             this.lblInputText.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
             this.lblInputText.ForeColor = System.Drawing.Color.White;
-            this.lblInputText.Location = new System.Drawing.Point(16, 13);
+            this.lblInputText.Location = new System.Drawing.Point(20, 11);
             this.lblInputText.Margin = new System.Windows.Forms.Padding(2);
             this.lblInputText.Name = "lblInputText";
             this.lblInputText.Size = new System.Drawing.Size(113, 17);
             this.lblInputText.TabIndex = 0;
             this.lblInputText.Text = "Şifrelenecek Metin:";
-            // 
-            // progressBar1
-            // 
-            this.progressBar1.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(204)))), ((int)(((byte)(204)))), ((int)(((byte)(204)))));
-            this.progressBar1.Location = new System.Drawing.Point(16, 229);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(390, 23);
-            this.progressBar1.TabIndex = 6;
-            this.progressBar1.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
-            // 
-            // lblProgress
-            // 
-            this.lblProgress.BackColor = System.Drawing.Color.Transparent;
-            this.lblProgress.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
-            this.lblProgress.ForeColor = System.Drawing.Color.White;
-            this.lblProgress.Location = new System.Drawing.Point(16, 206);
-            this.lblProgress.Margin = new System.Windows.Forms.Padding(2);
-            this.lblProgress.Name = "lblProgress";
-            this.lblProgress.Size = new System.Drawing.Size(73, 17);
-            this.lblProgress.TabIndex = 5;
-            this.lblProgress.Text = "İlerleme: 0%";
             // 
             // FrmMenu
             // 
@@ -463,7 +500,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(20)))), ((int)(((byte)(20)))));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(750, 488);
+            this.ClientSize = new System.Drawing.Size(1024, 620);
             this.Controls.Add(this.pnlTitleBar);
             this.Controls.Add(this.guna2Panel2);
             this.Controls.Add(this.guna2Panel1);
@@ -511,7 +548,9 @@
         private Guna.UI2.WinForms.Guna2HtmlLabel lblPaswordText;
         private Guna.UI2.WinForms.Guna2TextBox txtPassword;
         private System.Windows.Forms.ToolTip loginToolTip;
-        private Guna.UI2.WinForms.Guna2ProgressBar progressBar1;
-        private Guna.UI2.WinForms.Guna2HtmlLabel lblProgress;
+        private Guna.UI2.WinForms.Guna2Button btnDev;
+        private System.Windows.Forms.RichTextBox rtbInput;
+        private Guna.UI2.WinForms.Guna2ProgressBar progressOperation;
+        private Guna.UI2.WinForms.Guna2HtmlLabel lblOperation;
     }
 }
